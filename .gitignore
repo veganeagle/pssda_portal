@@ -1,0 +1,18 @@
+# System files
+.DS_Store
+
+# Data snapshots — copied from pssda_pipeline's output, not owned/versioned
+# here (one file exceeds GitHub's 100MB limit anyway). See README.md
+# "Where the data comes from" for how to (re)populate this on a fresh clone.
+data/processed/**/*.parquet
+data/processed/dropdowns/*.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.env/
+.venv/

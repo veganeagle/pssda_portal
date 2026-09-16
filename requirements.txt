@@ -1,0 +1,4 @@
+flask
+duckdb
+pandas
+pyarrow

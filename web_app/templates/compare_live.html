@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PSSDA Insight Studio</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="container mt-3">
+  <h1>PSSDA Insight Studio</h1>
+  <h2>Comparative Dashboard (Ontario Public Sector {{ years[0] }}–{{ years[-1] }})</h2>
+
+  <form method="post" action="{{ url_for('ui.compare_live') }}">
+    <!-- GLOBAL FILTERS -->
+    <fieldset class="mb-3">
+      <legend>Global Filters (apply to both panels)</legend>
+      <div class="row g-2 align-items-end">
+        <div class="col-md-2">
+          <label>Sector</label>
+          <select id="sectorSelect" name="Sector" class="form-select">
+            <option value="">All</option>
+            {% for s in dropdowns.sectors %}
+              <option value="{{ s['SectorID'] }}" {% if request.form.get('Sector') == s['SectorID'] %}selected{% endif %}>
+                {{ s['SectorName'] }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label>Employer</label>
+          <select id="employerSelect" name="Employer" class="form-select">
+            <option value="">All</option>
+            {% for e in dropdowns.employers %}
+              <option value="{{ e['EmployerID'] }}" {% if request.form.get('Employer') == e['EmployerID'] %}selected{% endif %}>
+                {{ e['EmployerName'] }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label>Region</label>
+          <select id="regionSelect" name="Region" class="form-select">
+            <option value="">All</option>
+            {% for r in dropdowns.regions %}
+              <option value="{{ r }}" {% if request.form.get('Region') == r %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label>Job Title</label>
+          <select id="titleSelect" name="TitleNorm" class="form-select">
+            <option value="">All</option>
+            {% for t in dropdowns.titles %}
+              <option value="{{ t }}" {% if request.form.get('TitleNorm') == t %}selected{% endif %}>
+                {{ t }}
+              </option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">or type below</small>
+          <input name="JobTitle" class="form-control mt-1" placeholder="contains text...">
+        </div>
+
+        <div class="col-md-2 text-end">
+          <button type="submit" class="btn btn-primary px-4">Run Comparison</button>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- COMPARISON FILTERS -->
+    <fieldset class="mb-3">
+      <legend>Comparison Settings</legend>
+      <div class="row g-2 align-items-end">
+        <div class="col-md-2">
+          <label>Sector</label>
+          <select id="compSectorSelect" name="CompSector" class="form-select">
+            <option value="">All</option>
+            {% for s in dropdowns.sectors %}
+              <option value="{{ s['SectorID'] }}" {% if request.form.get('CompSector') == s['SectorID'] %}selected{% endif %}>
+                {{ s['SectorName'] }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label>Employer</label>
+          <select id="compEmployerSelect" name="CompEmployer" class="form-select">
+            <option value="">All</option>
+            {% for e in dropdowns.employers %}
+              <option value="{{ e['EmployerID'] }}" {% if request.form.get('CompEmployer') == e['EmployerID'] %}selected{% endif %}>
+                {{ e['EmployerName'] }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label>Region</label>
+          <select id="compRegionSelect" name="CompRegion" class="form-select">
+            <option value="">All</option>
+            {% for r in dropdowns.regions %}
+              <option value="{{ r }}" {% if request.form.get('CompRegion') == r %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label>Job Title</label>
+          <select id="compTitleSelect" name="CompTitleNorm" class="form-select">
+            <option value="">All</option>
+            {% for t in dropdowns.titles %}
+              <option value="{{ t }}" {% if request.form.get('CompTitleNorm') == t %}selected{% endif %}>
+                {{ t }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2 text-end">
+          <button type="submit" class="btn btn-secondary px-4">Compare</button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+  {% if data %}
+  <table class="table table-bordered text-center align-middle small mt-4">
+    <thead class="table-light">
+      <tr>
+        <th>Metric</th>
+        {% for y in years %}<th>Baseline {{ y }}</th>{% endfor %}
+        <th></th>
+        {% for y in years %}<th>Compare {{ y }}</th>{% endfor %}
+        <th>Δ{{ years[-1] }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group, rows in grouped.items() %}
+        <tr class="table-secondary"><td colspan="9" class="fw-bold text-start">{{ group }}</td></tr>
+        {% for metric, vals in rows.items() %}
+          <tr>
+            <td><strong>{{ metric }}</strong></td>
+            {% for v in vals.baseline %}<td>{{ v|safe }}</td>{% endfor %}
+            <td class="bg-light"></td>
+            {% for v in vals.compare %}<td>{{ v|safe }}</td>{% endfor %}
+            <td class="{{ vals.delta_class }}">{{ vals.delta_display }}</td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const sectorSelect   = document.getElementById("sectorSelect");
+  const employerSelect = document.getElementById("employerSelect");
+  const titleSelect    = document.getElementById("titleSelect");
+
+  // --- reload employers when sector changes ---
+  sectorSelect.addEventListener("change", function() {
+    const sectorId = this.value;
+    employerSelect.innerHTML = '<option value="">Loading...</option>';
+
+    fetch(`/api/employers?sector_id=${encodeURIComponent(sectorId)}`)
+      .then(res => res.json())
+      .then(data => {
+        employerSelect.innerHTML = '<option value="">All</option>';
+        data.forEach(emp => {
+          const opt = document.createElement("option");
+          opt.value = emp.EmployerID;
+          opt.textContent = emp.EmployerName;
+          employerSelect.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        console.error("Failed to load employers", err);
+        employerSelect.innerHTML = '<option value="">Error loading</option>';
+      });
+  });
+
+  // --- reload titles when employer changes ---
+  employerSelect.addEventListener("change", function() {
+    const sectorId = sectorSelect.value;
+    const employerId = this.value;
+    titleSelect.innerHTML = '<option value="">Loading...</option>';
+    fetch(`/api/titles?sector_id=${encodeURIComponent(sectorId)}&employer=${encodeURIComponent(employerId)}`)
+      .then(res => res.json())
+      .then(data => {
+        titleSelect.innerHTML = '<option value="">All</option>';
+        data.forEach(t => {
+          const opt = document.createElement("option");
+          opt.value = t.JobTitleNorm;
+          opt.textContent = t.JobTitleNorm;
+          titleSelect.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        console.error("Failed to load titles", err);
+        titleSelect.innerHTML = '<option value="">Error loading</option>';
+      });
+  });
+
+  // --- mirror baseline filters into comparison filters ---
+  function linkFilters(baseId, compId) {
+    const base = document.getElementById(baseId);
+    const comp = document.getElementById(compId);
+    if (base && comp) {
+      base.addEventListener("change", () => { comp.value = base.value; });
+    }
+  }
+
+  ["sector", "employer", "region", "title"].forEach(name =>
+    linkFilters(`${name}Select`, `comp${name.charAt(0).toUpperCase() + name.slice(1)}Select`)
+  );
+});
+</script>
+</body>
+</html>
