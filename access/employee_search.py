@@ -1,4 +1,4 @@
-"""Search over profile_wide/profile_history: first/last/middle name (prefix match),
+"""Search over employee_wide/employee_history: first/last/middle name (prefix match),
 current sector (exact), employer/title (contains, matched against any year in
 history), year present. Returns lightweight summaries — call get_employee_profile()
 for the full record.
@@ -39,21 +39,21 @@ def search_employees(
 
     if employer_contains:
         conditions.append(
-            "EXISTS (SELECT 1 FROM profile_history h WHERE h.employee_id = w.employee_id "
+            "EXISTS (SELECT 1 FROM employee_history h WHERE h.employee_id = w.employee_id "
             "AND LOWER(h.employer_name) LIKE LOWER(?) ESCAPE '\\')"
         )
         params.append(f"%{_escape_like(employer_contains)}%")
 
     if title_contains:
         conditions.append(
-            "EXISTS (SELECT 1 FROM profile_history h WHERE h.employee_id = w.employee_id "
+            "EXISTS (SELECT 1 FROM employee_history h WHERE h.employee_id = w.employee_id "
             "AND (LOWER(h.job_title) LIKE LOWER(?) ESCAPE '\\' OR LOWER(h.title_norm) LIKE LOWER(?) ESCAPE '\\'))"
         )
         params.extend([f"%{_escape_like(title_contains)}%"] * 2)
 
     if year is not None:
         conditions.append(
-            "EXISTS (SELECT 1 FROM profile_history h WHERE h.employee_id = w.employee_id AND h.year = ?)"
+            "EXISTS (SELECT 1 FROM employee_history h WHERE h.employee_id = w.employee_id AND h.year = ?)"
         )
         params.append(year)
 
@@ -63,7 +63,7 @@ def search_employees(
     sql = f"""
         SELECT employee_id, first_name, last_name, middle,
                current_employer_name, current_job_title, first_seen_year, last_seen_year
-        FROM profile_wide w
+        FROM employee_wide w
         WHERE {" AND ".join(conditions)}
         ORDER BY last_name, first_name
         LIMIT ?

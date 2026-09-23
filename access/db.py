@@ -9,9 +9,15 @@ import duckdb
 PROFILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "profiles"))
 
 _PROFILE_TABLES = {
-    "profile_wide": "profile_wide.parquet",
-    "profile_history": "profile_history.parquet",
-    "profile_payband_standing": "profile_payband_standing.parquet",
+    "employee_wide": "employee_wide.parquet",
+    "employee_history": "employee_history.parquet",
+    "employee_payband_standing": "employee_payband_standing.parquet",
+    "employer_wide": "employer_wide.parquet",
+    "employer_history": "employer_history.parquet",
+    "employer_top_earners": "employer_top_earners.parquet",
+    "position_wide": "position_wide.parquet",
+    "position_history": "position_history.parquet",
+    "position_by_employer": "position_by_employer.parquet",
     "sectors": "sectors.parquet",
 }
 

@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>{% block title %}PSSDA Portal{% endblock %}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 <body>
-<header>PSSDA Portal</header>
+<header class="topbar"><span class="dot">&#9679;</span> PSSDA Portal</header>
 <main>{% block content %}{% endblock %}</main>
 </body>
 </html>

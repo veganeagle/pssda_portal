@@ -1,0 +1,74 @@
+{% set current_paybands = profile.paybands|selectattr('year', 'equalto', profile.current.year)|list %}
+{% set peer_group_sub = {'employer': 'all roles', 'employer_title': 'this role, this employer', 'sector_title': 'this role, sector-wide'} %}
+
+<div class="id-card">
+  <div>
+    <h1>{{ profile.first_name|proper }} {{ profile.last_name|proper }}{% if profile.middle %} {{ profile.middle|proper }}{% endif %}</h1>
+    <p class="role">
+      <b>{% if profile.current.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=profile.current.sector_id, title_norm=profile.current.title_norm) }}">{{ profile.current.job_title|proper }}</a>{% else %}{{ profile.current.job_title|proper }}{% endif %}</b>
+      &middot; <a href="{{ url_for('employer.profile_page', employer_id=profile.current.employer_id) }}">{{ profile.current.employer_name|proper }}</a>
+      &middot; FY{{ profile.current.year }}
+    </p>
+  </div>
+  <div class="tag-row">
+    <span class="tag" {% if profile.first_seen_year_left_censored %}title="Dataset begins here — true first appearance may be earlier"{% endif %}>First seen {{ profile.first_seen_year }}{% if profile.first_seen_year_left_censored %}*{% endif %}</span>
+    <span class="tag">{{ profile.years_disclosed }} yrs disclosed</span>
+    <span class="tag">{{ (profile.current.sector_name or profile.current.sector_id)|proper }}</span>
+    {% if profile.current.municipality %}<span class="tag">{{ profile.current.municipality|proper }}</span>{% endif %}
+  </div>
+</div>
+
+<div class="grid">
+  <div class="tile"><div class="label">Salary</div><div class="value mono">${{ "{:,.0f}".format(profile.current.salary_paid) }}</div></div>
+  <div class="tile"><div class="label">Taxable benefits</div><div class="value mono">${{ "{:,.0f}".format(profile.current.taxable_benefits) }}</div></div>
+  <div class="tile accent"><div class="label">Total compensation</div><div class="value mono">${{ "{:,.0f}".format(profile.current.total_comp) }}</div></div>
+</div>
+
+<div class="panel">
+  <h2>Peer standing <span class="sub">FY{{ profile.current.year }} &middot; percentile of total comp</span></h2>
+  {% if current_paybands %}
+  {% for pb in current_paybands %}
+  <div class="standing-row">
+    <div class="name">{{ pb.peer_group_label|proper }}<small>{{ peer_group_sub.get(pb.peer_group, '') }}</small></div>
+    <div class="pbar"><div class="pbar-fill" style="width:{{ pb.percentile }}%"></div></div>
+    <div class="rank mono">{{ pb.percentile }}% &middot; #{{ "{:,}".format(pb.rank) }} / {{ "{:,}".format(pb.n_peers) }}</div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="muted">Title not standardized — peer comparison unavailable.</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <h2>Disclosure history <span class="sub">{{ profile.history[0].year if profile.history else '' }}&ndash;{{ profile.current.year }}</span></h2>
+  <div class="history-wrap">
+    <table class="history">
+      <tr><th>Year</th><th>Employer</th><th>Title</th><th>Salary</th><th>Total comp</th><th>YoY</th><th>Events</th></tr>
+      {% for h in profile.history %}
+      <tr>
+        <td class="mono">{{ h.year }}</td>
+        <td><a href="{{ url_for('employer.profile_page', employer_id=h.employer_id) }}">{{ h.employer_name|proper }}</a></td>
+        <td>{% if h.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=h.sector_id, title_norm=h.title_norm) }}">{{ h.job_title|proper }}</a>{% else %}{{ h.job_title|proper }}{% endif %}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.salary_paid) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.total_comp) }}</td>
+        <td class="num">
+          {% if h.comparable_to_prior_year and h.yoy_salary_increase is not none %}
+          <span class="chip {{ 'chip-pos' if h.yoy_salary_increase >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(h.yoy_salary_increase) }}</span>
+          {% elif loop.first %}
+          <span class="chip chip-mute">first yr</span>
+          {% else %}
+          <span class="chip chip-mute">n/a</span>
+          {% endif %}
+        </td>
+        <td class="flags">
+          {% if h.employer_switch_flag %}<span class="flag flag-switch" title="Employer changed since last appearance">switch</span>{% endif %}
+          {% if h.gap_flag %}<span class="flag flag-gap" title="Not disclosed the prior year">gap</span>{% endif %}
+          {% if h.promotion_flag %}<span class="flag flag-promo" title="Title changed with a raise ≥10% in the same year (heuristic, not verified)">promotion?</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<footer class="note">Source: Ontario Public Sector Salary Disclosure. Gaps in the record may reflect leave, reduced hours, or a dip below the $100,000 threshold — not necessarily a departure.</footer>

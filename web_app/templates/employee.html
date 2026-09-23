@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ profile.first_name|proper }} {{ profile.last_name|proper }}{% endblock %}
 {% block content %}
-<p><a href="{{ url_for('profile.search') }}">&larr; back to search</a></p>
-{% include "_profile_fragment.html" %}
+<p><a href="{{ url_for('employee.search') }}">&larr; back to search</a></p>
+{% include "_employee_fragment.html" %}
 {% endblock %}

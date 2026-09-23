@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
 
 import pandas as pd
+
+from pipeline.manifest import update_manifest
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed"))
 OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "profiles"))
@@ -140,24 +141,16 @@ def write_sector_lookup(sectors: pd.DataFrame) -> None:
 
 def write_tables(wide: pd.DataFrame, history_out: pd.DataFrame, payband_out: pd.DataFrame, mode: str) -> dict:
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    wide.to_parquet(os.path.join(OUTPUT_DIR, "profile_wide.parquet"), index=False)
-    history_out.to_parquet(os.path.join(OUTPUT_DIR, "profile_history.parquet"), index=False)
-    payband_out.to_parquet(os.path.join(OUTPUT_DIR, "profile_payband_standing.parquet"), index=False)
+    wide.to_parquet(os.path.join(OUTPUT_DIR, "employee_wide.parquet"), index=False)
+    history_out.to_parquet(os.path.join(OUTPUT_DIR, "employee_history.parquet"), index=False)
+    payband_out.to_parquet(os.path.join(OUTPUT_DIR, "employee_payband_standing.parquet"), index=False)
 
-    manifest = {
-        "cube": "employee_profile",
+    return update_manifest("employee_profile", {
         "mode": mode,
-        "built_at": datetime.now(timezone.utc).isoformat(),
-        "tables": {
-            "profile_wide.parquet": len(wide),
-            "profile_history.parquet": len(history_out),
-            "profile_payband_standing.parquet": len(payband_out),
-        },
-        "employee_count": len(wide),
-    }
-    with open(os.path.join(OUTPUT_DIR, "index.json"), "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-    return manifest
+        "employee_wide.parquet": len(wide),
+        "employee_history.parquet": len(history_out),
+        "employee_payband_standing.parquet": len(payband_out),
+    })
 
 
 def build_employee_profile_cube(employee_ids: list[str] | None = None) -> dict:

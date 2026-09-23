@@ -1,1 +1,3 @@
-from .profile import bp as profile_bp
+from .employee import bp as employee_bp
+from .employer import bp as employer_bp
+from .position import bp as position_bp

@@ -3,34 +3,22 @@ already resolved a search down to one EmployeeID.
 """
 from __future__ import annotations
 
-import math
 from typing import Optional
 
-import pandas as pd
-
+from access._rows import records as _records
 from access.db import query
 from models.employee_profile import CurrentRole, EmployeeProfile, PaybandStanding, YearRecord
 
 
-def _none_if_nan(value):
-    # DuckDB NULLs surface as NaN for numeric columns; NaN isn't valid JSON and
-    # breaks JSON.parse in the browser, so normalize before it reaches a model.
-    return None if isinstance(value, float) and math.isnan(value) else value
-
-
-def _records(df: pd.DataFrame, exclude: tuple[str, ...] = ()) -> list[dict]:
-    return [{k: _none_if_nan(v) for k, v in row.items() if k not in exclude} for row in df.to_dict(orient="records")]
-
-
 def get_employee_profile(employee_id: str) -> Optional[EmployeeProfile]:
-    wide = query("SELECT * FROM profile_wide WHERE employee_id = ?", [employee_id])
+    wide = query("SELECT * FROM employee_wide WHERE employee_id = ?", [employee_id])
     if wide.empty:
         return None
     w = _records(wide)[0]
 
-    history_df = query("SELECT * FROM profile_history WHERE employee_id = ? ORDER BY year", [employee_id])
+    history_df = query("SELECT * FROM employee_history WHERE employee_id = ? ORDER BY year", [employee_id])
     payband_df = query(
-        "SELECT * FROM profile_payband_standing WHERE employee_id = ? ORDER BY year, peer_group", [employee_id]
+        "SELECT * FROM employee_payband_standing WHERE employee_id = ? ORDER BY year, peer_group", [employee_id]
     )
 
     current = CurrentRole(
@@ -56,9 +44,9 @@ def get_employee_profile(employee_id: str) -> Optional[EmployeeProfile]:
 if __name__ == "__main__":
     import json
 
-    total = query("SELECT COUNT(*) AS n FROM profile_wide")["n"].iloc[0]
-    ids = query("SELECT employee_id FROM profile_wide LIMIT 5")["employee_id"].tolist()
-    print(f"profile_wide has {total} employee(s); sampling {len(ids)}: {ids}")
+    total = query("SELECT COUNT(*) AS n FROM employee_wide")["n"].iloc[0]
+    ids = query("SELECT employee_id FROM employee_wide LIMIT 5")["employee_id"].tolist()
+    print(f"employee_wide has {total} employee(s); sampling {len(ids)}: {ids}")
     for eid in ids:
         profile = get_employee_profile(eid)
         assert profile is not None

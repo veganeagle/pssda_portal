@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request
 from access.employee_profile import get_employee_profile
 from access.employee_search import list_sectors, search_employees
 
-bp = Blueprint("profile", __name__)
+bp = Blueprint("employee", __name__)
 
 
 @bp.route("/")
@@ -24,9 +24,9 @@ def search():
     return render_template("search.html", searched=searched, outcome=outcome, sectors=list_sectors())
 
 
-@bp.route("/profile/<employee_id>")
+@bp.route("/employee/<employee_id>")
 def profile_page(employee_id):
     profile = get_employee_profile(employee_id)
     if profile is None:
-        return render_template("not_found.html", employee_id=employee_id), 404
-    return render_template("profile.html", profile=profile)
+        return render_template("not_found.html", what="employee", key=employee_id), 404
+    return render_template("employee.html", profile=profile)

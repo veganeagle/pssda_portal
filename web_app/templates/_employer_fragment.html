@@ -1,0 +1,53 @@
+<div class="id-card">
+  <div>
+    <h1>{{ employer.employer_name|proper }}</h1>
+    <p class="role">{{ (employer.sector_name or employer.sector_id)|proper }}{% if employer.subsector and employer.subsector != 'TBD' %} &middot; {{ employer.subsector|replace('_', ' ')|proper }}{% endif %} &middot; FY{{ employer.current.year }}</p>
+  </div>
+  <div class="tag-row">
+    <span class="tag">{{ "{:,}".format(employer.current.headcount) }} disclosed in {{ employer.current.year }}</span>
+    <span class="tag">{{ employer.years_present }} yrs on file ({{ employer.first_year_present }}&ndash;{{ employer.last_year_present }})</span>
+    {% if employer.municipality %}<span class="tag">{{ employer.municipality|proper }}</span>{% endif %}
+    {% if employer.population %}<span class="tag">Pop. {{ "{:,.0f}".format(employer.population) }}</span>{% endif %}
+  </div>
+</div>
+
+<div class="grid">
+  <div class="tile"><div class="label">Avg. salary</div><div class="value mono">${{ "{:,.0f}".format(employer.current.avg_salary) }}</div></div>
+  <div class="tile"><div class="label">Avg. total comp</div><div class="value mono">${{ "{:,.0f}".format(employer.current.avg_total_comp) }}</div></div>
+  <div class="tile accent"><div class="label">Total disclosed payroll</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
+</div>
+
+<div class="panel">
+  <h2>Workforce history <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
+  <div class="history-wrap">
+    <table class="history">
+      <tr><th>Year</th><th>Headcount</th><th>Avg. salary</th><th>Avg. total comp</th><th>Total payroll</th><th>Newly disclosed</th></tr>
+      {% for h in employer.history %}
+      <tr>
+        <td class="mono">{{ h.year }}</td>
+        <td class="num mono">{{ "{:,}".format(h.headcount) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.avg_salary) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.avg_total_comp) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.total_payroll) }}</td>
+        <td class="num mono">{{ h.pct_newly_disclosed }}%</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <p class="muted" style="margin-top:0.75rem;">"Newly disclosed" is the share of that year's headcount in their first year on this employer's disclosure — not a hire rate. Many already worked here and simply crossed the $100,000 threshold.</p>
+</div>
+
+<div class="panel">
+  <h2>Top disclosed earners <span class="sub">FY{{ employer.current.year }}</span></h2>
+  <table class="result-table">
+    <tr><th>#</th><th>Name</th><th>Title</th><th>Total comp</th></tr>
+    {% for t in employer.top_earners %}
+    <tr>
+      <td class="mono">{{ t.rank }}</td>
+      <td><a href="{{ url_for('employee.profile_page', employee_id=t.employee_id) }}">{{ t.first_name|proper }} {{ t.last_name|proper }}</a></td>
+      <td>{{ t.job_title|proper }}</td>
+      <td class="mono">${{ "{:,.0f}".format(t.total_comp) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
