@@ -2,3 +2,4 @@ flask
 duckdb
 pandas
 pyarrow
+pydantic
