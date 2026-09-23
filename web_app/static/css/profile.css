@@ -1,0 +1,16 @@
+.profile { background: #fff; border-left: 5px solid #4F2C7E; padding: 1rem; margin-top: 0.5rem; }
+.profile-header h2 { margin: 0 0 0.2rem 0; }
+.profile-header .subtitle { color: #555; margin-top: 0; }
+.profile-section { margin-top: 1rem; }
+.profile-section h3 { border-bottom: 1px solid #ddd; padding-bottom: 0.2rem; }
+.kv-list { list-style: none; padding: 0; margin: 0; max-width: 480px; }
+.kv-list li { display: flex; justify-content: space-between; padding: 0.15rem 0; border-bottom: 1px dotted #eee; }
+.kv-list li span:first-child { color: #666; }
+.muted { color: #999; font-style: italic; }
+.payband-table, .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.4rem; }
+.payband-table th, .payband-table td, .history-table th, .history-table td { padding: 0.3rem 0.5rem; border-bottom: 1px solid #eee; text-align: left; }
+.badges { white-space: nowrap; }
+.badge { display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 3px; margin-right: 0.2rem; color: #fff; }
+.badge-gap { background: #999; }
+.badge-switch { background: #3b7dd8; }
+.badge-promo { background: #2e9e5b; }

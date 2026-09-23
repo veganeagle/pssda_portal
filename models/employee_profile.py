@@ -16,6 +16,7 @@ class YearRecord(BaseModel):
     employer_id: str
     employer_name: str
     sector_id: str
+    sector_name: Optional[str] = None
     job_title: str
     title_norm: Optional[str] = None
     salary_paid: float
@@ -44,6 +45,7 @@ class CurrentRole(BaseModel):
     employer_id: str
     employer_name: str
     sector_id: str
+    sector_name: Optional[str] = None
     subsector: Optional[str] = None
     job_title: str
     title_norm: Optional[str] = None
@@ -52,6 +54,28 @@ class CurrentRole(BaseModel):
     salary_paid: float
     taxable_benefits: float
     total_comp: float
+
+
+class SectorOption(BaseModel):
+    sector_id: str
+    sector_name: str
+
+
+class EmployeeSearchResult(BaseModel):
+    # Lightweight — a search hit list, not a full profile.
+    employee_id: str
+    first_name: str
+    last_name: str
+    middle: Optional[str] = None
+    current_employer_name: str
+    current_job_title: str
+    first_seen_year: int
+    last_seen_year: int
+
+
+class SearchOutcome(BaseModel):
+    results: list[EmployeeSearchResult]
+    too_many: bool  # True when the match count exceeded the cap — results is [] in that case
 
 
 class EmployeeProfile(BaseModel):

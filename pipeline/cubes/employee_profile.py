@@ -33,11 +33,11 @@ def load_source() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     return history, employees, sectors
 
 
-def compute_payband_standings(history: pd.DataFrame, sector_name_map: dict[str, str]) -> pd.DataFrame:
+def compute_payband_standings(history: pd.DataFrame) -> pd.DataFrame:
     """One row per (employee, year, peer_group), computed against the full peer
-    population regardless of which employees end up in the final output."""
+    population regardless of which employees end up in the final output.
+    Expects history to already carry a SectorName column."""
     base = history[history["Title_Norm"].notna()].copy()
-    base["SectorName"] = base["SectorID"].astype(str).map(sector_name_map)
 
     tiers = []
     for peer_group, group_cols, label_fn in PEER_GROUP_TIERS:
@@ -69,6 +69,7 @@ def build_history_table(history: pd.DataFrame, employee_ids: list[str] | None = 
         "employer_id": df["EmployerID"],
         "employer_name": df["EmployerName"],
         "sector_id": df["SectorID"],
+        "sector_name": df["SectorName"],
         "job_title": df["JobTitleNorm"],
         "title_norm": df["Title_Norm"],
         "salary_paid": df["SalaryPaid"],
@@ -116,6 +117,7 @@ def build_wide_table(
         "current_employer_id": cur("EmployerID"),
         "current_employer_name": cur("EmployerName"),
         "current_sector_id": cur("SectorID"),
+        "current_sector_name": cur("SectorName"),
         "current_subsector": cur("SubSector"),
         "current_job_title": cur("JobTitleNorm"),
         "current_title_norm": cur("Title_Norm"),
@@ -126,6 +128,14 @@ def build_wide_table(
         "current_total_comp": cur("TotalComp"),
     })
     return out.reset_index(drop=True)
+
+
+def write_sector_lookup(sectors: pd.DataFrame) -> None:
+    out = pd.DataFrame({
+        "sector_id": sectors["sector_id"].astype(str),
+        "sector_name": sectors["canonical"],
+    }).sort_values("sector_name")
+    out.to_parquet(os.path.join(OUTPUT_DIR, "sectors.parquet"), index=False)
 
 
 def write_tables(wide: pd.DataFrame, history_out: pd.DataFrame, payband_out: pd.DataFrame, mode: str) -> dict:
@@ -154,11 +164,14 @@ def build_employee_profile_cube(employee_ids: list[str] | None = None) -> dict:
     history, employees, sectors = load_source()
     dataset_min_year = int(history["Year"].min())
     sector_name_map = dict(zip(sectors["sector_id"].astype(str), sectors["canonical"]))
+    history = history.copy()
+    history["SectorName"] = history["SectorID"].astype(str).map(sector_name_map)
 
-    payband_all = compute_payband_standings(history, sector_name_map)  # full population, always
+    payband_all = compute_payband_standings(history)  # full population, always
     wide = build_wide_table(history, employees, dataset_min_year, employee_ids)
     history_out = build_history_table(history, employee_ids)
     payband_out = payband_all if employee_ids is None else payband_all[payband_all["employee_id"].isin(employee_ids)]
+    write_sector_lookup(sectors)  # small reference table, always written in full
 
     return write_tables(wide, history_out, payband_out, mode="full" if employee_ids is None else "test")
 
@@ -181,7 +194,12 @@ def _pick_test_employee_ids(history: pd.DataFrame, n_each: int = 1) -> list[str]
 
 
 if __name__ == "__main__":
-    history_df, _, _ = load_source()
-    test_ids = _pick_test_employee_ids(history_df)
-    print(f"Test run for {len(test_ids)} employee_ids: {test_ids}")
-    print(json.dumps(build_employee_profile_cube(employee_ids=test_ids), indent=2))
+    import sys
+
+    if "--full" in sys.argv:
+        print(json.dumps(build_employee_profile_cube(), indent=2))
+    else:
+        history_df, _, _ = load_source()
+        test_ids = _pick_test_employee_ids(history_df)
+        print(f"Test run for {len(test_ids)} employee_ids: {test_ids}")
+        print(json.dumps(build_employee_profile_cube(employee_ids=test_ids), indent=2))

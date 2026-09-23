@@ -12,6 +12,7 @@ _PROFILE_TABLES = {
     "profile_wide": "profile_wide.parquet",
     "profile_history": "profile_history.parquet",
     "profile_payband_standing": "profile_payband_standing.parquet",
+    "sectors": "sectors.parquet",
 }
 
 con = duckdb.connect(database=":memory:")

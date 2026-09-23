@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<form method="get" action="{{ url_for('profile.search') }}">
+  <h4>First name</h4><input type="text" name="first" value="{{ request.args.get('first', '') }}">
+  <h4>Last name</h4><input type="text" name="last" value="{{ request.args.get('last', '') }}">
+  <h4>Middle</h4><input type="text" name="middle" value="{{ request.args.get('middle', '') }}">
+  <h4>Sector</h4>
+  <select name="sector">
+    <option value="">Any</option>
+    {% for s in sectors %}
+    <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
+    {% endfor %}
+  </select>
+  <h4>Employer contains</h4><input type="text" name="employer" value="{{ request.args.get('employer', '') }}">
+  <h4>Title contains</h4><input type="text" name="title" value="{{ request.args.get('title', '') }}">
+  <h4>Year present</h4><input type="number" name="year" value="{{ request.args.get('year', '') }}">
+  <br><button type="submit">Search</button>
+</form>
+
+{% if searched %}
+<div class="result-box">
+  {% if outcome.too_many %}
+  <p>More than 100 matches — please narrow your search.</p>
+  {% else %}
+  <p>{{ outcome.results|length }} result(s)</p>
+  <table>
+    <tr><th>Name</th><th>Current title</th><th>Current employer</th><th>Years</th></tr>
+    {% for r in outcome.results %}
+    <tr>
+      <td><a href="{{ url_for('profile.profile_page', employee_id=r.employee_id) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
+      <td>{{ r.current_job_title|proper }}</td>
+      <td>{{ r.current_employer_name|proper }}</td>
+      <td>{{ r.first_seen_year }}–{{ r.last_seen_year }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No matches.</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% set current_paybands = profile.paybands|selectattr('year', 'equalto', profile.current.year)|list %}
+<div class="profile">
+  <div class="profile-header">
+    <h2>{{ profile.first_name|proper }} {{ profile.last_name|proper }}{% if profile.middle %} {{ profile.middle|proper }}{% endif %}</h2>
+    <p class="subtitle">{{ profile.current.job_title|proper }} @ {{ profile.current.employer_name|proper }} ({{ profile.current.year }})</p>
+  </div>
+
+  <div class="profile-section">
+    <h3>Demographics</h3>
+    <ul class="kv-list">
+      <li><span>First disclosed</span><span>{{ profile.first_seen_year }}{% if profile.first_seen_year_left_censored %} <em>(dataset begins here — true first appearance may be earlier)</em>{% endif %}</span></li>
+      <li><span>Years disclosed</span><span>{{ profile.years_disclosed }}</span></li>
+      <li><span>Most recently disclosed</span><span>{{ profile.last_seen_year }}</span></li>
+    </ul>
+  </div>
+
+  <div class="profile-section">
+    <h3>Current role</h3>
+    <ul class="kv-list">
+      <li><span>Employer</span><span>{{ profile.current.employer_name|proper }}</span></li>
+      <li><span>Sector</span><span>{{ (profile.current.sector_name or profile.current.sector_id)|proper }}{% if profile.current.subsector and profile.current.subsector != 'TBD' %} / {{ profile.current.subsector|replace('_', ' ')|proper }}{% endif %}</span></li>
+      {% if profile.current.municipality %}<li><span>Municipality</span><span>{{ profile.current.municipality|proper }}</span></li>{% endif %}
+      <li><span>Salary</span><span>${{ "{:,.0f}".format(profile.current.salary_paid) }}</span></li>
+      <li><span>Taxable benefits</span><span>${{ "{:,.0f}".format(profile.current.taxable_benefits) }}</span></li>
+      <li><span>Total comp</span><span>${{ "{:,.0f}".format(profile.current.total_comp) }}</span></li>
+    </ul>
+
+    {% if current_paybands %}
+    <h4>Peer standing ({{ profile.current.year }})</h4>
+    <table class="payband-table">
+      <tr><th>Peer group</th><th>Rank</th><th>Percentile</th></tr>
+      {% for pb in current_paybands %}
+      <tr>
+        <td>{{ pb.peer_group_label|proper }}</td>
+        <td>{{ pb.rank }} of {{ pb.n_peers }}</td>
+        <td>{{ pb.percentile }}%</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p class="muted">Title not standardized — peer comparison unavailable.</p>
+    {% endif %}
+  </div>
+
+  <div class="profile-section">
+    <h3>History</h3>
+    <table class="history-table">
+      <tr><th>Year</th><th>Employer</th><th>Title</th><th>Salary</th><th>Total comp</th><th>YoY raise</th><th></th></tr>
+      {% for h in profile.history %}
+      <tr>
+        <td>{{ h.year }}</td>
+        <td>{{ h.employer_name|proper }}</td>
+        <td>{{ h.job_title|proper }}</td>
+        <td>${{ "{:,.0f}".format(h.salary_paid) }}</td>
+        <td>${{ "{:,.0f}".format(h.total_comp) }}</td>
+        <td>
+          {% if h.comparable_to_prior_year and h.yoy_salary_increase is not none %}
+            {{ "{:+.1%}".format(h.yoy_salary_increase) }}
+          {% else %}
+            <span class="muted" title="No comparable prior-year record">—</span>
+          {% endif %}
+        </td>
+        <td class="badges">
+          {% if h.gap_flag %}<span class="badge badge-gap" title="Not disclosed the prior year">gap</span>{% endif %}
+          {% if h.employer_switch_flag %}<span class="badge badge-switch" title="Employer changed since last appearance">switch</span>{% endif %}
+          {% if h.promotion_flag %}<span class="badge badge-promo" title="Title changed and raise ≥10% in the same year (heuristic, not verified)">possible promotion</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>

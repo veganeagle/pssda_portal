@@ -35,7 +35,8 @@ def get_employee_profile(employee_id: str) -> Optional[EmployeeProfile]:
 
     current = CurrentRole(
         year=w["current_year"], employer_id=w["current_employer_id"], employer_name=w["current_employer_name"],
-        sector_id=w["current_sector_id"], subsector=w["current_subsector"], job_title=w["current_job_title"],
+        sector_id=w["current_sector_id"], sector_name=w["current_sector_name"],
+        subsector=w["current_subsector"], job_title=w["current_job_title"],
         title_norm=w["current_title_norm"], region=w["current_region"], municipality=w["current_municipality"],
         salary_paid=w["current_salary_paid"], taxable_benefits=w["current_taxable_benefits"],
         total_comp=w["current_total_comp"],
@@ -55,8 +56,9 @@ def get_employee_profile(employee_id: str) -> Optional[EmployeeProfile]:
 if __name__ == "__main__":
     import json
 
-    ids = query("SELECT employee_id FROM profile_wide")["employee_id"].tolist()
-    print(f"profile_wide has {len(ids)} employee(s): {ids}")
+    total = query("SELECT COUNT(*) AS n FROM profile_wide")["n"].iloc[0]
+    ids = query("SELECT employee_id FROM profile_wide LIMIT 5")["employee_id"].tolist()
+    print(f"profile_wide has {total} employee(s); sampling {len(ids)}: {ids}")
     for eid in ids:
         profile = get_employee_profile(eid)
         assert profile is not None
