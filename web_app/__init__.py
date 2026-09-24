@@ -1,6 +1,6 @@
 from flask import Flask
 from web_app.formatting import proper_case
-from web_app.views import employee_bp, employer_bp, position_bp
+from web_app.views import employee_bp, employer_bp, position_bp, top_earners_bp
 
 
 def create_app():
@@ -8,6 +8,7 @@ def create_app():
     app.register_blueprint(employee_bp)
     app.register_blueprint(employer_bp)
     app.register_blueprint(position_bp)
+    app.register_blueprint(top_earners_bp)
     app.jinja_env.filters["proper"] = proper_case
 
     @app.route("/health")

@@ -14,7 +14,9 @@ import os
 
 import pandas as pd
 
+from pipeline.gender import compute_pct_female
 from pipeline.manifest import update_manifest
+from pipeline.matched_cohort import matched_cohort_flag
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed"))
 OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "profiles"))
@@ -22,39 +24,33 @@ OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
 MIN_EMPLOYER_GROUP_SIZE = 3  # same rationale as the payband cube — suppress tiny, noisy cells
 
 
-def load_source() -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_source() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     history = pd.read_parquet(os.path.join(SOURCE_DIR, "employment_history_enriched.parquet"))
+    employees = pd.read_parquet(os.path.join(SOURCE_DIR, "employees_enriched.parquet"))
     sectors = pd.read_parquet(os.path.join(SOURCE_DIR, "sectors_canonical.parquet"))
-    return history, sectors
+    return history, employees, sectors
 
 
-def _matched_cohort_flag(history: pd.DataFrame) -> pd.Series:
-    """True where this row is comparable to a prior-year record AND that prior
-    record was the same (SectorID, Title_Norm) — not just the same employee."""
-    prior = history[["EmployeeID", "Year", "SectorID", "Title_Norm"]].copy()
-    prior["Year"] = prior["Year"] + 1
-    prior = prior.rename(columns={"SectorID": "PriorSectorID", "Title_Norm": "PriorTitleNorm"})
-    merged = history[["EmployeeID", "Year", "SectorID", "Title_Norm", "GapFlag", "TenureOnList"]].merge(
-        prior, on=["EmployeeID", "Year"], how="left"
-    )
-    same_position = (merged["SectorID"] == merged["PriorSectorID"]) & (merged["Title_Norm"] == merged["PriorTitleNorm"])
-    return ((merged["GapFlag"] == 0) & (merged["TenureOnList"] > 1) & same_position).values
-
-
-def build_position_history(history: pd.DataFrame) -> pd.DataFrame:
+def build_position_history(history: pd.DataFrame, employees: pd.DataFrame) -> pd.DataFrame:
     base = history[history["Title_Norm"].notna()].copy()
-    base["MatchedCohort"] = _matched_cohort_flag(base)
+    base["MatchedCohort"] = matched_cohort_flag(base, ["SectorID", "Title_Norm"])
+    base = base.merge(employees[["EmployeeID", "Prob_Female"]], on="EmployeeID", how="left")
 
     key = ["SectorID", "Title_Norm", "Year"]
     headcount = base.groupby(key)["EmployeeID"].size().rename("headcount")
     avg_salary = base.groupby(key)["SalaryPaid"].mean().round(0).rename("avg_salary")
     avg_total_comp = base.groupby(key)["TotalComp"].mean().round(0).rename("avg_total_comp")
+    promotions = base.groupby(key)["PromotionFlag"].sum().astype(int).rename("promotions")
 
     matched = base[base["MatchedCohort"]]
     avg_raise_matched = matched.groupby(key)["YoYSalaryIncrease"].mean().round(4).rename("avg_raise_matched")
     cohort_size_matched = matched.groupby(key)["EmployeeID"].size().rename("cohort_size_matched")
 
-    out = pd.concat([headcount, avg_salary, avg_total_comp, avg_raise_matched, cohort_size_matched], axis=1).reset_index()
+    gender = compute_pct_female(base, key).set_index(key)["pct_female"].rename("pct_female")
+
+    out = pd.concat(
+        [headcount, avg_salary, avg_total_comp, promotions, avg_raise_matched, cohort_size_matched, gender], axis=1
+    ).reset_index()
     out["cohort_size_matched"] = out["cohort_size_matched"].fillna(0).astype(int)
 
     return pd.DataFrame({
@@ -64,8 +60,10 @@ def build_position_history(history: pd.DataFrame) -> pd.DataFrame:
         "headcount": out["headcount"],
         "avg_salary": out["avg_salary"],
         "avg_total_comp": out["avg_total_comp"],
+        "promotions": out["promotions"],
         "avg_raise_matched": out["avg_raise_matched"],
         "cohort_size_matched": out["cohort_size_matched"],
+        "pct_female": out["pct_female"],
     }).sort_values(["sector_id", "title_norm", "year"]).reset_index(drop=True)
 
 
@@ -88,8 +86,10 @@ def build_position_wide(position_history: pd.DataFrame, sector_name_map: dict) -
         "current_headcount": cur["headcount"].values,
         "current_avg_salary": cur["avg_salary"].values,
         "current_avg_total_comp": cur["avg_total_comp"].values,
+        "current_promotions": cur["promotions"].values,
         "current_avg_raise_matched": cur["avg_raise_matched"].values,
         "current_cohort_size_matched": cur["cohort_size_matched"].values,
+        "current_pct_female": cur["pct_female"].values,
     })
     return out.reset_index(drop=True)
 
@@ -99,7 +99,10 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
     leaderboard (e.g. every municipality's Police Constable, ranked)."""
     base = history[history["Title_Norm"].notna()].copy()
     current_year_by_position = base.groupby(["SectorID", "Title_Norm"])["Year"].transform("max")
-    cur = base[base["Year"] == current_year_by_position]
+    cur = base[base["Year"] == current_year_by_position].copy()
+    cur["MatchedCohort"] = matched_cohort_flag(base, ["SectorID", "Title_Norm", "EmployerID"])[
+        base["Year"].eq(current_year_by_position).values
+    ]
 
     key = ["SectorID", "Title_Norm", "EmployerID"]
     g = cur.groupby(key).agg(
@@ -107,10 +110,18 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
         year=("Year", "first"),
         headcount=("EmployeeID", "size"),
         avg_total_comp=("TotalComp", "mean"),
+        new_entrants=("TenureOnList", lambda s: int((s == 1).sum())),
     ).reset_index()
     g = g[g["headcount"] >= MIN_EMPLOYER_GROUP_SIZE].copy()
     g["avg_total_comp"] = g["avg_total_comp"].round(0)
     g["rank"] = g.groupby(["SectorID", "Title_Norm"])["avg_total_comp"].rank(method="dense", ascending=False).astype(int)
+
+    matched = cur[cur["MatchedCohort"]]
+    avg_raise = matched.groupby(key)["YoYSalaryIncrease"].mean().round(4).rename("avg_raise_matched")
+    cohort_n = matched.groupby(key)["EmployeeID"].size().rename("cohort_n")
+    g = g.merge(pd.concat([avg_raise, cohort_n], axis=1).reset_index(), on=key, how="left")
+    g["cohort_n"] = g["cohort_n"].fillna(0).astype(int)
+    g.loc[g["cohort_n"] < MIN_EMPLOYER_GROUP_SIZE, "avg_raise_matched"] = None
 
     return pd.DataFrame({
         "sector_id": g["SectorID"],
@@ -120,15 +131,17 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
         "year": g["year"].astype(int),
         "headcount": g["headcount"],
         "avg_total_comp": g["avg_total_comp"],
+        "new_entrants": g["new_entrants"],
+        "avg_raise_matched": g["avg_raise_matched"],
         "rank": g["rank"],
     }).sort_values(["sector_id", "title_norm", "rank"]).reset_index(drop=True)
 
 
 def build_position_profile_cube() -> dict:
-    history, sectors = load_source()
+    history, employees, sectors = load_source()
     sector_name_map = dict(zip(sectors["sector_id"].astype(str), sectors["canonical"]))
 
-    position_history = build_position_history(history)
+    position_history = build_position_history(history, employees)
     position_wide = build_position_wide(position_history, sector_name_map)
     by_employer = build_position_by_employer(history)
 

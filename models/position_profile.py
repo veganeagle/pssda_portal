@@ -10,12 +10,17 @@ class PositionYearRecord(BaseModel):
     headcount: int
     avg_salary: float
     avg_total_comp: float
+    # Count of PromotionFlag rows this year — a heuristic (title changed + raise
+    # >=10%), not verified promotions.
+    promotions: int
     # Matched-cohort average: only people who held this exact (sector, title) in
     # both this year and the prior year — not a same-role year-average diff.
     # See SUNSHINE.md #2. None when no matched cohort exists (e.g. the position's
     # first year in the data).
     avg_raise_matched: Optional[float] = None
     cohort_size_matched: int
+    # Aggregate, name-based gender estimate — None below pipeline.gender.MIN_GROUP_SIZE.
+    pct_female: Optional[float] = None
 
 
 class PositionEmployerRank(BaseModel):
@@ -24,6 +29,27 @@ class PositionEmployerRank(BaseModel):
     employer_name: str
     headcount: int
     avg_total_comp: float
+    # Headcount in their first disclosed year in this exact role at this
+    # employer — not a hire count, see SUNSHINE.md #1.
+    new_entrants: int
+    # Matched-cohort average for this employer specifically; None when the
+    # matched cohort here is too small (< MIN_EMPLOYER_GROUP_SIZE).
+    avg_raise_matched: Optional[float] = None
+
+
+class PositionSearchResult(BaseModel):
+    sector_id: str
+    title_norm: str
+    sector_name: Optional[str] = None
+    current_year: int
+    current_headcount: int
+    current_avg_total_comp: float
+
+
+class PositionOption(BaseModel):
+    sector_id: str
+    title_norm: str
+    sector_name: Optional[str] = None
 
 
 class PositionProfile(BaseModel):

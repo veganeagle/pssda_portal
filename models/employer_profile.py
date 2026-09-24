@@ -15,6 +15,8 @@ class EmployerYearRecord(BaseModel):
     # hiring/turnover rate. See SUNSHINE.md #1: many of these already worked here
     # and simply crossed $100K this year.
     pct_newly_disclosed: float
+    # Aggregate, name-based gender estimate — None below pipeline.gender.MIN_GROUP_SIZE.
+    pct_female: Optional[float] = None
 
 
 class TopEarner(BaseModel):
@@ -24,6 +26,36 @@ class TopEarner(BaseModel):
     last_name: str
     job_title: str
     total_comp: float
+    yoy_salary_increase: Optional[float] = None
+    comparable_to_prior_year: bool
+    # Rank against the whole sector / this exact (sector, title) position,
+    # province-wide — only available when this employer's "current" year is the
+    # dataset's actual latest year (see pipeline docstring).
+    rank_sector: Optional[int] = None
+    rank_position: Optional[int] = None
+
+
+class TopPosition(BaseModel):
+    rank: int
+    sector_id: str
+    title_norm: str
+    job_title: str
+    headcount: int
+    avg_salary: float
+    avg_total_comp: float
+    # Matched-cohort average for this position at this employer; None when the
+    # matched cohort here is too small (< MIN_MATCHED_COHORT).
+    avg_raise_matched: Optional[float] = None
+
+
+class EmployerSearchResult(BaseModel):
+    employer_id: str
+    employer_name: str
+    sector_id: str
+    sector_name: Optional[str] = None
+    current_year: int
+    current_headcount: int
+    current_avg_total_comp: float
 
 
 class EmployerProfile(BaseModel):
@@ -43,3 +75,4 @@ class EmployerProfile(BaseModel):
     current: EmployerYearRecord
     history: list[EmployerYearRecord] = Field(default_factory=list)
     top_earners: list[TopEarner] = Field(default_factory=list)
+    top_positions: list[TopPosition] = Field(default_factory=list)

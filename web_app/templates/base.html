@@ -8,7 +8,15 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 <body>
-<header class="topbar"><span class="dot">&#9679;</span> PSSDA Portal</header>
+<header class="topbar">
+  <span class="dot">&#9679;</span> PSSDA Portal
+  <nav class="tabs">
+    <a href="{{ url_for('employee.search') }}">Employees</a>
+    <a href="{{ url_for('employer.search') }}">Employers</a>
+    <a href="{{ url_for('position.search') }}">Positions</a>
+    <a href="{{ url_for('top_earners.index') }}">Top Earners</a>
+  </nav>
+</header>
 <main>{% block content %}{% endblock %}</main>
 </body>
 </html>

@@ -7,6 +7,8 @@
     <span class="tag">{{ "{:,}".format(position.current.headcount) }} disclosed in {{ position.current.year }}</span>
     <span class="tag">{{ position.years_present }} yrs on file ({{ position.first_year_present }}&ndash;{{ position.last_year_present }})</span>
     <span class="tag">{{ position.by_employer|length }} employers (min. 3 disclosed)</span>
+    <span class="tag">{{ position.current.promotions }} possible promotions in {{ position.current.year }}</span>
+    {% if position.current.pct_female is not none %}<span class="tag">{{ position.current.pct_female }}% estimated female</span>{% endif %}
   </div>
 </div>
 
@@ -27,7 +29,7 @@
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history">
-      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Raise</th></tr>
+      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Raise</th><th>Promotions</th><th>Gender</th></tr>
       {% for h in position.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>
@@ -41,27 +43,38 @@
           <span class="chip chip-mute">n/a</span>
           {% endif %}
         </td>
+        <td class="num mono">{{ h.promotions }}</td>
+        <td class="num mono">{{ h.pct_female ~ "% F" if h.pct_female is not none else "—" }}</td>
       </tr>
       {% endfor %}
     </table>
   </div>
-  <p class="muted" style="margin-top:0.75rem;">Raise is the average change for people who held this exact role, in this sector, in both years — not a same-role year-over-year average, which would be skewed by people newly crossing the disclosure threshold or leaving.</p>
+  <p class="muted" style="margin-top:0.75rem;">Raise is the average change for people who held this exact role, in this sector, in both years — not a same-role year-over-year average, which would be skewed by people newly crossing the disclosure threshold or leaving. Promotions is a heuristic (title changed and raise &ge;10% in the same year), not verified. Gender is a name-based estimate, shown only for years with 20 or more disclosed employees.</p>
 </div>
 
 <div class="panel">
   <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by avg. total comp</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Avg. total comp</th></tr>
+    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Avg. total comp</th><th>New entrants</th><th>Raise</th></tr>
     {% for e in position.by_employer[:30] %}
     <tr>
       <td class="mono">{{ e.rank }}</td>
-      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id) }}">{{ e.employer_name|proper }}</a></td>
+      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}">{{ e.employer_name|proper }}</a></td>
       <td class="mono">{{ e.headcount }}</td>
       <td class="mono">${{ "{:,.0f}".format(e.avg_total_comp) }}</td>
+      <td class="mono">{{ e.new_entrants }}</td>
+      <td>
+        {% if e.avg_raise_matched is not none %}
+        <span class="chip {{ 'chip-pos' if e.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(e.avg_raise_matched) }}</span>
+        {% else %}
+        <span class="chip chip-mute">n/a</span>
+        {% endif %}
+      </td>
     </tr>
     {% endfor %}
   </table>
   {% if position.by_employer|length > 30 %}
   <p class="muted" style="margin-top:0.5rem;">Showing top 30 of {{ position.by_employer|length }} employers.</p>
   {% endif %}
+  <p class="muted" style="margin-top:0.5rem;">"New entrants" is headcount in their first year in this exact role at this employer — not a hire count; many already worked here.</p>
 </div>

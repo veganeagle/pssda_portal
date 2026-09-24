@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Positions{% endblock %}
+{% block content %}
+<div class="search-panel">
+  <form method="get" action="{{ url_for('position.search') }}">
+    <div class="search-grid">
+      <label>Title contains<input type="text" name="title" value="{{ request.args.get('title', '') }}"></label>
+      <label>Sector
+        <select name="sector">
+          <option value="">Any</option>
+          {% for s in sectors %}
+          <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="search-actions"><button type="submit">Search</button></div>
+  </form>
+</div>
+
+<div class="panel">
+  <p class="result-summary">{{ results|length }} position(s){% if results|length == 50 %} (showing top 50 by employees on list){% endif %}</p>
+  <table class="result-table">
+    <tr><th>Position</th><th>Sector</th><th>Employees on List</th><th>Avg. total comp</th></tr>
+    {% for p in results %}
+    <tr>
+      <td><a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm) }}">{{ p.title_norm|proper }}</a></td>
+      <td>{{ (p.sector_name or p.sector_id)|proper }}</td>
+      <td class="mono">{{ "{:,}".format(p.current_headcount) }}</td>
+      <td class="mono">${{ "{:,.0f}".format(p.current_avg_total_comp) }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No matches.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
