@@ -5,7 +5,7 @@
   <form method="get" action="{{ url_for('top_earners.index') }}">
     <div class="search-grid">
       <label>Sector
-        <select name="sector">
+        <select name="sector" id="sector-select">
           <option value="">Province-wide</option>
           {% for s in sectors %}
           <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
@@ -21,7 +21,7 @@
           {% for p in positions %}
           {% if p.sector_name != ns.current_sector %}
             {% if ns.current_sector != "" %}</optgroup>{% endif %}
-            <optgroup label="{{ p.sector_name|proper }}">
+            <optgroup label="{{ p.sector_name|proper }}" data-sector-id="{{ p.sector_id }}">
             {% set ns.current_sector = p.sector_name %}
           {% endif %}
           <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if request.args.get('position') == p.sector_id ~ '::' ~ p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}</option>
