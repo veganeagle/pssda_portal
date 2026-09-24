@@ -13,11 +13,27 @@
         </select>
       </label>
       <label>Employer contains<input type="text" name="employer" value="{{ request.args.get('employer', '') }}"></label>
-      <label>Position contains<input type="text" name="position" value="{{ request.args.get('position', '') }}"></label>
+      <label>Position
+        <input type="text" id="position-filter" placeholder="Filter the list below&hellip;" autocomplete="off">
+        <select name="position" id="position-select">
+          <option value="">Any</option>
+          {% set ns = namespace(current_sector="") %}
+          {% for p in positions %}
+          {% if p.sector_name != ns.current_sector %}
+            {% if ns.current_sector != "" %}</optgroup>{% endif %}
+            <optgroup label="{{ p.sector_name|proper }}">
+            {% set ns.current_sector = p.sector_name %}
+          {% endif %}
+          <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if request.args.get('position') == p.sector_id ~ '::' ~ p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}</option>
+          {% endfor %}
+          </optgroup>
+        </select>
+      </label>
     </div>
     <div class="search-actions"><button type="submit">Search</button></div>
   </form>
 </div>
+<script src="{{ url_for('static', filename='js/position_filter.js') }}"></script>
 
 <div class="panel">
   <p class="result-summary">Top {{ results|length }}{% if request.args.get('sector') or request.args.get('employer') or request.args.get('position') %} matching{% else %} province-wide{% endif %}, FY{{ results[0].year if results else '' }}</p>
