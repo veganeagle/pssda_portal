@@ -3,3 +3,4 @@ duckdb
 pandas
 pyarrow
 pydantic
+Flask-Limiter

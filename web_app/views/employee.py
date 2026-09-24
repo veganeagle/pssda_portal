@@ -6,6 +6,15 @@ from access.employee_search import list_sectors, search_employees
 bp = Blueprint("employee", __name__)
 
 
+def _parse_year(raw):
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        return None  # garbage input just means "no year filter", not a crash
+
+
 @bp.route("/")
 @bp.route("/search")
 def search():
@@ -17,7 +26,7 @@ def search():
         "sector": args.get("sector") or None,
         "employer_contains": args.get("employer") or None,
         "title_contains": args.get("title") or None,
-        "year": int(args["year"]) if args.get("year") else None,
+        "year": _parse_year(args.get("year")),
     }
     searched = any(filters.values())
     outcome = search_employees(**filters) if searched else None
