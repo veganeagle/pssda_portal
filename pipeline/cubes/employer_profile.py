@@ -121,7 +121,10 @@ def build_top_earners(history: pd.DataFrame, employees: pd.DataFrame, rankings: 
     # employer whose "current" is an earlier year (e.g. dissolved/merged) won't
     # have a match here, and that's correct: can't fairly rank a 2020 salary
     # against 2025's population.
-    top = top.merge(rankings[["EmployeeID", "RankSector", "RankPosition"]], on="EmployeeID", how="left")
+    top = top.merge(
+        rankings[["EmployeeID", "RankSector", "SectorPool", "RankPosition", "PositionPool"]],
+        on="EmployeeID", how="left",
+    )
 
     return pd.DataFrame({
         "employer_id": top["EmployerID"],
@@ -135,7 +138,9 @@ def build_top_earners(history: pd.DataFrame, employees: pd.DataFrame, rankings: 
         "yoy_salary_increase": top["yoy_salary_increase"],
         "comparable_to_prior_year": top["comparable_to_prior_year"],
         "rank_sector": top["RankSector"],
+        "sector_pool": top["SectorPool"],
         "rank_position": top["RankPosition"],
+        "position_pool": top["PositionPool"],
     }).reset_index(drop=True)
 
 

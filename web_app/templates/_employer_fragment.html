@@ -26,7 +26,7 @@
     <tr>
       <td class="mono">{{ tp.rank }}</td>
       <td><a href="{{ url_for('position.profile_page', sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}">{{ tp.job_title|proper }}</a></td>
-      <td class="mono">{{ tp.headcount }}</td>
+      <td class="num mono">{{ "{:,}".format(tp.headcount) }}</td>
       <td class="mono">${{ "{:,.0f}".format(tp.avg_salary) }}</td>
       <td>
         {% if tp.avg_raise_matched is not none %}
@@ -78,8 +78,8 @@
         <span class="chip chip-mute">n/a</span>
         {% endif %}
       </td>
-      <td class="mono">{{ "#" ~ t.rank_sector if t.rank_sector is not none else "—" }}</td>
-      <td class="mono">{{ "#" ~ t.rank_position if t.rank_position is not none else "—" }}</td>
+      <td class="num mono">{{ (t.rank_sector|string ~ "/" ~ t.sector_pool|string) if t.rank_sector is not none else "—" }}</td>
+      <td class="num mono">{{ (t.rank_position|string ~ "/" ~ t.position_pool|string) if t.rank_position is not none else "—" }}</td>
     </tr>
     {% endfor %}
   </table>

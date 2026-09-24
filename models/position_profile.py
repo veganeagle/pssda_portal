@@ -29,6 +29,7 @@ class PositionEmployerRank(BaseModel):
     employer_name: str
     headcount: int
     avg_total_comp: float
+    max_salary: float
     # Headcount in their first disclosed year in this exact role at this
     # employer — not a hire count, see SUNSHINE.md #1.
     new_entrants: int

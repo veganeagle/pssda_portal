@@ -68,6 +68,7 @@ button:hover, .btn:hover{filter:brightness(1.05);}
   text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid var(--border); font-weight:700;
 }
 .result-table td{padding:0.55rem 0.6rem; border-bottom:1px solid var(--border);}
+.result-table td.num{text-align:right; white-space:nowrap;}
 .result-table tr:last-child td{border-bottom:none;}
 .result-table tr:hover td{background:var(--surface-2);}
 .result-table a{font-weight:700; text-decoration:none;}

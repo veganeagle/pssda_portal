@@ -16,13 +16,22 @@ def compute_current_year_rankings(history: pd.DataFrame) -> pd.DataFrame:
     cur["YoYSalaryIncreaseClean"] = cur["YoYSalaryIncrease"].where(comparable)
 
     cur["RankProvince"] = cur["TotalComp"].rank(method="dense", ascending=False).astype(int)
+    cur["ProvincePool"] = len(cur)
+
     cur["RankSector"] = cur.groupby("SectorID")["TotalComp"].rank(method="dense", ascending=False).astype(int)
+    cur["SectorPool"] = cur.groupby("SectorID")["TotalComp"].transform("size")
+
     cur["RankEmployer"] = cur.groupby("EmployerID")["TotalComp"].rank(method="dense", ascending=False).astype(int)
+    cur["EmployerPool"] = cur.groupby("EmployerID")["TotalComp"].transform("size")
 
     has_title = cur["Title_Norm"].notna()
     cur["RankPosition"] = float("nan")
+    cur["PositionPool"] = float("nan")
     cur.loc[has_title, "RankPosition"] = (
         cur[has_title].groupby(["SectorID", "Title_Norm"])["TotalComp"].rank(method="dense", ascending=False)
+    )
+    cur.loc[has_title, "PositionPool"] = (
+        cur[has_title].groupby(["SectorID", "Title_Norm"])["TotalComp"].transform("size")
     )
 
     return cur

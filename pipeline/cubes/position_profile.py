@@ -110,11 +110,13 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
         year=("Year", "first"),
         headcount=("EmployeeID", "size"),
         avg_total_comp=("TotalComp", "mean"),
+        max_salary=("SalaryPaid", "max"),
         new_entrants=("TenureOnList", lambda s: int((s == 1).sum())),
     ).reset_index()
     g = g[g["headcount"] >= MIN_EMPLOYER_GROUP_SIZE].copy()
     g["avg_total_comp"] = g["avg_total_comp"].round(0)
-    g["rank"] = g.groupby(["SectorID", "Title_Norm"])["avg_total_comp"].rank(method="dense", ascending=False).astype(int)
+    g["max_salary"] = g["max_salary"].round(0)
+    g["rank"] = g.groupby(["SectorID", "Title_Norm"])["headcount"].rank(method="dense", ascending=False).astype(int)
 
     matched = cur[cur["MatchedCohort"]]
     avg_raise = matched.groupby(key)["YoYSalaryIncrease"].mean().round(4).rename("avg_raise_matched")
@@ -131,6 +133,7 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
         "year": g["year"].astype(int),
         "headcount": g["headcount"],
         "avg_total_comp": g["avg_total_comp"],
+        "max_salary": g["max_salary"],
         "new_entrants": g["new_entrants"],
         "avg_raise_matched": g["avg_raise_matched"],
         "rank": g["rank"],

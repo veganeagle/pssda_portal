@@ -7,7 +7,7 @@
     <span class="tag">{{ "{:,}".format(position.current.headcount) }} disclosed in {{ position.current.year }}</span>
     <span class="tag">{{ position.years_present }} yrs on file ({{ position.first_year_present }}&ndash;{{ position.last_year_present }})</span>
     <span class="tag">{{ position.by_employer|length }} employers (min. 3 disclosed)</span>
-    <span class="tag">{{ position.current.promotions }} possible promotions in {{ position.current.year }}</span>
+    <span class="tag">{{ position.current.promotions }} newly promoted in {{ position.current.year }}</span>
     {% if position.current.pct_female is not none %}<span class="tag">{{ position.current.pct_female }}% estimated female</span>{% endif %}
   </div>
 </div>
@@ -29,7 +29,7 @@
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history">
-      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Raise</th><th>Promotions</th><th>Gender</th></tr>
+      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Raise</th><th>Newly Promoted</th><th>Gender</th></tr>
       {% for h in position.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>
@@ -53,16 +53,17 @@
 </div>
 
 <div class="panel">
-  <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by avg. total comp</span></h2>
+  <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by employees on list</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Avg. total comp</th><th>New entrants</th><th>Raise</th></tr>
+    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Avg. total comp</th><th>Max salary</th><th>New entrants</th><th>Raise</th></tr>
     {% for e in position.by_employer[:30] %}
     <tr>
-      <td class="mono">{{ e.rank }}</td>
+      <td class="num mono">{{ e.rank }}</td>
       <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}">{{ e.employer_name|proper }}</a></td>
-      <td class="mono">{{ e.headcount }}</td>
-      <td class="mono">${{ "{:,.0f}".format(e.avg_total_comp) }}</td>
-      <td class="mono">{{ e.new_entrants }}</td>
+      <td class="num mono">{{ "{:,}".format(e.headcount) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.avg_total_comp) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.max_salary) }}</td>
+      <td class="num mono">{{ "{:,}".format(e.new_entrants) }}</td>
       <td>
         {% if e.avg_raise_matched is not none %}
         <span class="chip {{ 'chip-pos' if e.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(e.avg_raise_matched) }}</span>

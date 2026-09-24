@@ -22,6 +22,10 @@ class TopEarnerRow(BaseModel):
     yoy_salary_increase: Optional[float] = None
     comparable_to_prior_year: bool
     rank_province: int
+    province_pool: int
     rank_sector: int
+    sector_pool: int
     rank_employer: int
+    employer_pool: int
     rank_position: Optional[int] = None
+    position_pool: Optional[int] = None

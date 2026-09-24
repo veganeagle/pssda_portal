@@ -32,7 +32,9 @@ class TopEarner(BaseModel):
     # province-wide — only available when this employer's "current" year is the
     # dataset's actual latest year (see pipeline docstring).
     rank_sector: Optional[int] = None
+    sector_pool: Optional[int] = None
     rank_position: Optional[int] = None
+    position_pool: Optional[int] = None
 
 
 class TopPosition(BaseModel):

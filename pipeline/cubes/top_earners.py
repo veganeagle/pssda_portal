@@ -51,9 +51,13 @@ def build_top_earners_table() -> pd.DataFrame:
         "yoy_salary_increase": cur["YoYSalaryIncreaseClean"],
         "comparable_to_prior_year": cur["YoYComparable"],
         "rank_province": cur["RankProvince"],
+        "province_pool": cur["ProvincePool"],
         "rank_sector": cur["RankSector"],
+        "sector_pool": cur["SectorPool"],
         "rank_employer": cur["RankEmployer"],
+        "employer_pool": cur["EmployerPool"],
         "rank_position": cur["RankPosition"],
+        "position_pool": cur["PositionPool"],
     }).sort_values("total_comp", ascending=False).reset_index(drop=True)
 
 
