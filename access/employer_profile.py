@@ -14,7 +14,7 @@ def get_employer_profile(employer_id: str) -> Optional[EmployerProfile]:
         return None
     w = records(wide)[0]
 
-    history_df = query("SELECT * FROM employer_history WHERE employer_id = ? ORDER BY year", [employer_id])
+    history_df = query("SELECT * FROM employer_history WHERE employer_id = ? ORDER BY year DESC", [employer_id])
     history = [EmployerYearRecord(**row) for row in records(history_df, exclude=("employer_id",))]
     current = next((h for h in history if h.year == w["current_year"]), history[-1])
 

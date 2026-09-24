@@ -19,7 +19,7 @@ def get_position_profile(sector_id: str, title_norm: str) -> Optional[PositionPr
     w = records(wide)[0]
 
     history_df = query(
-        "SELECT * FROM position_history WHERE sector_id = ? AND title_norm = ? ORDER BY year",
+        "SELECT * FROM position_history WHERE sector_id = ? AND title_norm = ? ORDER BY year DESC",
         [sector_id, title_norm],
     )
     history = [PositionYearRecord(**row) for row in records(history_df, exclude=("sector_id", "title_norm"))]
