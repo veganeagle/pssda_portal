@@ -16,7 +16,7 @@ def get_employee_profile(employee_id: str) -> Optional[EmployeeProfile]:
         return None
     w = _records(wide)[0]
 
-    history_df = query("SELECT * FROM employee_history WHERE employee_id = ? ORDER BY year", [employee_id])
+    history_df = query("SELECT * FROM employee_history WHERE employee_id = ? ORDER BY year DESC", [employee_id])
     payband_df = query(
         "SELECT * FROM employee_payband_standing WHERE employee_id = ? ORDER BY year, peer_group", [employee_id]
     )

@@ -21,7 +21,7 @@
   <h2>Workforce history <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history">
-      <tr><th>Year</th><th>Headcount</th><th>Avg. salary</th><th>Avg. total comp</th><th>Total payroll</th><th>Newly disclosed</th></tr>
+      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Total payroll</th><th>Newly disclosed</th></tr>
       {% for h in employer.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>

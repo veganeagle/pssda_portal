@@ -5,8 +5,8 @@
   <div>
     <h1>{{ profile.first_name|proper }} {{ profile.last_name|proper }}{% if profile.middle %} {{ profile.middle|proper }}{% endif %}</h1>
     <p class="role">
-      <b>{% if profile.current.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=profile.current.sector_id, title_norm=profile.current.title_norm) }}">{{ profile.current.job_title|proper }}</a>{% else %}{{ profile.current.job_title|proper }}{% endif %}</b>
-      &middot; <a href="{{ url_for('employer.profile_page', employer_id=profile.current.employer_id) }}">{{ profile.current.employer_name|proper }}</a>
+      <b>{% if profile.current.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=profile.current.sector_id, title_norm=profile.current.title_norm, back=request.path) }}">{{ profile.current.job_title|proper }}</a>{% else %}{{ profile.current.job_title|proper }}{% endif %}</b>
+      &middot; <a href="{{ url_for('employer.profile_page', employer_id=profile.current.employer_id, back=request.path) }}">{{ profile.current.employer_name|proper }}</a>
       &middot; FY{{ profile.current.year }}
     </p>
   </div>
@@ -40,21 +40,21 @@
 </div>
 
 <div class="panel">
-  <h2>Disclosure history <span class="sub">{{ profile.history[0].year if profile.history else '' }}&ndash;{{ profile.current.year }}</span></h2>
+  <h2>Disclosure history <span class="sub">{{ profile.first_seen_year }}&ndash;{{ profile.last_seen_year }}</span></h2>
   <div class="history-wrap">
     <table class="history">
       <tr><th>Year</th><th>Employer</th><th>Title</th><th>Salary</th><th>Total comp</th><th>YoY</th><th>Events</th></tr>
       {% for h in profile.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>
-        <td><a href="{{ url_for('employer.profile_page', employer_id=h.employer_id) }}">{{ h.employer_name|proper }}</a></td>
-        <td>{% if h.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=h.sector_id, title_norm=h.title_norm) }}">{{ h.job_title|proper }}</a>{% else %}{{ h.job_title|proper }}{% endif %}</td>
+        <td><a href="{{ url_for('employer.profile_page', employer_id=h.employer_id, back=request.path) }}">{{ h.employer_name|proper }}</a></td>
+        <td>{% if h.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=h.sector_id, title_norm=h.title_norm, back=request.path) }}">{{ h.job_title|proper }}</a>{% else %}{{ h.job_title|proper }}{% endif %}</td>
         <td class="num mono">${{ "{:,.0f}".format(h.salary_paid) }}</td>
         <td class="num mono">${{ "{:,.0f}".format(h.total_comp) }}</td>
         <td class="num">
           {% if h.comparable_to_prior_year and h.yoy_salary_increase is not none %}
           <span class="chip {{ 'chip-pos' if h.yoy_salary_increase >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(h.yoy_salary_increase) }}</span>
-          {% elif loop.first %}
+          {% elif h.year == profile.first_seen_year %}
           <span class="chip chip-mute">first yr</span>
           {% else %}
           <span class="chip chip-mute">n/a</span>

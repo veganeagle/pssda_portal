@@ -14,10 +14,9 @@
   <div class="tile"><div class="label">Avg. salary</div><div class="value mono">${{ "{:,.0f}".format(position.current.avg_salary) }}</div></div>
   <div class="tile"><div class="label">Avg. total comp</div><div class="value mono">${{ "{:,.0f}".format(position.current.avg_total_comp) }}</div></div>
   <div class="tile accent">
-    <div class="label">Matched-cohort raise, {{ position.current.year }}</div>
+    <div class="label">Raise, {{ position.current.year }}</div>
     {% if position.current.avg_raise_matched is not none %}
     <div class="value mono">{{ "{:+.1%}".format(position.current.avg_raise_matched) }}</div>
-    <div class="label" style="margin-top:0.3rem;">n={{ "{:,}".format(position.current.cohort_size_matched) }} held this exact role both years</div>
     {% else %}
     <div class="value mono">&mdash;</div>
     {% endif %}
@@ -28,7 +27,7 @@
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history">
-      <tr><th>Year</th><th>Headcount</th><th>Avg. salary</th><th>Avg. total comp</th><th>Matched-cohort raise</th><th>Cohort n</th></tr>
+      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Raise</th></tr>
       {% for h in position.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>
@@ -42,18 +41,17 @@
           <span class="chip chip-mute">n/a</span>
           {% endif %}
         </td>
-        <td class="num mono">{{ "{:,}".format(h.cohort_size_matched) }}</td>
       </tr>
       {% endfor %}
     </table>
   </div>
-  <p class="muted" style="margin-top:0.75rem;">Matched-cohort raise is the average change for people who held this exact role, in this sector, in both years — not a same-role year-over-year average, which would be skewed by people newly crossing the disclosure threshold or leaving.</p>
+  <p class="muted" style="margin-top:0.75rem;">Raise is the average change for people who held this exact role, in this sector, in both years — not a same-role year-over-year average, which would be skewed by people newly crossing the disclosure threshold or leaving.</p>
 </div>
 
 <div class="panel">
   <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by avg. total comp</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Employer</th><th>Headcount</th><th>Avg. total comp</th></tr>
+    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Avg. total comp</th></tr>
     {% for e in position.by_employer[:30] %}
     <tr>
       <td class="mono">{{ e.rank }}</td>
