@@ -1,7 +1,7 @@
 """Top Earners leaderboard: filterable by sector, employer (name-contains), and
-position (sector_id + title_norm together — a bare title spans domains, same
-rule as everywhere else). No filter = province-wide. Always the dataset's
-latest year (the cube only has one).
+position (title-contains, same as employer — combine with sector to scope to
+one domain). No filter = province-wide. Always the dataset's latest year (the
+cube only has one).
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ def _escape_like(s: str) -> str:
 
 def search_top_earners(
     sector_id: str | None = None, employer_contains: str | None = None,
-    title_norm: str | None = None, limit: int = DEFAULT_LIMIT,
+    title_contains: str | None = None, limit: int = DEFAULT_LIMIT,
 ) -> list[TopEarnerRow]:
     conditions = []
     params: list = []
@@ -29,9 +29,9 @@ def search_top_earners(
     if employer_contains:
         conditions.append("LOWER(employer_name) LIKE LOWER(?) ESCAPE '\\'")
         params.append(f"%{_escape_like(employer_contains)}%")
-    if title_norm:
-        conditions.append("title_norm = ?")
-        params.append(title_norm)
+    if title_contains:
+        conditions.append("LOWER(title_norm) LIKE LOWER(?) ESCAPE '\\'")
+        params.append(f"%{_escape_like(title_contains)}%")
 
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
     sql = f"""
@@ -52,8 +52,8 @@ if __name__ == "__main__":
         {},
         {"sector_id": "7"},
         {"employer_contains": "toronto"},
-        {"sector_id": "8", "title_norm": "CONSTABLE"},
-        {"sector_id": "8", "title_norm": "CONSTABLE", "employer_contains": "toronto"},
+        {"sector_id": "8", "title_contains": "constable"},
+        {"sector_id": "8", "title_contains": "constable", "employer_contains": "toronto"},
     ]
     for case in cases:
         start = time.perf_counter()

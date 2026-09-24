@@ -47,12 +47,6 @@ class PositionSearchResult(BaseModel):
     current_avg_total_comp: float
 
 
-class PositionOption(BaseModel):
-    sector_id: str
-    title_norm: str
-    sector_name: Optional[str] = None
-
-
 class PositionProfile(BaseModel):
     sector_id: str
     title_norm: str

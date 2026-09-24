@@ -13,21 +13,7 @@
         </select>
       </label>
       <label>Employer contains<input type="text" name="employer" value="{{ request.args.get('employer', '') }}"></label>
-      <label>Position
-        <select name="position">
-          <option value="">Any</option>
-          {% set ns = namespace(current_sector="") %}
-          {% for p in positions %}
-          {% if p.sector_name != ns.current_sector %}
-            {% if ns.current_sector != "" %}</optgroup>{% endif %}
-            <optgroup label="{{ p.sector_name|proper }}">
-            {% set ns.current_sector = p.sector_name %}
-          {% endif %}
-          <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if request.args.get('position') == p.sector_id ~ '::' ~ p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}</option>
-          {% endfor %}
-          </optgroup>
-        </select>
-      </label>
+      <label>Position contains<input type="text" name="position" value="{{ request.args.get('position', '') }}"></label>
     </div>
     <div class="search-actions"><button type="submit">Search</button></div>
   </form>
@@ -39,7 +25,7 @@
     <tr><th>Province rank</th><th>Name</th><th>Employer</th><th>Position</th><th>Total comp</th><th>YoY</th></tr>
     {% for r in results %}
     <tr>
-      <td class="mono">#{{ r.rank_province }}</td>
+      <td class="num mono">#{{ r.rank_province }}</td>
       <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
       <td><a href="{{ url_for('employer.profile_page', employer_id=r.employer_id) }}">{{ r.employer_name|proper }}</a></td>
       <td>{% if r.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=r.sector_id, title_norm=r.title_norm) }}">{{ r.job_title|proper }}</a>{% else %}{{ r.job_title|proper }}{% endif %}</td>

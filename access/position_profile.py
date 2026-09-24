@@ -9,7 +9,6 @@ from access._rows import records
 from access.db import query
 from models.position_profile import (
     PositionEmployerRank,
-    PositionOption,
     PositionProfile,
     PositionSearchResult,
     PositionYearRecord,
@@ -46,13 +45,6 @@ def search_positions(
     params.append(limit)
     df = query(sql, params)
     return [PositionSearchResult(**row) for row in records(df)]
-
-
-def list_positions() -> list[PositionOption]:
-    df = query(
-        "SELECT sector_id, title_norm, sector_name FROM position_wide ORDER BY sector_name, title_norm"
-    )
-    return [PositionOption(**row) for row in records(df)]
 
 
 def get_position_profile(sector_id: str, title_norm: str) -> Optional[PositionProfile]:
