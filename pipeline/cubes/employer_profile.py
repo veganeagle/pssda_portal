@@ -15,6 +15,7 @@ from pipeline.gender import compute_pct_female
 from pipeline.manifest import update_manifest
 from pipeline.matched_cohort import matched_cohort_flag
 from pipeline.rankings import compute_current_year_rankings
+from pipeline.title_breakdown import compute_title_breakdown
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed"))
 OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "profiles"))
@@ -144,10 +145,14 @@ def build_top_earners(history: pd.DataFrame, employees: pd.DataFrame, rankings: 
     }).reset_index(drop=True)
 
 
-def build_top_positions(history: pd.DataFrame) -> pd.DataFrame:
+def build_top_positions(history: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Current-year-per-employer breakdown by position, ranked by headcount —
     "what roles does this employer have the most of," with each role's own
-    avg salary and matched-cohort raise."""
+    salary band and matched-cohort raise. Returns (top_positions, breakdown) —
+    the label is the generic Title_Norm (e.g. "Teacher"), never one arbitrarily
+    picked raw variant (that previously mislabeled a merged Elementary+Secondary
+    group as if it were Elementary-only); breakdown carries the real composition.
+    """
     idx = history.groupby("EmployerID")["Year"].idxmax()
     current_year_by_employer = history.loc[idx, ["EmployerID", "Year"]].set_index("EmployerID")["Year"]
 
@@ -159,13 +164,15 @@ def build_top_positions(history: pd.DataFrame) -> pd.DataFrame:
     key = ["EmployerID", "Title_Norm"]
     g = cur.groupby(key).agg(
         sector_id=("SectorID", "first"),
-        job_title=("JobTitleNorm", "first"),
         year=("Year", "first"),
         headcount=("EmployeeID", "size"),
         avg_salary=("SalaryPaid", "mean"),
+        median_salary=("SalaryPaid", "median"),
+        p90_salary=("SalaryPaid", lambda s: s.quantile(0.9)),
         avg_total_comp=("TotalComp", "mean"),
     ).reset_index()
-    g[["avg_salary", "avg_total_comp"]] = g[["avg_salary", "avg_total_comp"]].round(0)
+    money_cols = ["avg_salary", "median_salary", "p90_salary", "avg_total_comp"]
+    g[money_cols] = g[money_cols].round(0)
 
     matched = cur[cur["MatchedCohort"]]
     avg_raise = matched.groupby(key)["YoYSalaryIncrease"].mean().round(4).rename("avg_raise_matched")
@@ -177,18 +184,27 @@ def build_top_positions(history: pd.DataFrame) -> pd.DataFrame:
     g["rank"] = g.groupby("EmployerID")["headcount"].rank(method="first", ascending=False).astype(int)
     top = g[g["rank"] <= TOP_POSITIONS_N].sort_values(["EmployerID", "rank"])
 
-    return pd.DataFrame({
+    top_positions = pd.DataFrame({
         "employer_id": top["EmployerID"],
         "sector_id": top["sector_id"],
         "title_norm": top["Title_Norm"],
-        "job_title": top["job_title"],
         "year": top["year"].astype(int),
         "rank": top["rank"],
         "headcount": top["headcount"],
         "avg_salary": top["avg_salary"],
+        "median_salary": top["median_salary"],
+        "p90_salary": top["p90_salary"],
         "avg_total_comp": top["avg_total_comp"],
         "avg_raise_matched": top["avg_raise_matched"],
     }).reset_index(drop=True)
+
+    # Breakdown only for the (employer, title) pairs that actually made top 10 —
+    # no need to compute it for the long tail that's never displayed.
+    top_pairs = cur.merge(top[["EmployerID", "Title_Norm"]], on=["EmployerID", "Title_Norm"], how="inner")
+    breakdown = compute_title_breakdown(top_pairs, ["EmployerID", "Title_Norm"])
+    breakdown = breakdown.rename(columns={"EmployerID": "employer_id", "Title_Norm": "title_norm"})
+
+    return top_positions, breakdown
 
 
 def build_employer_profile_cube() -> dict:
@@ -199,19 +215,21 @@ def build_employer_profile_cube() -> dict:
     employer_history = build_employer_history(history, employees)
     employer_wide = build_employer_wide(history, employer_history, employers, sector_name_map)
     top_earners = build_top_earners(history, employees, rankings)
-    top_positions = build_top_positions(history)
+    top_positions, top_position_breakdown = build_top_positions(history)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     employer_wide.to_parquet(os.path.join(OUTPUT_DIR, "employer_wide.parquet"), index=False)
     employer_history.to_parquet(os.path.join(OUTPUT_DIR, "employer_history.parquet"), index=False)
     top_earners.to_parquet(os.path.join(OUTPUT_DIR, "employer_top_earners.parquet"), index=False)
     top_positions.to_parquet(os.path.join(OUTPUT_DIR, "employer_top_positions.parquet"), index=False)
+    top_position_breakdown.to_parquet(os.path.join(OUTPUT_DIR, "employer_top_position_breakdown.parquet"), index=False)
 
     return update_manifest("employer_profile", {
         "employer_wide.parquet": len(employer_wide),
         "employer_history.parquet": len(employer_history),
         "employer_top_earners.parquet": len(top_earners),
         "employer_top_positions.parquet": len(top_positions),
+        "employer_top_position_breakdown.parquet": len(top_position_breakdown),
     })
 
 

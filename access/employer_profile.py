@@ -5,7 +5,14 @@ from typing import Optional
 
 from access._rows import records
 from access.db import query
-from models.employer_profile import EmployerProfile, EmployerSearchResult, EmployerYearRecord, TopEarner, TopPosition
+from models.employer_profile import (
+    EmployerProfile,
+    EmployerSearchResult,
+    EmployerYearRecord,
+    TitleVariant,
+    TopEarner,
+    TopPosition,
+)
 
 SEARCH_LIMIT = 50
 
@@ -58,7 +65,18 @@ def get_employer_profile(employer_id: str) -> Optional[EmployerProfile]:
     positions_df = query(
         "SELECT * FROM employer_top_positions WHERE employer_id = ? ORDER BY rank", [employer_id]
     )
-    top_positions = [TopPosition(**row) for row in records(positions_df, exclude=("employer_id", "year"))]
+    variants_df = query(
+        "SELECT * FROM employer_top_position_breakdown WHERE employer_id = ?", [employer_id]
+    )
+    variants_by_title: dict[str, list[TitleVariant]] = {}
+    for row in records(variants_df, exclude=("employer_id",)):
+        title_norm = row.pop("title_norm")
+        variants_by_title.setdefault(title_norm, []).append(TitleVariant(**row))
+
+    top_positions = [
+        TopPosition(**row, variants=variants_by_title.get(row["title_norm"], []))
+        for row in records(positions_df, exclude=("employer_id", "year"))
+    ]
 
     return EmployerProfile(
         employer_id=w["employer_id"], employer_name=w["employer_name"], sector_id=w["sector_id"],

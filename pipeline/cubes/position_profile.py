@@ -39,6 +39,8 @@ def build_position_history(history: pd.DataFrame, employees: pd.DataFrame) -> pd
     key = ["SectorID", "Title_Norm", "Year"]
     headcount = base.groupby(key)["EmployeeID"].size().rename("headcount")
     avg_salary = base.groupby(key)["SalaryPaid"].mean().round(0).rename("avg_salary")
+    median_salary = base.groupby(key)["SalaryPaid"].median().round(0).rename("median_salary")
+    p90_salary = base.groupby(key)["SalaryPaid"].quantile(0.9).round(0).rename("p90_salary")
     avg_total_comp = base.groupby(key)["TotalComp"].mean().round(0).rename("avg_total_comp")
     promotions = base.groupby(key)["PromotionFlag"].sum().astype(int).rename("promotions")
 
@@ -49,7 +51,8 @@ def build_position_history(history: pd.DataFrame, employees: pd.DataFrame) -> pd
     gender = compute_pct_female(base, key).set_index(key)["pct_female"].rename("pct_female")
 
     out = pd.concat(
-        [headcount, avg_salary, avg_total_comp, promotions, avg_raise_matched, cohort_size_matched, gender], axis=1
+        [headcount, avg_salary, median_salary, p90_salary, avg_total_comp, promotions,
+         avg_raise_matched, cohort_size_matched, gender], axis=1
     ).reset_index()
     out["cohort_size_matched"] = out["cohort_size_matched"].fillna(0).astype(int)
 
@@ -59,6 +62,8 @@ def build_position_history(history: pd.DataFrame, employees: pd.DataFrame) -> pd
         "year": out["Year"].astype(int),
         "headcount": out["headcount"],
         "avg_salary": out["avg_salary"],
+        "median_salary": out["median_salary"],
+        "p90_salary": out["p90_salary"],
         "avg_total_comp": out["avg_total_comp"],
         "promotions": out["promotions"],
         "avg_raise_matched": out["avg_raise_matched"],
@@ -85,6 +90,8 @@ def build_position_wide(position_history: pd.DataFrame, sector_name_map: dict) -
         "current_year": cur["year"].astype(int).values,
         "current_headcount": cur["headcount"].values,
         "current_avg_salary": cur["avg_salary"].values,
+        "current_median_salary": cur["median_salary"].values,
+        "current_p90_salary": cur["p90_salary"].values,
         "current_avg_total_comp": cur["avg_total_comp"].values,
         "current_promotions": cur["promotions"].values,
         "current_avg_raise_matched": cur["avg_raise_matched"].values,
@@ -110,12 +117,14 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
         year=("Year", "first"),
         headcount=("EmployeeID", "size"),
         avg_total_comp=("TotalComp", "mean"),
+        median_salary=("SalaryPaid", "median"),
+        p90_salary=("SalaryPaid", lambda s: s.quantile(0.9)),
         max_salary=("SalaryPaid", "max"),
         new_entrants=("TenureOnList", lambda s: int((s == 1).sum())),
     ).reset_index()
     g = g[g["headcount"] >= MIN_EMPLOYER_GROUP_SIZE].copy()
-    g["avg_total_comp"] = g["avg_total_comp"].round(0)
-    g["max_salary"] = g["max_salary"].round(0)
+    money_cols = ["avg_total_comp", "median_salary", "p90_salary", "max_salary"]
+    g[money_cols] = g[money_cols].round(0)
     g["rank"] = g.groupby(["SectorID", "Title_Norm"])["headcount"].rank(method="dense", ascending=False).astype(int)
 
     matched = cur[cur["MatchedCohort"]]
@@ -133,6 +142,8 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
         "year": g["year"].astype(int),
         "headcount": g["headcount"],
         "avg_total_comp": g["avg_total_comp"],
+        "median_salary": g["median_salary"],
+        "p90_salary": g["p90_salary"],
         "max_salary": g["max_salary"],
         "new_entrants": g["new_entrants"],
         "avg_raise_matched": g["avg_raise_matched"],

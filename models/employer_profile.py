@@ -37,17 +37,30 @@ class TopEarner(BaseModel):
     position_pool: Optional[int] = None
 
 
+class TitleVariant(BaseModel):
+    # A raw JobTitleNorm variant large enough (see pipeline.title_breakdown) to
+    # name individually within a Title_Norm group, or "Other" for the residual.
+    variant: str
+    headcount: int
+    avg_salary: float
+    median_salary: float
+
+
 class TopPosition(BaseModel):
     rank: int
     sector_id: str
     title_norm: str
-    job_title: str
     headcount: int
     avg_salary: float
+    median_salary: float
+    p90_salary: float
     avg_total_comp: float
     # Matched-cohort average for this position at this employer; None when the
     # matched cohort here is too small (< MIN_MATCHED_COHORT).
     avg_raise_matched: Optional[float] = None
+    # Real composition of this Title_Norm group at this employer — e.g. Teacher
+    # here is Elementary + Secondary + a few others, never just one of them.
+    variants: list[TitleVariant] = Field(default_factory=list)
 
 
 class EmployerSearchResult(BaseModel):

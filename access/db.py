@@ -16,10 +16,14 @@ _PROFILE_TABLES = {
     "employer_history": "employer_history.parquet",
     "employer_top_earners": "employer_top_earners.parquet",
     "employer_top_positions": "employer_top_positions.parquet",
+    "employer_top_position_breakdown": "employer_top_position_breakdown.parquet",
     "position_wide": "position_wide.parquet",
     "position_history": "position_history.parquet",
     "position_by_employer": "position_by_employer.parquet",
     "top_earners_current": "top_earners_current.parquet",
+    "employer_position_wide": "employer_position_wide.parquet",
+    "employer_position_history": "employer_position_history.parquet",
+    "employer_position_breakdown": "employer_position_breakdown.parquet",
     "sectors": "sectors.parquet",
 }
 

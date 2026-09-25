@@ -13,8 +13,8 @@
 </div>
 
 <div class="grid">
-  <div class="tile"><div class="label">Avg. salary</div><div class="value mono">${{ "{:,.0f}".format(position.current.avg_salary) }}</div></div>
-  <div class="tile"><div class="label">Avg. total comp</div><div class="value mono">${{ "{:,.0f}".format(position.current.avg_total_comp) }}</div></div>
+  <div class="tile"><div class="label">Median salary</div><div class="value mono">${{ "{:,.0f}".format(position.current.median_salary) }}</div></div>
+  <div class="tile"><div class="label">P90 salary</div><div class="value mono">${{ "{:,.0f}".format(position.current.p90_salary) }}</div></div>
   <div class="tile accent">
     <div class="label">Raise, {{ position.current.year }}</div>
     {% if position.current.avg_raise_matched is not none %}
@@ -29,13 +29,13 @@
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history">
-      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Raise</th><th>Newly Promoted</th><th>Gender</th></tr>
+      <tr><th>Year</th><th>Employees on List</th><th>Median salary</th><th>P90 salary</th><th>Raise</th><th>Newly Promoted</th><th>Gender</th></tr>
       {% for h in position.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>
         <td class="num mono">{{ "{:,}".format(h.headcount) }}</td>
-        <td class="num mono">${{ "{:,.0f}".format(h.avg_salary) }}</td>
-        <td class="num mono">${{ "{:,.0f}".format(h.avg_total_comp) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.median_salary) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.p90_salary) }}</td>
         <td class="num">
           {% if h.avg_raise_matched is not none %}
           <span class="chip {{ 'chip-pos' if h.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(h.avg_raise_matched) }}</span>
@@ -55,13 +55,17 @@
 <div class="panel">
   <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by employees on list</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Avg. total comp</th><th>Max salary</th><th>New entrants</th><th>Raise</th></tr>
+    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Median salary</th><th>P90 salary</th><th>Max salary</th><th>New entrants</th><th>Raise</th></tr>
     {% for e in position.by_employer[:30] %}
     <tr>
       <td class="num mono">{{ e.rank }}</td>
-      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}">{{ e.employer_name|proper }}</a></td>
+      <td>
+        <a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}">{{ e.employer_name|proper }}</a>
+        <a class="combo-link" href="{{ url_for('combo.profile_page', employer_id=e.employer_id, sector_id=position.sector_id, title_norm=position.title_norm, back=request.path) }}" title="{{ position.title_norm|proper }} at {{ e.employer_name|proper }} — full details">&#10530;</a>
+      </td>
       <td class="num mono">{{ "{:,}".format(e.headcount) }}</td>
-      <td class="num mono">${{ "{:,.0f}".format(e.avg_total_comp) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.median_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.p90_salary) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(e.max_salary) }}</td>
       <td class="num mono">{{ "{:,}".format(e.new_entrants) }}</td>
       <td>

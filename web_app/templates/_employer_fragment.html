@@ -21,13 +21,20 @@
 <div class="panel">
   <h2>Top positions <span class="sub">FY{{ employer.current.year }} &middot; ranked by employees on list</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Position</th><th>Employees on List</th><th>Avg. salary</th><th>Raise</th></tr>
+    <tr><th>#</th><th>Position</th><th>Employees on List</th><th>Median salary</th><th>P90 salary</th><th>Raise</th></tr>
     {% for tp in employer.top_positions %}
     <tr>
       <td class="num mono">{{ tp.rank }}</td>
-      <td><a href="{{ url_for('position.profile_page', sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}">{{ tp.job_title|proper }}</a></td>
+      <td>
+        <a href="{{ url_for('position.profile_page', sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}">{{ tp.title_norm|proper }}</a>
+        <a class="combo-link" href="{{ url_for('combo.profile_page', employer_id=employer.employer_id, sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}" title="{{ tp.title_norm|proper }} at {{ employer.employer_name|proper }} — full details">&#10530;</a>
+        {% if tp.variants %}
+        <small class="muted" style="display:block;">{% for v in tp.variants %}{{ v.variant|proper }} {{ v.headcount }}{% if not loop.last %} &middot; {% endif %}{% endfor %}</small>
+        {% endif %}
+      </td>
       <td class="num mono">{{ "{:,}".format(tp.headcount) }}</td>
-      <td class="mono">${{ "{:,.0f}".format(tp.avg_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(tp.median_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(tp.p90_salary) }}</td>
       <td>
         {% if tp.avg_raise_matched is not none %}
         <span class="chip {{ 'chip-pos' if tp.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(tp.avg_raise_matched) }}</span>

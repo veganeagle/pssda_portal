@@ -9,6 +9,8 @@ class PositionYearRecord(BaseModel):
     year: int
     headcount: int
     avg_salary: float
+    median_salary: float
+    p90_salary: float
     avg_total_comp: float
     # Count of PromotionFlag rows this year — a heuristic (title changed + raise
     # >=10%), not verified promotions.
@@ -29,6 +31,8 @@ class PositionEmployerRank(BaseModel):
     employer_name: str
     headcount: int
     avg_total_comp: float
+    median_salary: float
+    p90_salary: float
     max_salary: float
     # Headcount in their first disclosed year in this exact role at this
     # employer — not a hire count, see SUNSHINE.md #1.

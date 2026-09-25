@@ -1,0 +1,72 @@
+<div class="id-card">
+  <div>
+    <h1>{{ combo.title_norm|proper }} <span class="muted" style="font-weight:500;">at</span> {{ combo.employer_name|proper }}</h1>
+    <p class="role">
+      <a href="{{ url_for('position.profile_page', sector_id=combo.sector_id, title_norm=combo.title_norm) }}">{{ combo.title_norm|proper }} province-wide</a>
+      &middot; <a href="{{ url_for('employer.profile_page', employer_id=combo.employer_id) }}">{{ combo.employer_name|proper }} overall</a>
+      &middot; FY{{ combo.current.year }}
+    </p>
+  </div>
+  <div class="tag-row">
+    <span class="tag">{{ "{:,}".format(combo.current.headcount) }} on list in {{ combo.current.year }}</span>
+    <span class="tag">{{ combo.years_present }} yrs on file ({{ combo.first_year_present }}&ndash;{{ combo.last_year_present }})</span>
+    {% if combo.current.pct_female is not none %}<span class="tag">{{ combo.current.pct_female }}% estimated female</span>{% endif %}
+  </div>
+</div>
+
+<div class="grid">
+  <div class="tile"><div class="label">Median salary</div><div class="value mono">${{ "{:,.0f}".format(combo.current.median_salary) }}</div></div>
+  <div class="tile"><div class="label">P90 salary</div><div class="value mono">${{ "{:,.0f}".format(combo.current.p90_salary) }}</div></div>
+  <div class="tile accent">
+    <div class="label">Raise, {{ combo.current.year }}</div>
+    {% if combo.current.avg_raise_matched is not none %}
+    <div class="value mono">{{ "{:+.1%}".format(combo.current.avg_raise_matched) }}</div>
+    {% else %}
+    <div class="value mono">&mdash;</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if combo.variants %}
+<div class="panel">
+  <h2>Composition <span class="sub">FY{{ combo.current.year }}</span></h2>
+  <table class="result-table">
+    <tr><th>Title</th><th>Employees on list</th><th>Avg. salary</th><th>Median salary</th></tr>
+    {% for v in combo.variants %}
+    <tr>
+      <td>{{ v.variant|proper }}</td>
+      <td class="num mono">{{ "{:,}".format(v.headcount) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(v.avg_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(v.median_salary) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted" style="margin-top:0.5rem;">"{{ combo.title_norm|proper }}" is the normalized role used for cross-employer comparison; this is what it's actually made of here.</p>
+</div>
+{% endif %}
+
+<div class="panel">
+  <h2>Trend <span class="sub">{{ combo.first_year_present }}&ndash;{{ combo.last_year_present }}</span></h2>
+  <div class="history-wrap">
+    <table class="history">
+      <tr><th>Year</th><th>On list</th><th>Median salary</th><th>P90 salary</th><th>Max salary</th><th>Raise</th><th>Gender</th></tr>
+      {% for h in combo.history %}
+      <tr>
+        <td class="mono">{{ h.year }}</td>
+        <td class="num mono">{{ "{:,}".format(h.headcount) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.median_salary) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.p90_salary) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(h.max_salary) }}</td>
+        <td class="num">
+          {% if h.avg_raise_matched is not none %}
+          <span class="chip {{ 'chip-pos' if h.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(h.avg_raise_matched) }}</span>
+          {% else %}
+          <span class="chip chip-mute">n/a</span>
+          {% endif %}
+        </td>
+        <td class="num mono">{{ h.pct_female ~ "% F" if h.pct_female is not none else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
