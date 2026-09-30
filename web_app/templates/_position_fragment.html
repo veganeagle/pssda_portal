@@ -29,7 +29,7 @@
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history">
-      <tr><th>Year</th><th>Employees on List</th><th>Median salary</th><th>P90 salary</th><th>Raise</th><th>Newly Promoted</th><th>Gender</th></tr>
+      <tr><th>Year</th><th class="num">Employees on List</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Raise</th><th class="num">Newly Promoted</th><th class="num">Gender</th></tr>
       {% for h in position.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>
@@ -55,7 +55,7 @@
 <div class="panel">
   <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by employees on list</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Employer</th><th>Employees on List</th><th>Median salary</th><th>P90 salary</th><th>Max salary</th><th>New entrants</th><th>Raise</th></tr>
+    <tr><th class="num">#</th><th>Employer</th><th class="num">Employees on List</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Max salary</th><th class="num">New entrants</th><th class="num">Raise</th></tr>
     {% for e in position.by_employer[:30] %}
     <tr>
       <td class="num mono">{{ e.rank }}</td>
@@ -68,7 +68,7 @@
       <td class="num mono">${{ "{:,.0f}".format(e.p90_salary) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(e.max_salary) }}</td>
       <td class="num mono">{{ "{:,}".format(e.new_entrants) }}</td>
-      <td>
+      <td class="num">
         {% if e.avg_raise_matched is not none %}
         <span class="chip {{ 'chip-pos' if e.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(e.avg_raise_matched) }}</span>
         {% else %}

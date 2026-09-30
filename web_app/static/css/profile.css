@@ -69,7 +69,7 @@ button:hover, .btn:hover{filter:brightness(1.05);}
   text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid var(--border); font-weight:700;
 }
 .result-table td{padding:0.35rem 0.5rem; border-bottom:1px solid var(--border);}
-.result-table td.num{text-align:right; white-space:nowrap;}
+.result-table td.num, .result-table th.num{text-align:right; white-space:nowrap;}
 .result-table tr:last-child td{border-bottom:none;}
 .result-table tr:hover td{background:var(--surface-2);}
 .result-table a{font-weight:700; text-decoration:none;}
@@ -119,7 +119,7 @@ table.history th{
 }
 table.history td{padding:0.35rem 0.5rem; border-bottom:1px solid var(--border);}
 table.history tr:last-child td{border-bottom:none;}
-table.history td.num{text-align:right; white-space:nowrap;}
+table.history td.num, table.history th.num{text-align:right; white-space:nowrap;}
 table.history tr:hover td{background:var(--surface-2);}
 .chip{display:inline-block; padding:0.1rem 0.45rem; border-radius:999px; font-size:0.76rem; font-weight:700; white-space:nowrap;}
 .chip-pos{background:var(--positive-soft); color:var(--positive);}

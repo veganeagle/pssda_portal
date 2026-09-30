@@ -21,7 +21,7 @@
 <div class="panel">
   <h2>Top positions <span class="sub">FY{{ employer.current.year }} &middot; ranked by employees on list</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Position</th><th>Employees on List</th><th>Median salary</th><th>P90 salary</th><th>Raise</th></tr>
+    <tr><th class="num">#</th><th>Position</th><th class="num">Employees on List</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Raise</th></tr>
     {% for tp in employer.top_positions %}
     <tr>
       <td class="num mono">{{ tp.rank }}</td>
@@ -35,7 +35,7 @@
       <td class="num mono">{{ "{:,}".format(tp.headcount) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(tp.median_salary) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(tp.p90_salary) }}</td>
-      <td>
+      <td class="num">
         {% if tp.avg_raise_matched is not none %}
         <span class="chip {{ 'chip-pos' if tp.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(tp.avg_raise_matched) }}</span>
         {% else %}
@@ -51,7 +51,7 @@
   <h2>Workforce history <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history">
-      <tr><th>Year</th><th>Employees on List</th><th>Avg. salary</th><th>Avg. total comp</th><th>Total payroll</th><th>Newly disclosed</th><th>Gender</th></tr>
+      <tr><th>Year</th><th class="num">Employees on List</th><th class="num">Avg. salary</th><th class="num">Avg. total comp</th><th class="num">Total payroll</th><th class="num">Newly disclosed</th><th class="num">Gender</th></tr>
       {% for h in employer.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>
@@ -71,14 +71,14 @@
 <div class="panel">
   <h2>Top disclosed earners <span class="sub">FY{{ employer.current.year }}</span></h2>
   <table class="result-table">
-    <tr><th>#</th><th>Name</th><th>Title</th><th>Total comp</th><th>YoY</th><th>Sector rank</th><th>Position rank</th></tr>
+    <tr><th class="num">#</th><th>Name</th><th>Title</th><th class="num">Total comp</th><th class="num">YoY</th><th class="num">Sector rank</th><th class="num">Position rank</th></tr>
     {% for t in employer.top_earners %}
     <tr>
       <td class="num mono">{{ t.rank }}</td>
       <td><a href="{{ url_for('employee.profile_page', employee_id=t.employee_id) }}">{{ t.first_name|proper }} {{ t.last_name|proper }}</a></td>
       <td>{{ t.job_title|proper }}</td>
-      <td class="mono">${{ "{:,.0f}".format(t.total_comp) }}</td>
-      <td>
+      <td class="num mono">${{ "{:,.0f}".format(t.total_comp) }}</td>
+      <td class="num">
         {% if t.comparable_to_prior_year and t.yoy_salary_increase is not none %}
         <span class="chip {{ 'chip-pos' if t.yoy_salary_increase >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(t.yoy_salary_increase) }}</span>
         {% else %}

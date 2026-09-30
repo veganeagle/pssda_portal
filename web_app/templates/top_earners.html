@@ -38,15 +38,15 @@
 <div class="panel">
   <p class="result-summary">Top {{ results|length }}{% if request.args.get('sector') or request.args.get('employer') or request.args.get('position') %} matching{% else %} province-wide{% endif %}, FY{{ results[0].year if results else '' }}</p>
   <table class="result-table">
-    <tr><th>Province rank</th><th>Name</th><th>Employer</th><th>Position</th><th>Total comp</th><th>YoY</th></tr>
+    <tr><th class="num">Province rank</th><th>Name</th><th>Employer</th><th>Position</th><th class="num">Total comp</th><th class="num">YoY</th></tr>
     {% for r in results %}
     <tr>
       <td class="num mono">#{{ r.rank_province }}</td>
       <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
       <td><a href="{{ url_for('employer.profile_page', employer_id=r.employer_id) }}">{{ r.employer_name|proper }}</a></td>
       <td>{% if r.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=r.sector_id, title_norm=r.title_norm) }}">{{ r.job_title|proper }}</a>{% else %}{{ r.job_title|proper }}{% endif %}</td>
-      <td class="mono">${{ "{:,.0f}".format(r.total_comp) }}</td>
-      <td>
+      <td class="num mono">${{ "{:,.0f}".format(r.total_comp) }}</td>
+      <td class="num">
         {% if r.comparable_to_prior_year and r.yoy_salary_increase is not none %}
         <span class="chip {{ 'chip-pos' if r.yoy_salary_increase >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(r.yoy_salary_increase) }}</span>
         {% else %}
