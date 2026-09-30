@@ -116,7 +116,7 @@ JSON. Run these after any pipeline or model change.
 | `/employer/<id>` | One employer: workforce history, top positions (by headcount, with median/P90 salary band and a real composition breakdown — see `SUNSHINE.md` on why that matters), top disclosed earners. |
 | `/positions` | Position search — title-contains, sector. Positions are keyed by `(sector, title_norm)`, never title alone (a bare title spans unrelated domains). |
 | `/position/<sector_id>/<title_norm>` | One position, province-wide: trend over time, matched-cohort raise (not a naive year-average), leaderboard of every employer offering this role. |
-| `/employer/<id>/position/<sector_id>/<title_norm>` | The "combo" page — one position at one specific employer. Reached only as a second step (a small "⤢" link) from an employer's or position's table, never searched directly; both directions land on the same page. |
+| `/employer/<id>/position/<sector_id>/<title_norm>` | The "combo" page — one position at one specific employer. Reached only as a second step from an employer's or position's table, never searched directly: clicking a position/employer name in those tables drills into the combo (the contextually relevant destination), with a small "province-wide"/"overall" label alongside for the explicit escape hatch to the broader page. Both directions land on the same combo page. |
 | `/top-earners` | Province-wide leaderboard, filterable by sector, employer-contains, and an exact position (live-filterable dropdown, not free text — see the position-filter JS for why free text was rejected: it mixed unrelated roles across sectors). |
 
 ## Cubes

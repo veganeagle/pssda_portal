@@ -26,8 +26,8 @@
     <tr>
       <td class="num mono">{{ tp.rank }}</td>
       <td>
-        <a href="{{ url_for('position.profile_page', sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}">{{ tp.title_norm|proper }}</a>
-        <a class="combo-link" href="{{ url_for('combo.profile_page', employer_id=employer.employer_id, sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}" title="{{ tp.title_norm|proper }} at {{ employer.employer_name|proper }} — full details">&#10530;</a>
+        <a href="{{ url_for('combo.profile_page', employer_id=employer.employer_id, sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}">{{ tp.title_norm|proper }}</a>
+        <a class="alt-link" href="{{ url_for('position.profile_page', sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}" title="{{ tp.title_norm|proper }}, province-wide (all employers)">province-wide</a>
         {% if tp.variants %}
         <small class="muted" style="display:block;">{% for v in tp.variants %}{{ v.variant|proper }} {{ v.headcount }}{% if not loop.last %} &middot; {% endif %}{% endfor %}</small>
         {% endif %}
