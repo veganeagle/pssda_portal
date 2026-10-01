@@ -9,11 +9,11 @@
 </head>
 <body>
 <header class="topbar">
-  <span class="dot">&#9679;</span> PSSDA Portal
+  <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> PSSDA Portal</a>
   <nav class="tabs">
-    <a href="{{ url_for('employee.search') }}">Employees</a>
-    <a href="{{ url_for('employer.search') }}">Employers</a>
     <a href="{{ url_for('position.search') }}">Positions</a>
+    <a href="{{ url_for('employer.search') }}">Employers</a>
+    <a href="{{ url_for('employee.search') }}">Employees</a>
     <a href="{{ url_for('top_earners.index') }}">Top Earners</a>
   </nav>
 </header>

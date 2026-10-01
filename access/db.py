@@ -25,6 +25,7 @@ _PROFILE_TABLES = {
     "employer_position_history": "employer_position_history.parquet",
     "employer_position_breakdown": "employer_position_breakdown.parquet",
     "sectors": "sectors.parquet",
+    "notable_roles_current": "notable_roles_current.parquet",
 }
 
 con = duckdb.connect(database=":memory:")

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Search{% endblock %}
+{% block title %}Search Employees{% endblock %}
 {% block content %}
+
 <div class="search-panel">
   <form method="get" action="{{ url_for('employee.search') }}">
     <div class="search-grid">
@@ -26,7 +27,7 @@
 {% if searched %}
 <div class="panel">
   {% if outcome.too_many %}
-  <p class="result-summary">More than 100 matches — please narrow your search.</p>
+  <p class="result-summary">More than 100 matches &mdash; please narrow your search.</p>
   {% else %}
   <p class="result-summary">{{ outcome.results|length }} result(s)</p>
   <table class="result-table">

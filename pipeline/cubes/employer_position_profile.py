@@ -24,8 +24,9 @@ from pipeline.title_breakdown import compute_title_breakdown
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed"))
 OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "profiles"))
 
-# A combo needs at least this many people in its own most recent year to get a
-# page at all — same rationale as position_by_employer's threshold.
+# Below this, a "matched-cohort raise" is too noisy to show (suppressed below) —
+# but the combo page itself still exists: a Mayor or Police Chief is one real,
+# already-public person, not a small cell worth hiding entirely.
 MIN_GROUP_SIZE = 3
 
 
@@ -84,8 +85,7 @@ def build_combo_wide(combo_history: pd.DataFrame, employer_names: pd.Series, sec
     years_present = combo_history.groupby(key)["year"].nunique().rename("years_present")
     cur = combo_history.sort_values("year").groupby(key).last()
 
-    # Only combos big enough, right now, to say anything meaningful about.
-    idx = cur[cur["headcount"] >= MIN_GROUP_SIZE].index
+    idx = cur.index
 
     out = pd.DataFrame({
         "employer_id": [i[0] for i in idx],

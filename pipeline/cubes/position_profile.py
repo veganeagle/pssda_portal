@@ -21,7 +21,9 @@ from pipeline.matched_cohort import matched_cohort_flag
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed"))
 OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "profiles"))
 
-MIN_EMPLOYER_GROUP_SIZE = 3  # same rationale as the payband cube — suppress tiny, noisy cells
+MIN_EMPLOYER_GROUP_SIZE = 3  # below this, a "matched-cohort raise" is too noisy to show — but
+# the row itself still shows (headcount, salary) unsuppressed: a Mayor or Police
+# Chief is one real, already-public person, not a small cell worth hiding.
 
 
 def load_source() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -122,7 +124,6 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
         max_salary=("SalaryPaid", "max"),
         new_entrants=("TenureOnList", lambda s: int((s == 1).sum())),
     ).reset_index()
-    g = g[g["headcount"] >= MIN_EMPLOYER_GROUP_SIZE].copy()
     money_cols = ["avg_total_comp", "median_salary", "p90_salary", "max_salary"]
     g[money_cols] = g[money_cols].round(0)
     g["rank"] = g.groupby(["SectorID", "Title_Norm"])["headcount"].rank(method="dense", ascending=False).astype(int)

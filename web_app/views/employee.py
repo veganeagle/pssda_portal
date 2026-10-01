@@ -15,7 +15,6 @@ def _parse_year(raw):
         return None  # garbage input just means "no year filter", not a crash
 
 
-@bp.route("/")
 @bp.route("/search")
 def search():
     args = request.args
