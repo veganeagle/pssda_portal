@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Employers{% endblock %}
 {% block content %}
+
+<div class="hero">
+  <h1>Search Employers</h1>
+  <p class="lede">Browse every public-sector employer on the list, from the largest school boards and municipalities to the smallest library board.</p>
+</div>
+
 <div class="search-panel">
   <form method="get" action="{{ url_for('employer.search') }}">
     <div class="search-grid">
@@ -24,7 +30,7 @@
     <tr><th>Employer</th><th>Sector</th><th class="num">Employees on List</th><th class="num">Avg. total comp</th></tr>
     {% for e in results %}
     <tr>
-      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id) }}">{{ e.employer_name|proper }}</a></td>
+      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.full_path) }}">{{ e.employer_name|proper }}</a></td>
       <td>{{ (e.sector_name or e.sector_id)|proper }}</td>
       <td class="num mono">{{ "{:,}".format(e.current_headcount) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(e.current_avg_total_comp) }}</td>

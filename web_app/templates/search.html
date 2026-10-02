@@ -2,6 +2,11 @@
 {% block title %}Search Employees{% endblock %}
 {% block content %}
 
+<div class="hero">
+  <h1>Search Employees</h1>
+  <p class="lede">Look up any individual who has appeared on Ontario's Sunshine List, by name, employer, title, sector, or year present.</p>
+</div>
+
 <div class="search-panel">
   <form method="get" action="{{ url_for('employee.search') }}">
     <div class="search-grid">
@@ -34,7 +39,7 @@
     <tr><th>Name</th><th>Current title</th><th>Current employer</th><th>Years</th></tr>
     {% for r in outcome.results %}
     <tr>
-      <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
+      <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
       <td>{{ r.current_job_title|proper }}</td>
       <td>{{ r.current_employer_name|proper }}</td>
       <td class="mono">{{ r.first_seen_year }}&ndash;{{ r.last_seen_year }}</td>

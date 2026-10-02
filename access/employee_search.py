@@ -65,7 +65,7 @@ def search_employees(
                current_employer_name, current_job_title, first_seen_year, last_seen_year
         FROM employee_wide w
         WHERE {" AND ".join(conditions)}
-        ORDER BY last_name, first_name
+        ORDER BY last_seen_year DESC, first_seen_year ASC
         LIMIT ?
     """
     params.append(RESULT_CAP + 1)  # peek one past the cap to detect "too many" in one query

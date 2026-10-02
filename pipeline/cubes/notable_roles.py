@@ -7,10 +7,11 @@ every one of them — this cube exists specifically to carve out that
 exception for a small, hand-picked list, not to relax the rule generally.
 
 Matches on JobTitleNorm text directly rather than Title_Norm: several of
-these roles collapse into a shared, ambiguous Title_Norm bucket upstream
-(e.g. both Police Chief and Fire Chief normalize to the generic "CHIEF"),
-which is fine for cross-role aggregation elsewhere but useless for picking
-one specific role out by name here.
+these roles used to collapse into a shared, ambiguous Title_Norm bucket
+upstream (Police Chief and Fire Chief both normalized to the generic
+"CHIEF" until that was split) — matching on raw text here is what originally
+surfaced that bug, and is kept even now that the dictionary is fixed, since
+it's still the more precise way to pick one specific role out by name.
 
 Dev-time script: `python -m pipeline.cubes.notable_roles`.
 """
@@ -22,6 +23,7 @@ import os
 import pandas as pd
 
 from pipeline.manifest import update_manifest
+from pipeline.rankings import compute_current_year_rankings
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed"))
 OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "profiles"))
@@ -33,8 +35,7 @@ ROLES: list[tuple[str, callable]] = [
         df["JobTitleNorm"].str.contains("POLICE CHIEF", na=False)
         | df["JobTitleNorm"].str.contains("CHIEF OF POLICE", na=False)
     ) & ~df["JobTitleNorm"].str.contains("DEPUTY", na=False)),
-    ("Fire Chief", lambda df: df["JobTitleNorm"].str.contains("FIRE CHIEF", na=False)
-        & ~df["JobTitleNorm"].str.contains("DEPUTY", na=False)),
+    ("Hospital CEO", lambda df: (df["SectorID"].astype(str) == "6") & (df["Title_Norm"] == "CEO")),
     ("Director of Education", lambda df: df["JobTitleNorm"].str.contains("DIRECTOR OF EDUCATION", na=False)),
     ("Chief Administrative Officer", lambda df: df["Title_Norm"] == "CAO"),
     ("College/University President", lambda df: (
@@ -51,8 +52,8 @@ def load_source() -> pd.DataFrame:
 
 def build_notable_roles_table() -> pd.DataFrame:
     history = load_source()
-    current_year = int(history["Year"].max())
-    cur = history[history["Year"] == current_year]
+    cur = compute_current_year_rankings(history)
+    current_year = int(cur["Year"].max())
 
     rows = []
     for label, filt in ROLES:
@@ -60,6 +61,7 @@ def build_notable_roles_table() -> pd.DataFrame:
         if pool.empty:
             continue
         top = pool.loc[pool["SalaryPaid"].idxmax()]
+        yoy = top["YoYSalaryIncreaseClean"]
         rows.append({
             "role_label": label,
             "year": current_year,
@@ -70,6 +72,8 @@ def build_notable_roles_table() -> pd.DataFrame:
             "job_title_raw": top["JobTitleRaw"],
             "salary_paid": float(top["SalaryPaid"]),
             "pool_size": int(len(pool)),
+            "yoy_salary_increase": float(yoy) if pd.notna(yoy) else None,
+            "comparable_to_prior_year": bool(top["YoYComparable"]),
         })
 
     table = pd.DataFrame(rows)

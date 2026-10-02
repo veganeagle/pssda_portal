@@ -145,7 +145,7 @@ footer.note{color:var(--mute); font-size:0.76rem; padding-top:0.35rem;}
 /* ---- home dashboard (home.html) ---- */
 .hero{padding:0.6rem 0 0.3rem;}
 .hero h1{font-size:1.65rem; line-height:1.15; margin:0 0 0.5rem; font-weight:800; letter-spacing:-0.01em; max-width:34ch;}
-.hero p.lede{color:var(--mute); font-size:0.92rem; max-width:62ch; margin:0 0 1rem;}
+.hero p.lede{color:var(--mute); font-size:0.92rem; margin:0 0 1rem;}
 
 .dashboard-mat{background:var(--mat); border-radius:14px; padding:1.25rem; margin-bottom:1.5rem;}
 
@@ -157,14 +157,14 @@ footer.note{color:var(--mute); font-size:0.76rem; padding-top:0.35rem;}
 .bento .card{display:flex; flex-direction:column; gap:0.15rem;}
 .bento .card h3{margin-bottom:0.85rem;}
 
-.trend-chart{width:100%; height:150px;}
-.trend-legend{display:flex; gap:1.2rem; font-size:0.74rem; color:var(--mute); margin-top:0.5rem;}
+.trend-chart{width:100%; flex:1 1 auto; min-height:150px;}
+.trend-legend{display:flex; gap:1.2rem; font-size:0.74rem; color:var(--mute); margin-top:0.5rem; flex:0 0 auto;}
 .trend-legend .sw{display:inline-block; width:0.9rem; height:2px; margin-right:0.35em; vertical-align:middle;}
 .trend-legend .sw.bars{height:8px; border-radius:2px;}
 
-.donut-wrap{display:flex; align-items:center; gap:0.9rem;}
-.donut-wrap svg{flex:0 0 auto;}
-.donut-legend{flex:1; min-width:0;}
+.donut-wrap{display:flex; flex-direction:column; align-items:center; gap:0.9rem; flex:1;}
+.donut-wrap svg{flex:0 0 auto; width:70%; max-width:220px; height:auto; aspect-ratio:1/1;}
+.donut-legend{width:100%;}
 .donut-row{display:flex; align-items:center; gap:0.4rem; font-size:0.78rem; padding:0.15rem 0;}
 .donut-row .dot{width:0.6rem; height:0.6rem; border-radius:2px; flex:0 0 auto;}
 .donut-row .n{flex:1; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -174,6 +174,7 @@ footer.note{color:var(--mute); font-size:0.76rem; padding-top:0.35rem;}
 .mini-row:last-child{border-bottom:none;}
 .mini-row .t{font-weight:600;}
 .mini-row .s{color:var(--mute); font-size:0.72rem; display:block; margin-top:0.1rem;}
+.mini-row .job-sub{color:var(--mute); font-size:0.72rem; font-weight:500;}
 .mini-row .n{color:var(--mute); white-space:nowrap;}
 
 .insight-note{background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:0.6rem 0.75rem; font-size:0.78rem; margin-top:0.6rem;}

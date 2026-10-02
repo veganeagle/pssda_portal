@@ -75,7 +75,7 @@
     {% for t in employer.top_earners %}
     <tr>
       <td class="num mono">{{ t.rank }}</td>
-      <td><a href="{{ url_for('employee.profile_page', employee_id=t.employee_id) }}">{{ t.first_name|proper }} {{ t.last_name|proper }}</a></td>
+      <td><a href="{{ url_for('employee.profile_page', employee_id=t.employee_id, back=request.path) }}">{{ t.first_name|proper }} {{ t.last_name|proper }}</a></td>
       <td>{{ t.job_title|proper }}</td>
       <td class="num mono">${{ "{:,.0f}".format(t.total_comp) }}</td>
       <td class="num">

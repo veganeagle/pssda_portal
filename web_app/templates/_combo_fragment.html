@@ -2,8 +2,8 @@
   <div>
     <h1>{{ combo.title_norm|proper }} <span class="muted" style="font-weight:500;">at</span> {{ combo.employer_name|proper }}</h1>
     <p class="role">
-      <a href="{{ url_for('position.profile_page', sector_id=combo.sector_id, title_norm=combo.title_norm) }}">{{ combo.title_norm|proper }} province-wide</a>
-      &middot; <a href="{{ url_for('employer.profile_page', employer_id=combo.employer_id) }}">{{ combo.employer_name|proper }} overall</a>
+      <a href="{{ url_for('position.profile_page', sector_id=combo.sector_id, title_norm=combo.title_norm, back=request.path) }}">{{ combo.title_norm|proper }} province-wide</a>
+      &middot; <a href="{{ url_for('employer.profile_page', employer_id=combo.employer_id, back=request.path) }}">{{ combo.employer_name|proper }} overall</a>
       &middot; FY{{ combo.current.year }}
     </p>
   </div>

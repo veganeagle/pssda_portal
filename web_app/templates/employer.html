@@ -2,7 +2,7 @@
 {% block title %}{{ employer.employer_name|proper }}{% endblock %}
 {% block content %}
 {% set back = request.args.get('back') %}
-{% set back_safe = back if back and back.startswith('/') else None %}
+{% set back_safe = back if back and back.startswith('/') and not back.startswith('//') else None %}
 <p><a href="{{ back_safe or url_for('employee.search') }}">&larr; {{ 'back to profile' if back_safe else 'back to search' }}</a></p>
 {% include "_employer_fragment.html" %}
 {% endblock %}

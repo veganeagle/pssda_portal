@@ -64,7 +64,7 @@ def get_home_dashboard() -> HomeDashboard:
 
     notable_df = query("""
         SELECT role_label, employee_id, first_name, last_name, employer_id, employer_name, sector_name,
-               job_title_raw, salary_paid, pool_size
+               job_title_raw, salary_paid, pool_size, yoy_salary_increase, comparable_to_prior_year
         FROM notable_roles_current ORDER BY salary_paid DESC
     """)
     notable_roles = [NotableRoleLeader(**row) for row in records(notable_df)]

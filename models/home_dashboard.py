@@ -63,6 +63,8 @@ class NotableRoleLeader(BaseModel):
     job_title_raw: str
     salary_paid: float
     pool_size: int
+    yoy_salary_increase: Optional[float] = None
+    comparable_to_prior_year: bool = False
 
 
 class HomeDashboard(BaseModel):
