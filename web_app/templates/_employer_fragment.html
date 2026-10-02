@@ -20,7 +20,7 @@
 
 <div class="panel">
   <h2>Top positions <span class="sub">FY{{ employer.current.year }} &middot; ranked by employees on list</span></h2>
-  <table class="result-table">
+  <table class="result-table" id="employer-top-positions-table" data-collapse="5" data-csv="{{ (employer.employer_name ~ '-top-positions')|lower }}.csv">
     <tr><th class="num">#</th><th>Position</th><th class="num">Employees on List</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Raise</th></tr>
     {% for tp in employer.top_positions %}
     <tr>
@@ -50,7 +50,7 @@
 <div class="panel">
   <h2>Workforce history <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
   <div class="history-wrap">
-    <table class="history">
+    <table class="history" id="employer-history-table" data-collapse="5" data-csv="{{ (employer.employer_name ~ '-workforce-history')|lower }}.csv">
       <tr><th>Year</th><th class="num">Employees on List</th><th class="num">Avg. salary</th><th class="num">Avg. total comp</th><th class="num">Total payroll</th><th class="num">Newly disclosed</th><th class="num">Gender</th></tr>
       {% for h in employer.history %}
       <tr>
@@ -70,7 +70,7 @@
 
 <div class="panel">
   <h2>Top disclosed earners <span class="sub">FY{{ employer.current.year }}</span></h2>
-  <table class="result-table">
+  <table class="result-table" id="employer-top-earners-table" data-collapse="5" data-csv="{{ (employer.employer_name ~ '-top-earners')|lower }}.csv">
     <tr><th class="num">#</th><th>Name</th><th>Title</th><th class="num">Total comp</th><th class="num">YoY</th><th class="num">Sector rank</th><th class="num">Position rank</th></tr>
     {% for t in employer.top_earners %}
     <tr>

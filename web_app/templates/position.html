@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% from "_macros.html" import scoped_employee_search %}
 {% block title %}{{ position.title_norm|proper }}{% endblock %}
 {% block content %}
 {% set back = request.args.get('back') %}
 {% set back_safe = back if back and back.startswith('/') and not back.startswith('//') else None %}
 <p><a href="{{ back_safe or url_for('employee.search') }}">&larr; {{ 'back to profile' if back_safe else 'back to search' }}</a></p>
 {% include "_position_fragment.html" %}
+{{ scoped_employee_search('in this role, province-wide', scope_sector_id=position.sector_id, scope_title_norm=position.title_norm, scope_label=position.title_norm|proper ~ ' (province-wide)') }}
 {% endblock %}

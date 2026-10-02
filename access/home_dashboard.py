@@ -1,7 +1,7 @@
 """The /search page's dashboard: province-wide trend, sector mix, fastest-rising
 roles, largest employers, the top 15 positions by headcount, and a top-earners
 preview. Pulled straight from existing cubes (employer_wide/_history,
-position_wide, top_earners_current) — no new pipeline cube needed.
+position_wide, top_earners_history) — no new pipeline cube needed.
 """
 from __future__ import annotations
 
@@ -58,7 +58,9 @@ def get_home_dashboard() -> HomeDashboard:
 
     earners_df = query("""
         SELECT employee_id, first_name, last_name, job_title, employer_id, employer_name, total_comp
-        FROM top_earners_current ORDER BY total_comp DESC LIMIT 6
+        FROM top_earners_history
+        WHERE year = (SELECT MAX(year) FROM top_earners_history)
+        ORDER BY total_comp DESC LIMIT 6
     """)
     top_earners = [TopEarnerPreview(**row) for row in records(earners_df)]
 

@@ -42,15 +42,22 @@
 <script src="{{ url_for('static', filename='js/position_filter.js') }}"></script>
 
 <div class="panel">
-  <p class="result-summary">Top {{ results|length }}{% if request.args.get('sector') or request.args.get('employer') or request.args.get('position') %} matching{% else %} province-wide{% endif %}, FY{{ results[0].year if results else '' }}</p>
-  <table class="result-table">
-    <tr><th class="num">Province rank</th><th>Name</th><th>Employer</th><th>Position</th><th class="num">Total comp</th><th class="num">YoY</th></tr>
+  <div class="year-nav">
+    {% set prev_args = dict(request.args) %}{% if prev_args.update({'year': prev_year}) %}{% endif %}
+    {% set next_args = dict(request.args) %}{% if next_args.update({'year': next_year}) %}{% endif %}
+    {% if prev_year %}<a href="{{ url_for('top_earners.index', **prev_args) }}">&larr; FY{{ prev_year }}</a>{% else %}<span class="year-nav-edge">&larr;</span>{% endif %}
+    <span class="year-nav-current">FY{{ year }}</span>
+    {% if next_year %}<a href="{{ url_for('top_earners.index', **next_args) }}">FY{{ next_year }} &rarr;</a>{% else %}<span class="year-nav-edge">&rarr;</span>{% endif %}
+  </div>
+  <p class="result-summary">Top {{ results|length }}{% if request.args.get('sector') or request.args.get('employer') or request.args.get('position') %} matching{% else %} province-wide{% endif %}, FY{{ year }}</p>
+  <table class="result-table top-earners-table" id="top-earners-results" data-collapse="5" data-csv="top-earners.csv">
+    <tr><th class="num">Rank</th><th>Name</th><th>Employer</th><th>Position</th><th class="num">Total comp</th><th class="num">YoY</th></tr>
     {% for r in results %}
     <tr>
       <td class="num mono">#{{ r.rank_province }}</td>
       <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
-      <td><a href="{{ url_for('employer.profile_page', employer_id=r.employer_id, back=request.full_path) }}">{{ r.employer_name|proper }}</a></td>
-      <td>{% if r.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=r.sector_id, title_norm=r.title_norm, back=request.full_path) }}">{{ r.job_title|proper }}</a>{% else %}{{ r.job_title|proper }}{% endif %}</td>
+      <td><a href="{{ url_for('employer.profile_page', employer_id=r.employer_id, back=request.full_path) }}" title="{{ r.employer_name|proper }}">{{ r.employer_name|proper|truncate(60, True, '…') }}</a></td>
+      <td>{% if r.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=r.sector_id, title_norm=r.title_norm, back=request.full_path) }}" title="{{ r.job_title|proper }}">{{ r.job_title|proper|truncate(60, True, '…') }}</a>{% else %}{{ r.job_title|proper|truncate(60, True, '…') }}{% endif %}</td>
       <td class="num mono">${{ "{:,.0f}".format(r.total_comp) }}</td>
       <td class="num">
         {% if r.comparable_to_prior_year and r.yoy_salary_increase is not none %}

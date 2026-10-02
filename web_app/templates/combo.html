@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% from "_macros.html" import scoped_employee_search %}
 {% block title %}{{ combo.title_norm|proper }} at {{ combo.employer_name|proper }}{% endblock %}
 {% block content %}
 {% set back = request.args.get('back') %}
 {% set back_safe = back if back and back.startswith('/') and not back.startswith('//') else None %}
 <p><a href="{{ back_safe or url_for('employee.search') }}">&larr; {{ 'back' if back_safe else 'back to search' }}</a></p>
 {% include "_combo_fragment.html" %}
+{{ scoped_employee_search('in this role at ' ~ (combo.employer_name|proper), scope_employer_id=combo.employer_id, scope_sector_id=combo.sector_id, scope_title_norm=combo.title_norm, scope_label=combo.title_norm|proper ~ ' at ' ~ (combo.employer_name|proper)) }}
 {% endblock %}

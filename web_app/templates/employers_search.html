@@ -26,7 +26,7 @@
 
 <div class="panel">
   <p class="result-summary">{{ results|length }} employer(s){% if results|length == 50 %} (showing top 50 by employees on list){% endif %}</p>
-  <table class="result-table">
+  <table class="result-table" id="employer-search-results" data-collapse="5" data-csv="employer-search-results.csv">
     <tr><th>Employer</th><th>Sector</th><th class="num">Employees on List</th><th class="num">Avg. total comp</th></tr>
     {% for e in results %}
     <tr>

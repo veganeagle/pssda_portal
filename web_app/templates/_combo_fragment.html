@@ -30,7 +30,7 @@
 {% if combo.variants %}
 <div class="panel">
   <h2>Composition <span class="sub">FY{{ combo.current.year }}</span></h2>
-  <table class="result-table">
+  <table class="result-table" id="combo-composition-table" data-collapse="5" data-csv="{{ (combo.employer_name ~ '-' ~ combo.title_norm ~ '-composition')|lower }}.csv">
     <tr><th>Title</th><th class="num">Employees on list</th><th class="num">Avg. salary</th><th class="num">Median salary</th></tr>
     {% for v in combo.variants %}
     <tr>
@@ -48,7 +48,7 @@
 <div class="panel">
   <h2>Trend <span class="sub">{{ combo.first_year_present }}&ndash;{{ combo.last_year_present }}</span></h2>
   <div class="history-wrap">
-    <table class="history">
+    <table class="history" id="combo-trend-table" data-collapse="5" data-csv="{{ (combo.employer_name ~ '-' ~ combo.title_norm ~ '-trend')|lower }}.csv">
       <tr><th>Year</th><th class="num">On list</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Max salary</th><th class="num">Raise</th><th class="num">Gender</th></tr>
       {% for h in combo.history %}
       <tr>

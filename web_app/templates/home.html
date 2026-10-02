@@ -91,7 +91,7 @@
   <div class="card span6">
     <h3>Top 15 roles province-wide <span class="sub">headcount, median salary, matched raise</span></h3>
     <div class="result-table" style="overflow-x:auto;">
-      <table class="result-table">
+      <table class="result-table" id="home-top-positions-table" data-collapse="5" data-csv="top-15-positions.csv">
         <tr><th>Role</th><th>Sector</th><th class="num">Headcount</th><th class="num">Median</th><th class="num">Raise</th></tr>
         {% for p in dashboard.top_positions %}
         <tr>

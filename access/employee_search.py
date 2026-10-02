@@ -24,7 +24,20 @@ def search_employees(
     first: str | None = None, last: str | None = None, middle: str | None = None,
     sector: str | None = None, employer_contains: str | None = None,
     title_contains: str | None = None, year: int | None = None,
+    include_inactive: bool = False,
+    employer_id: str | None = None, position: tuple[str, str] | None = None,
 ) -> SearchOutcome:
+    """employer_id and position scope the search to the people *currently*
+    (most-recent-year) at that employer and/or in that (sector_id,
+    title_norm) position — an exact-ID match against their current record,
+    unlike employer_contains/title_contains which are fuzzy text search over
+    anyone's entire history. Matching current-only (not "ever held this
+    role") keeps results consistent with what the employer/position/combo
+    profile pages themselves show, and avoids surfacing someone whose
+    current, unrelated job happens to share a long-past history row. Used by
+    the mini search box on those pages; never exposed as free text, so no
+    injection surface.
+    """
     conditions = []
     params: list = []
 
@@ -57,8 +70,20 @@ def search_employees(
         )
         params.append(year)
 
+    if employer_id:
+        conditions.append("w.current_employer_id = ?")
+        params.append(employer_id)
+
+    if position:
+        pos_sector_id, pos_title_norm = position
+        conditions.append("w.current_sector_id = ? AND w.current_title_norm = ?")
+        params.extend([pos_sector_id, pos_title_norm])
+
     if not conditions:
         return SearchOutcome(results=[], too_many=False)  # no open "browse everyone"
+
+    if not include_inactive:
+        conditions.append("w.last_seen_year = (SELECT MAX(last_seen_year) FROM employee_wide)")
 
     sql = f"""
         SELECT employee_id, first_name, last_name, middle,

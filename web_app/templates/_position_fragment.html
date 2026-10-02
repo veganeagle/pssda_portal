@@ -28,7 +28,7 @@
 <div class="panel">
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">
-    <table class="history">
+    <table class="history" id="position-trend-table" data-collapse="5" data-csv="{{ (position.title_norm ~ '-trend')|lower }}.csv">
       <tr><th>Year</th><th class="num">Employees on List</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Raise</th><th class="num">Newly Promoted</th><th class="num">Gender</th></tr>
       {% for h in position.history %}
       <tr>
@@ -54,9 +54,9 @@
 
 <div class="panel">
   <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by employees on list</span></h2>
-  <table class="result-table">
+  <table class="result-table" id="position-by-employer-table" data-collapse="5" data-csv="{{ (position.title_norm ~ '-by-employer')|lower }}.csv">
     <tr><th class="num">#</th><th>Employer</th><th class="num">Employees on List</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Max salary</th><th class="num">New entrants</th><th class="num">Raise</th></tr>
-    {% for e in position.by_employer[:30] %}
+    {% for e in position.by_employer %}
     <tr>
       <td class="num mono">{{ e.rank }}</td>
       <td>
@@ -78,8 +78,5 @@
     </tr>
     {% endfor %}
   </table>
-  {% if position.by_employer|length > 30 %}
-  <p class="muted" style="margin-top:0.5rem;">Showing top 30 of {{ position.by_employer|length }} employers.</p>
-  {% endif %}
   <p class="muted" style="margin-top:0.5rem;">"New entrants" is headcount in their first year in this exact role at this employer — not a hire count; many already worked here.</p>
 </div>

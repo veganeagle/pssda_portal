@@ -1,15 +1,15 @@
-"""Shared current-year individual compensation rankings — one row per employee
-disclosed in the dataset's latest year, with dense ranks against the whole
-province, their sector, their employer, and their (sector, title_norm) position.
-Used by pipeline/cubes/top_earners.py directly, and by employer_profile.py to
-show "also ranks #N in sector" context on a top-10-at-this-employer list.
+"""Shared per-year individual compensation rankings — one row per employee
+disclosed in a given year, with dense ranks against the whole province,
+their sector, their employer, and their (sector, title_norm) position.
+Used by pipeline/cubes/top_earners.py (every year, for the year-by-year
+leaderboard) and by employer_profile.py to show "also ranks #N in sector"
+context on a top-10-at-this-employer list (current year only).
 """
 import pandas as pd
 
 
-def compute_current_year_rankings(history: pd.DataFrame) -> pd.DataFrame:
-    max_year = int(history["Year"].max())
-    cur = history[history["Year"] == max_year].copy()
+def compute_rankings_for_year(history: pd.DataFrame, year: int) -> pd.DataFrame:
+    cur = history[history["Year"] == year].copy()
 
     comparable = (cur["GapFlag"] == 0) & (cur["TenureOnList"] > 1)
     cur["YoYComparable"] = comparable
@@ -35,3 +35,7 @@ def compute_current_year_rankings(history: pd.DataFrame) -> pd.DataFrame:
     )
 
     return cur
+
+
+def compute_current_year_rankings(history: pd.DataFrame) -> pd.DataFrame:
+    return compute_rankings_for_year(history, int(history["Year"].max()))

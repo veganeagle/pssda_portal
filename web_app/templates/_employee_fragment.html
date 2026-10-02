@@ -42,7 +42,7 @@
 <div class="panel">
   <h2>Disclosure history <span class="sub">{{ profile.first_seen_year }}&ndash;{{ profile.last_seen_year }}</span></h2>
   <div class="history-wrap">
-    <table class="history">
+    <table class="history" id="employee-history-table" data-collapse="5" data-csv="{{ (profile.first_name ~ '-' ~ profile.last_name ~ '-disclosure-history')|lower }}.csv">
       <tr><th>Year</th><th>Employer</th><th>Title</th><th class="num">Salary</th><th class="num">Total comp</th><th class="num">YoY</th><th>Events</th></tr>
       {% for h in profile.history %}
       <tr>

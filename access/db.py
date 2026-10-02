@@ -20,7 +20,7 @@ _PROFILE_TABLES = {
     "position_wide": "position_wide.parquet",
     "position_history": "position_history.parquet",
     "position_by_employer": "position_by_employer.parquet",
-    "top_earners_current": "top_earners_current.parquet",
+    "top_earners_history": "top_earners_history.parquet",
     "employer_position_wide": "employer_position_wide.parquet",
     "employer_position_history": "employer_position_history.parquet",
     "employer_position_breakdown": "employer_position_breakdown.parquet",

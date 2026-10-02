@@ -87,7 +87,8 @@ python -m pipeline.cubes.employee_profile --full     # ~671K employees, ~50s
 python -m pipeline.cubes.employer_profile             # ~3,500 employers, ~15s
 python -m pipeline.cubes.position_profile             # ~1,100 positions, ~15s
 python -m pipeline.cubes.employer_position_profile    # ~5,000 combos, ~15s
-python -m pipeline.cubes.top_earners                  # current-year leaderboard, ~5s
+python -m pipeline.cubes.top_earners                  # every year, ~16s
+python -m pipeline.cubes.notable_roles                 # current-year civic/leadership roles, ~5s
 python -m web_app.app                                  # http://127.0.0.1:5000
 ```
 
@@ -129,7 +130,8 @@ All in `data/profiles/`, one manifest section each in `index.json`:
 | `employer_profile` | `pipeline/cubes/employer_profile.py` | `employer_wide`, `employer_history`, `employer_top_earners`, `employer_top_positions`, `employer_top_position_breakdown` |
 | `position_profile` | `pipeline/cubes/position_profile.py` | `position_wide`, `position_history`, `position_by_employer` |
 | `employer_position_profile` | `pipeline/cubes/employer_position_profile.py` | `employer_position_wide`, `employer_position_history`, `employer_position_breakdown` |
-| `top_earners` | `pipeline/cubes/top_earners.py` | `top_earners_current` (current year only, with province/sector/employer/position rank + pool size precomputed) |
+| `top_earners` | `pipeline/cubes/top_earners.py` | `top_earners_history` (every year, ranked within that year's own population — province/sector/employer/position rank + pool size precomputed) |
+| `notable_roles` | `pipeline/cubes/notable_roles.py` | `notable_roles_current` (current year's highest-paid incumbent for a curated list of civic/institutional leadership roles — bypasses the usual 3-person minimum since these are legitimately singleton roles) |
 
 Shared pipeline helpers (used across multiple cubes, not standalone cubes):
 `pipeline/matched_cohort.py` (same-incumbent raise, per `SUNSHINE.md` #2),

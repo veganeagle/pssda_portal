@@ -1,0 +1,16 @@
+{% macro scoped_employee_search(scope_phrase, scope_employer_id=None, scope_sector_id=None, scope_title_norm=None, scope_label=None) %}
+<div class="panel">
+  <h2>Find someone {{ scope_phrase }}</h2>
+  <form method="get" action="{{ url_for('employee.search') }}">
+    {% if scope_employer_id %}<input type="hidden" name="employer_id" value="{{ scope_employer_id }}">{% endif %}
+    {% if scope_sector_id %}<input type="hidden" name="scope_sector_id" value="{{ scope_sector_id }}">{% endif %}
+    {% if scope_title_norm %}<input type="hidden" name="scope_title_norm" value="{{ scope_title_norm }}">{% endif %}
+    {% if scope_label %}<input type="hidden" name="scope_label" value="{{ scope_label }}">{% endif %}
+    <div class="search-grid" style="grid-template-columns:repeat(2,1fr);">
+      <label>First name<input type="text" name="first"></label>
+      <label>Last name<input type="text" name="last"></label>
+    </div>
+    <div class="search-actions"><button type="submit">Search</button></div>
+  </form>
+</div>
+{% endmacro %}
