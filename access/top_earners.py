@@ -51,7 +51,7 @@ def sector_top_earners_overview() -> list[dict]:
                r.employer_id AS top_employer_id, r.employer_name AS top_employer_name, r.total_comp AS top_total_comp
         FROM totals t
         LEFT JOIN top1 r ON r.sector_id = t.sector_id AND r.rn = 1
-        ORDER BY t.n_employees DESC
+        ORDER BY t.n_in_top_province DESC
     """, [TOP_N_PROVINCE])
     return records(df)
 

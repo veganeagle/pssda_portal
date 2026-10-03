@@ -49,6 +49,13 @@ def search_employers(
     return [EmployerSearchResult(**row) for row in records(df)]
 
 
+def list_employers_for_filter() -> list[dict]:
+    """Every employer, lightweight — id/name/sector only — for the Employee
+    search page's sector-cascading employer picker."""
+    df = query("SELECT employer_id, employer_name, sector_id FROM employer_wide ORDER BY employer_name")
+    return records(df)
+
+
 def sector_employer_overview() -> list[dict]:
     """One row per sector — employer count, total headcount represented,
     median employer size, and the sector's single largest employer (by

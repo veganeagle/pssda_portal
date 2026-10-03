@@ -4,8 +4,28 @@
 
 <div class="hero">
   <h1>Search Employees</h1>
-  <p class="lede">Look up any individual who has appeared on Ontario's Sunshine List, by name, employer, title, sector, or year present.</p>
+  <p class="lede">Look up any individual who has appeared on Ontario's Sunshine List, by name, or by narrowing down sector, employer, and position.</p>
 </div>
+
+{% if sector_overview %}
+<div class="bento">
+  <div class="card span6">
+    <h3>Who's on the list, by sector</h3>
+    <table class="result-table dense-table">
+      <tr><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">New this year</th><th class="num">Attrition</th><th class="num">Est. % female</th></tr>
+      {% for s in sector_overview %}
+      <tr>
+        <td><a href="{{ url_for('employee.search', sector=s.sector_id) }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper|truncate(22, True, '…') }}</a></td>
+        <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ s.pct_of_max }}%, transparent {{ s.pct_of_max }}%);">{{ "{:,}".format(s.n_employees) }}</td>
+        <td class="num mono">{{ s.pct_new }}%</td>
+        <td class="num mono" title="Disclosed last year, not disclosed this year — includes genuine departures and anyone who simply dipped below the $100,000 threshold.">{{ s.pct_attrition }}%</td>
+        <td class="num mono">{{ s.pct_female if s.pct_female is not none else "—" }}{{ "%" if s.pct_female is not none }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
 
 <div class="search-panel">
   {% if scope_label %}
@@ -20,20 +40,36 @@
       <label>First name<input type="text" name="first" value="{{ request.args.get('first', '') }}"></label>
       <label>Last name<input type="text" name="last" value="{{ request.args.get('last', '') }}"></label>
       <label>Middle<input type="text" name="middle" value="{{ request.args.get('middle', '') }}"></label>
-      {% if not scope_employer_id and not scope_sector_id %}
+    </div>
+    {% if not scope_employer_id and not scope_sector_id %}
+    <div class="search-grid search-grid-cascade">
       <label>Sector
-        <select name="sector">
+        <select name="sector" id="es-sector-select" onchange="document.getElementById('es-employer-select').value=''; es_resetPositions();">
           <option value="">Any</option>
           {% for s in sectors %}
           <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
           {% endfor %}
         </select>
       </label>
-      <label>Employer contains<input type="text" name="employer" value="{{ request.args.get('employer', '') }}"></label>
-      <label>Title contains<input type="text" name="title" value="{{ request.args.get('title', '') }}"></label>
-      {% endif %}
-      <label>Year present<input type="number" name="year" value="{{ request.args.get('year', '') }}"></label>
+      <label>Employer
+        <select name="emp" id="es-employer-select">
+          <option value="">Any</option>
+          {% for e in employers_for_filter %}
+          <option value="{{ e.employer_id }}" data-sector-id="{{ e.sector_id }}" {% if e.employer_id == general_employer_id %}selected{% endif %}>{{ e.employer_name|proper }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Position <span class="muted" style="font-weight:500;">(at that employer)</span>
+        <select name="position" id="es-position-select" {% if not general_employer_id %}disabled{% endif %}>
+          <option value="">Any</option>
+          {% for p in preselected_positions %}
+          <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if general_position and general_position[0] == p.sector_id and general_position[1] == p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Year present<input type="number" name="year" value="{{ request.args.get('year', '') }}" style="width:6rem;"></label>
     </div>
+    {% endif %}
     {% if not scope_employer_id and not scope_sector_id %}
     <div class="status-toggle">
       <label><input type="radio" name="status" value="active" {% if request.args.get('status', 'active') == 'active' %}checked{% endif %}> Active only (on the most recent list)</label>
@@ -49,21 +85,63 @@
   {% if outcome.too_many %}
   <p class="result-summary">More than 100 matches &mdash; please narrow your search.</p>
   {% else %}
-  <p class="result-summary">{{ outcome.results|length }} result(s)</p>
+  <p class="result-summary">{{ outcome.results|length }} result(s){% if comp_range %} &middot; total comp from ${{ "{:,.0f}".format(comp_range[0]) }} to ${{ "{:,.0f}".format(comp_range[1]) }}{% endif %}</p>
   <table class="result-table employee-results-table" id="employee-search-results" data-collapse="5" data-csv="employee-search-results.csv">
-    <tr><th>Name</th><th>Current title</th><th>Current employer</th><th>Years</th></tr>
+    <tr><th>Name</th><th>Current title</th><th>Current employer</th><th class="num">Total comp</th><th>Years</th></tr>
     {% for r in outcome.results %}
     <tr>
       <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
       <td>{{ r.current_job_title|proper|truncate(60, True, '…') }}</td>
       <td>{{ r.current_employer_name|proper }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(r.current_total_comp) }}</td>
       <td class="mono">{{ r.first_seen_year }}&ndash;{{ r.last_seen_year }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="4">No matches.</td></tr>
+    <tr><td colspan="5">No matches.</td></tr>
     {% endfor %}
   </table>
   {% endif %}
 </div>
 {% endif %}
+
+<script>
+  function es_resetPositions() {
+    var sel = document.getElementById('es-position-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Any</option>';
+    sel.disabled = true;
+  }
+  (function () {
+    var sectorSelect = document.getElementById('es-sector-select');
+    var employerSelect = document.getElementById('es-employer-select');
+    var positionSelect = document.getElementById('es-position-select');
+    if (!sectorSelect || !employerSelect || !positionSelect) return;
+
+    var employerOptions = Array.prototype.slice.call(employerSelect.querySelectorAll('option[data-sector-id]'));
+
+    sectorSelect.addEventListener('change', function () {
+      var sectorId = sectorSelect.value;
+      employerOptions.forEach(function (opt) {
+        opt.hidden = !!(sectorId && opt.dataset.sectorId !== sectorId);
+      });
+    });
+
+    employerSelect.addEventListener('change', function () {
+      es_resetPositions();
+      var employerId = employerSelect.value;
+      if (!employerId) return;
+      fetch('/api/employer/' + encodeURIComponent(employerId) + '/positions')
+        .then(function (r) { return r.json(); })
+        .then(function (rows) {
+          positionSelect.disabled = false;
+          rows.forEach(function (row) {
+            var o = document.createElement('option');
+            o.value = row.sector_id + '::' + row.title_norm;
+            o.textContent = row.label;
+            positionSelect.appendChild(o);
+          });
+        });
+    });
+  })();
+</script>
 {% endblock %}

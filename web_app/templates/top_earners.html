@@ -4,7 +4,7 @@
 
 <div class="hero">
   <h1>Top Earners</h1>
-  <p class="lede">The province-wide leaderboard of the highest-paid disclosed employees*, filterable by sector, employer, and exact position.</p>
+  <p class="lede">The province-wide leaderboard of the highest-paid disclosed employees*, filterable by sector and exact position. Looking for one specific employer's top earners? Its profile page has its own top-10 list.</p>
 </div>
 
 <div class="bento">
@@ -14,14 +14,14 @@
       <tr><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">Share of top {{ "{:,}".format(top_n_province) }}</th><th class="num">P90 salary</th><th>Top earner</th></tr>
       {% for s in sector_overview %}
       <tr>
-        <td><a href="{{ url_for('top_earners.index', sector=s.sector_id) }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper }}</a></td>
+        <td><a href="{{ url_for('top_earners.index', sector=s.sector_id) }}" title="{{ s.sector_name|proper }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper|truncate(22, True, '…') }}</a></td>
         <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ s.pct_of_max }}%, transparent {{ s.pct_of_max }}%);">{{ "{:,}".format(s.n_employees) }}</td>
         <td class="num mono">{{ s.pct_top_province }}%</td>
         <td class="num mono">${{ "{:,.0f}".format(s.p90_salary) }}</td>
         <td>
           {% if s.top_employee_id %}
           <a href="{{ url_for('employee.profile_page', employee_id=s.top_employee_id, back=request.path) }}">{{ s.top_first_name|proper }} {{ s.top_last_name|proper }}</a>
-          <span class="s"><a href="{{ url_for('employer.profile_page', employer_id=s.top_employer_id, back=request.path) }}">{{ s.top_employer_name|proper|truncate(28, True, '…') }}</a> &middot; <span class="mono">${{ "{:,.0f}".format(s.top_total_comp) }}</span></span>
+          <span class="muted">&middot; <a href="{{ url_for('employer.profile_page', employer_id=s.top_employer_id, back=request.path) }}" title="{{ s.top_employer_name|proper }}">{{ s.top_employer_name|proper|truncate(20, True, '…') }}</a> &middot; <span class="mono">${{ "{:,.0f}".format(s.top_total_comp) }}</span></span>
           {% else %}&mdash;{% endif %}
         </td>
       </tr>
@@ -33,7 +33,7 @@
 <div class="search-panel">
   <h2 class="search-panel-title">Filter the leaderboard</h2>
   <form method="get" action="{{ url_for('top_earners.index') }}">
-    <div class="search-grid">
+    <div class="search-grid search-grid-compact">
       <label>Sector
         <select name="sector" id="sector-select" onchange="document.getElementById('position-select').value=''; this.form.submit();">
           <option value="">Province-wide</option>
@@ -42,25 +42,26 @@
           {% endfor %}
         </select>
       </label>
-      <label>Employer contains<input type="text" name="employer" value="{{ request.args.get('employer', '') }}"></label>
       <label>Position
-        <input type="text" id="position-filter" placeholder="Filter the list below&hellip;" autocomplete="off">
-        <select name="position" id="position-select">
-          <option value="">Any</option>
-          {% set ns = namespace(current_sector="") %}
-          {% for p in positions %}
-          {% if p.sector_name != ns.current_sector %}
-            {% if ns.current_sector != "" %}</optgroup>{% endif %}
-            <optgroup label="{{ p.sector_name|proper }}" data-sector-id="{{ p.sector_id }}">
-            {% set ns.current_sector = p.sector_name %}
-          {% endif %}
-          <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if request.args.get('position') == p.sector_id ~ '::' ~ p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}</option>
-          {% endfor %}
-          </optgroup>
-        </select>
+        <span class="inline-pair">
+          <input type="text" id="position-filter" placeholder="Filter&hellip;" autocomplete="off">
+          <select name="position" id="position-select">
+            <option value="">Any</option>
+            {% set ns = namespace(current_sector="") %}
+            {% for p in positions %}
+            {% if p.sector_name != ns.current_sector %}
+              {% if ns.current_sector != "" %}</optgroup>{% endif %}
+              <optgroup label="{{ p.sector_name|proper }}" data-sector-id="{{ p.sector_id }}">
+              {% set ns.current_sector = p.sector_name %}
+            {% endif %}
+            <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if request.args.get('position') == p.sector_id ~ '::' ~ p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}</option>
+            {% endfor %}
+            </optgroup>
+          </select>
+        </span>
       </label>
+      <button type="submit">Search</button>
     </div>
-    <div class="search-actions"><button type="submit">Search</button></div>
   </form>
 </div>
 <script src="{{ url_for('static', filename='js/position_filter.js') }}"></script>

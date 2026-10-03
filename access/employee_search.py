@@ -5,10 +5,12 @@ for the full record.
 """
 from __future__ import annotations
 
+from access._rows import records
 from access.db import query
 from models.employee_profile import EmployeeSearchResult, SearchOutcome, SectorOption
 
 RESULT_CAP = 100
+GENDER_MIN_GROUP_SIZE = 20  # matches pipeline/gender.py's own floor
 
 
 def _escape_like(s: str) -> str:
@@ -16,8 +18,52 @@ def _escape_like(s: str) -> str:
 
 
 def list_sectors() -> list[SectorOption]:
-    df = query("SELECT sector_id, sector_name FROM sectors ORDER BY sector_name")
+    # Excludes the sentinel sectors (-1 unknown, 99 seconded) from every
+    # sector filter dropdown site-wide, same as the home/sector picker's own
+    # list_sectors_for_picker() — "SECONDED" showing up as a real sector
+    # option was a real inconsistency, not a deliberate choice.
+    df = query("SELECT sector_id, sector_name FROM sectors WHERE sector_id NOT IN ('-1', '99') ORDER BY sector_name")
     return [SectorOption(**row) for row in df.to_dict(orient="records")]
+
+
+def sector_population_overview() -> list[dict]:
+    """One row per sector — the active (most-recent-year) disclosed
+    population, how many are new this year (first ever appearance on the
+    list, not just new to this employer), estimated % female, and
+    year-over-year attrition (disclosed last year but not this year — note
+    that's "no longer disclosed," which includes genuine departures but also
+    anyone who simply dipped below the $100,000 threshold while staying
+    employed, same caveat as "newly disclosed" elsewhere on the site).
+    Excludes the sentinel sectors (-1 unknown, 99 seconded).
+    """
+    df = query("""
+        WITH cy AS (SELECT MAX(last_seen_year) AS y FROM employee_wide),
+        active AS (SELECT * FROM employee_wide WHERE last_seen_year = (SELECT y FROM cy)),
+        totals AS (
+            SELECT current_sector_id AS sector_id, current_sector_name AS sector_name,
+                   COUNT(*) AS n_employees,
+                   SUM(CASE WHEN first_seen_year = (SELECT y FROM cy) THEN 1 ELSE 0 END)::INTEGER AS n_new,
+                   CASE WHEN COUNT(*) >= ? THEN ROUND(AVG(CASE WHEN prob_female >= 0.5 THEN 1.0 ELSE 0.0 END) * 100, 1) END AS pct_female
+            FROM active WHERE current_sector_id NOT IN ('-1', '99')
+            GROUP BY current_sector_id, current_sector_name
+        ), prior AS (
+            SELECT employee_id, sector_id FROM employee_history
+            WHERE year = (SELECT y FROM cy) - 1 AND sector_id NOT IN ('-1', '99')
+        ), current_ids AS (
+            SELECT DISTINCT employee_id FROM employee_history WHERE year = (SELECT y FROM cy)
+        ), attrition AS (
+            SELECT prior.sector_id,
+                   COUNT(*)::INTEGER AS n_prior_year,
+                   SUM(CASE WHEN current_ids.employee_id IS NULL THEN 1 ELSE 0 END)::INTEGER AS n_attrition
+            FROM prior LEFT JOIN current_ids USING (employee_id)
+            GROUP BY prior.sector_id
+        )
+        SELECT t.sector_id, t.sector_name, t.n_employees, t.n_new, t.pct_female,
+               COALESCE(a.n_prior_year, 0) AS n_prior_year, COALESCE(a.n_attrition, 0) AS n_attrition
+        FROM totals t LEFT JOIN attrition a ON a.sector_id = t.sector_id
+        ORDER BY t.n_employees DESC
+    """, [GENDER_MIN_GROUP_SIZE])
+    return records(df)
 
 
 def search_employees(
@@ -87,10 +133,11 @@ def search_employees(
 
     sql = f"""
         SELECT employee_id, first_name, last_name, middle,
-               current_employer_name, current_job_title, first_seen_year, last_seen_year
+               current_employer_name, current_job_title, current_total_comp,
+               first_seen_year, last_seen_year
         FROM employee_wide w
         WHERE {" AND ".join(conditions)}
-        ORDER BY last_seen_year DESC, first_seen_year ASC
+        ORDER BY last_name ASC, first_name ASC, last_seen_year DESC, first_seen_year ASC
         LIMIT ?
     """
     params.append(RESULT_CAP + 1)  # peek one past the cap to detect "too many" in one query

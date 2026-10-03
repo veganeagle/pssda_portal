@@ -69,6 +69,7 @@ class EmployeeSearchResult(BaseModel):
     middle: Optional[str] = None
     current_employer_name: str
     current_job_title: str
+    current_total_comp: float
     first_seen_year: int
     last_seen_year: int
 

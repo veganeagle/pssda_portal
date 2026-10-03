@@ -53,12 +53,25 @@ main{max-width:980px; margin:0 auto; padding:1rem 16px 2rem; display:flex; flex-
 .search-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:0.6rem 1rem;}
 @media (max-width:720px){ .search-grid{grid-template-columns:1fr 1fr;} }
 @media (max-width:460px){ .search-grid{grid-template-columns:1fr;} }
-.search-grid label{display:flex; flex-direction:column; gap:0.2rem; font-size:0.8rem; color:var(--mute); font-weight:600;}
+.search-grid label{display:flex; flex-direction:column; gap:0.2rem; font-size:0.8rem; color:var(--mute); font-weight:600; min-width:0;}
 .search-grid input, .search-grid select{
   font-family:inherit; font-size:0.88rem; padding:0.35rem 0.5rem; border:1px solid var(--border);
-  border-radius:6px; background:var(--surface-2); color:var(--text);
+  border-radius:6px; background:var(--surface-2); color:var(--text); width:100%; min-width:0;
 }
 .search-grid input:focus, .search-grid select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.search-grid-compact{grid-template-columns:1fr 1.4fr auto; align-items:end;}
+.search-grid-compact .inline-pair{display:flex; gap:0.4rem;}
+.search-grid-compact .inline-pair input{flex:0 1 110px; min-width:80px;}
+.search-grid-compact .inline-pair select{flex:1 1 auto; min-width:140px;}
+@media (max-width:620px){
+  .search-grid-compact{grid-template-columns:1fr;}
+  .search-grid-compact button{width:100%;}
+  .search-grid-compact .inline-pair{flex-direction:column;}
+}
+
+.search-grid-cascade{grid-template-columns:1fr 1.3fr 1.3fr auto; align-items:end; margin-top:0.6rem;}
+@media (max-width:860px){ .search-grid-cascade{grid-template-columns:1fr 1fr;} }
+@media (max-width:460px){ .search-grid-cascade{grid-template-columns:1fr;} }
 .sector-picker{display:flex; align-items:center; gap:0.6rem; margin-top:0.2rem; flex-wrap:wrap;}
 .sector-picker label{font-size:0.8rem; color:var(--mute); font-weight:600;}
 .sector-picker select{
@@ -107,9 +120,10 @@ button:hover, .btn:hover{filter:brightness(1.05);}
    Title and Employer absorb the remaining width instead. */
 .employee-results-table{table-layout:fixed;}
 .employee-results-table th:nth-child(1), .employee-results-table td:nth-child(1){width:17ch;}
-.employee-results-table th:nth-child(2), .employee-results-table td:nth-child(2){width:38%;}
-.employee-results-table th:nth-child(3), .employee-results-table td:nth-child(3){width:38%;}
-.employee-results-table th:nth-child(4), .employee-results-table td:nth-child(4){width:9ch; white-space:nowrap;}
+.employee-results-table th:nth-child(2), .employee-results-table td:nth-child(2){width:32%;}
+.employee-results-table th:nth-child(3), .employee-results-table td:nth-child(3){width:32%;}
+.employee-results-table th:nth-child(4), .employee-results-table td:nth-child(4){width:11ch; white-space:nowrap;}
+.employee-results-table th:nth-child(5), .employee-results-table td:nth-child(5){width:9ch; white-space:nowrap;}
 
 .top-earners-table{table-layout:fixed;}
 .top-earners-table th:nth-child(1), .top-earners-table td:nth-child(1){width:7ch;}
