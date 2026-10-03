@@ -55,6 +55,47 @@ def list_positions() -> list[PositionOption]:
     return [PositionOption(**row) for row in records(df)]
 
 
+def sector_position_overview() -> list[dict]:
+    """One row per sector — disclosed employees, how many of them hold a
+    normalized ("mapped") title, how many distinct normalized positions
+    exist, and the single most common one — for the "positions by sector"
+    table on the search page. Both sides are pinned to the same year (the
+    dataset's actual latest year) since position_wide's own "current" year
+    is tracked per-position and can lag for a role that went stale — see
+    access.sector_profile's top_positions query for the same fix. Excludes
+    the sentinel sectors (-1 unknown, 99 seconded) just like the sector
+    picker does.
+    """
+    df = query("""
+        WITH cy AS (SELECT MAX(year) AS y FROM employer_history),
+        totals AS (
+            SELECT w.sector_id, w.sector_name, SUM(h.headcount)::BIGINT AS total_headcount
+            FROM employer_history h JOIN employer_wide w ON w.employer_id = h.employer_id
+            WHERE h.year = (SELECT y FROM cy) AND w.sector_id NOT IN ('-1', '99')
+            GROUP BY w.sector_id, w.sector_name
+        ), normed AS (
+            SELECT sector_id, SUM(current_headcount)::BIGINT AS normed_headcount,
+                   COUNT(DISTINCT title_norm) AS n_positions
+            FROM position_wide
+            WHERE current_year = (SELECT y FROM cy) AND title_norm IS NOT NULL
+            GROUP BY sector_id
+        ), top_role AS (
+            SELECT sector_id, title_norm, current_headcount AS headcount,
+                   ROW_NUMBER() OVER (PARTITION BY sector_id ORDER BY current_headcount DESC) AS rn
+            FROM position_wide WHERE current_year = (SELECT y FROM cy) AND title_norm IS NOT NULL
+        )
+        SELECT t.sector_id, t.sector_name, t.total_headcount,
+               COALESCE(n.n_positions, 0) AS n_positions,
+               COALESCE(n.normed_headcount, 0) AS normed_headcount,
+               r.title_norm AS top_role_title, r.headcount AS top_role_headcount
+        FROM totals t
+        LEFT JOIN normed n ON n.sector_id = t.sector_id
+        LEFT JOIN top_role r ON r.sector_id = t.sector_id AND r.rn = 1
+        ORDER BY t.total_headcount DESC
+    """)
+    return records(df)
+
+
 def get_position_profile(sector_id: str, title_norm: str) -> Optional[PositionProfile]:
     wide = query(
         "SELECT * FROM position_wide WHERE sector_id = ? AND title_norm = ?", [sector_id, title_norm]

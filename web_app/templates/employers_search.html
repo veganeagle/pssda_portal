@@ -14,9 +14,9 @@
       <tr><th>Sector</th><th class="num">Employers</th><th class="num">Disclosed Emp.*</th><th class="num">Median per employer</th><th>Largest employer</th></tr>
       {% for s in sector_overview %}
       <tr>
-        <td><a href="{{ url_for('employer.search', sector=s.sector_id) }}">{{ s.sector_name|proper }}</a></td>
+        <td><a href="{{ url_for('employer.search', sector=s.sector_id) }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper }}</a></td>
         <td class="num mono">{{ "{:,}".format(s.employer_count) }}</td>
-        <td class="num mono">{{ "{:,}".format(s.total_headcount) }}</td>
+        <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ s.pct_of_max }}%, transparent {{ s.pct_of_max }}%);">{{ "{:,}".format(s.total_headcount) }}</td>
         <td class="num mono">{{ "{:,}".format(s.median_employer_size) }}</td>
         <td><a href="{{ url_for('employer.profile_page', employer_id=s.largest_employer_id, back=request.path) }}">{{ s.largest_employer_name|proper|truncate(28, True, '…') }} <span class="mono muted">({{ "{:,}".format(s.largest_headcount) }})</span></a></td>
       </tr>

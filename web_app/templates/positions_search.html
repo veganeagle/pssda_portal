@@ -7,12 +7,31 @@
   <p class="lede">Browse every normalized role tracked province-wide, and compare disclosed employees and pay for the same job across employers and sectors.</p>
 </div>
 
+<div class="bento">
+  <div class="card span6">
+    <h3>Positions by sector</h3>
+    <table class="result-table dense-table">
+      <tr><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">Mapped positions</th><th class="num">% mapped</th><th>Most frequent</th></tr>
+      {% for s in sector_overview %}
+      <tr>
+        <td><a href="{{ url_for('position.search', sector=s.sector_id) }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper }}</a></td>
+        <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ s.pct_of_max }}%, transparent {{ s.pct_of_max }}%);">{{ "{:,}".format(s.total_headcount) }}</td>
+        <td class="num mono">{{ "{:,}".format(s.n_positions) }}</td>
+        <td class="num mono">{{ s.pct_mapped }}%</td>
+        <td>{% if s.top_role_title %}<a href="{{ url_for('position.profile_page', sector_id=s.sector_id, title_norm=s.top_role_title, back=request.path) }}">{{ s.top_role_title|proper }}</a> <span class="mono muted">({{ "{:,}".format(s.top_role_headcount) }})</span>{% else %}&mdash;{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
 <div class="search-panel">
+  <h2 class="search-panel-title">Find a specific position</h2>
   <form method="get" action="{{ url_for('position.search') }}">
     <div class="search-grid">
       <label>Title contains<input type="text" name="title" value="{{ request.args.get('title', '') }}"></label>
       <label>Sector
-        <select name="sector">
+        <select name="sector" onchange="this.form.submit()">
           <option value="">Any</option>
           {% for s in sectors %}
           <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
@@ -27,7 +46,7 @@
 <div class="panel">
   <p class="result-summary">{{ results|length }} position(s){% if results|length == 50 %} (showing top 50 by disclosed employees){% endif %}</p>
   <table class="result-table" id="position-search-results" data-collapse="5" data-csv="position-search-results.csv">
-    <tr><th>Position</th><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">Avg. total comp</th></tr>
+    <tr><th>Position</th><th>Sector</th><th class="num">Disclosed Emp.</th><th class="num">Avg. total comp</th></tr>
     {% for p in results %}
     <tr>
       <td><a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.full_path) }}">{{ p.title_norm|proper }}</a></td>

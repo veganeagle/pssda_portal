@@ -5,6 +5,13 @@ from access.employer_profile import get_employer_profile, search_employers, sect
 
 bp = Blueprint("employer", __name__)
 
+# Same cycle as charts.js's DONUT_COLORS, so a sector's dot here reads as
+# the same family of color used in donut charts elsewhere on the site.
+SECTOR_COLORS = [
+    "#2f6f6b", "#b8831e", "#6b8f3f", "#8b5fb8", "#c2574a",
+    "#3f7fb8", "#9a8f3f", "#5f8f8f", "#b85f8f", "#7a7a7a", "#4f6f9f",
+]
+
 
 @bp.route("/employers")
 def search():
@@ -14,6 +21,10 @@ def search():
     results = search_employers(name_contains=name, sector_id=sector, limit=None if show_all else 50)
 
     sector_overview = sector_employer_overview()
+    max_headcount = max((s["total_headcount"] for s in sector_overview), default=0)
+    for i, s in enumerate(sector_overview):
+        s["pct_of_max"] = round(s["total_headcount"] / max_headcount * 100, 1) if max_headcount else 0
+        s["color"] = SECTOR_COLORS[i % len(SECTOR_COLORS)]
 
     return render_template(
         "employers_search.html", results=results, sectors=list_sectors(), show_all=show_all,
