@@ -7,26 +7,6 @@
   <p class="lede">Look up any individual who has appeared on Ontario's Sunshine List, by name, or by narrowing down sector, employer, and position.</p>
 </div>
 
-{% if sector_overview %}
-<div class="bento">
-  <div class="card span6">
-    <h3>Who's on the list, by sector</h3>
-    <table class="result-table dense-table">
-      <tr><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">New this year</th><th class="num">Attrition</th><th class="num">Est. % female</th></tr>
-      {% for s in sector_overview %}
-      <tr>
-        <td><a href="{{ url_for('employee.search', sector=s.sector_id) }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper|truncate(22, True, '…') }}</a></td>
-        <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ s.pct_of_max }}%, transparent {{ s.pct_of_max }}%);">{{ "{:,}".format(s.n_employees) }}</td>
-        <td class="num mono">{{ s.pct_new }}%</td>
-        <td class="num mono" title="Disclosed last year, not disclosed this year — includes genuine departures and anyone who simply dipped below the $100,000 threshold.">{{ s.pct_attrition }}%</td>
-        <td class="num mono">{{ s.pct_female if s.pct_female is not none else "—" }}{{ "%" if s.pct_female is not none }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
-</div>
-{% endif %}
-
 <div class="search-panel">
   {% if scope_label %}
   <p class="result-summary">Searching within <b>{{ scope_label }}</b> only &middot; <a href="{{ url_for('employee.search') }}">search everyone instead</a></p>
@@ -36,15 +16,43 @@
     {% if scope_sector_id %}<input type="hidden" name="scope_sector_id" value="{{ scope_sector_id }}">{% endif %}
     {% if scope_title_norm %}<input type="hidden" name="scope_title_norm" value="{{ scope_title_norm }}">{% endif %}
     {% if scope_label %}<input type="hidden" name="scope_label" value="{{ scope_label }}">{% endif %}
-    <div class="search-grid">
+
+    <div class="search-grid{% if not scope_employer_id and not scope_sector_id %} search-grid-name-row{% endif %}">
       <label>First name<input type="text" name="first" value="{{ request.args.get('first', '') }}"></label>
       <label>Last name<input type="text" name="last" value="{{ request.args.get('last', '') }}"></label>
       <label>Middle<input type="text" name="middle" value="{{ request.args.get('middle', '') }}"></label>
+      {% if not scope_employer_id and not scope_sector_id %}
+      <div class="status-toggle-group">
+        <span class="search-grid-sublabel">&nbsp;</span>
+        <label class="status-checkbox-label"><input type="checkbox" id="es-status-checkbox" name="status" value="all" {% if request.args.get('status') == 'all' %}checked{% endif %}> Include inactive/past</label>
+      </div>
+      {% endif %}
     </div>
+
+    {% if sector_overview %}
+    <div class="bento" style="margin-top:0.85rem;">
+      <div class="card span6">
+        <h3>Who's on the list, by sector</h3>
+        <table class="result-table dense-table">
+          <tr><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">New this year</th><th class="num">Attrition</th><th class="num">Est. % female</th></tr>
+          {% for s in sector_overview %}
+          <tr>
+            <td><a href="{{ url_for('employee.search', sector=s.sector_id) }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper|truncate(22, True, '…') }}</a></td>
+            <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ s.pct_of_max }}%, transparent {{ s.pct_of_max }}%);">{{ "{:,}".format(s.n_employees) }}</td>
+            <td class="num mono">{{ s.pct_new }}%</td>
+            <td class="num mono" title="Disclosed last year, not disclosed this year — includes genuine departures and anyone who simply dipped below the $100,000 threshold.">{{ s.pct_attrition }}%</td>
+            <td class="num mono">{{ s.pct_female if s.pct_female is not none else "—" }}{{ "%" if s.pct_female is not none }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
     {% if not scope_employer_id and not scope_sector_id %}
     <div class="search-grid search-grid-cascade">
       <label>Sector
-        <select name="sector" id="es-sector-select" onchange="document.getElementById('es-employer-select').value=''; es_resetPositions();">
+        <select name="sector" id="es-sector-select">
           <option value="">Any</option>
           {% for s in sectors %}
           <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
@@ -70,13 +78,6 @@
       <label>Year present<input type="number" name="year" value="{{ request.args.get('year', '') }}" style="width:6rem;"></label>
     </div>
     {% endif %}
-    {% if not scope_employer_id and not scope_sector_id %}
-    <div class="status-toggle">
-      <label><input type="radio" name="status" value="active" {% if request.args.get('status', 'active') == 'active' %}checked{% endif %}> Active only (on the most recent list)</label>
-      <label><input type="radio" name="status" value="all" {% if request.args.get('status') == 'all' %}checked{% endif %}> Include inactive/past</label>
-    </div>
-    {% endif %}
-    <div class="search-actions"><button type="submit">Search</button></div>
   </form>
 </div>
 
@@ -105,42 +106,61 @@
 {% endif %}
 
 <script>
-  function es_resetPositions() {
-    var sel = document.getElementById('es-position-select');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">Any</option>';
-    sel.disabled = true;
-  }
   (function () {
-    var sectorSelect = document.getElementById('es-sector-select');
-    var employerSelect = document.getElementById('es-employer-select');
-    var positionSelect = document.getElementById('es-position-select');
-    if (!sectorSelect || !employerSelect || !positionSelect) return;
+    var form = document.querySelector(".search-panel form");
+    if (!form) return;
+    var sectorSelect = document.getElementById("es-sector-select");
+    var employerSelect = document.getElementById("es-employer-select");
+    var positionSelect = document.getElementById("es-position-select");
+    var statusCheckbox = document.getElementById("es-status-checkbox");
 
-    var employerOptions = Array.prototype.slice.call(employerSelect.querySelectorAll('option[data-sector-id]'));
-
-    sectorSelect.addEventListener('change', function () {
+    // Narrow the Employer dropdown's real <option> children to the current
+    // Sector, on load as much as on a later change — every control here
+    // auto-submits (see below), which reloads the page server-rendered
+    // correctly each time, so this is what makes a sector picked from the
+    // table above (or carried over from a prior search) actually narrow the
+    // Employer list the user sees, not just a value matched after the fact.
+    if (sectorSelect && employerSelect) {
+      var allEmployers = Array.prototype.map.call(
+        employerSelect.querySelectorAll("option[data-sector-id]"),
+        function (o) { return { value: o.value, text: o.textContent, sectorId: o.dataset.sectorId }; }
+      );
+      var blankOption = employerSelect.querySelector('option[value=""]');
+      var selectedValue = employerSelect.value;
       var sectorId = sectorSelect.value;
-      employerOptions.forEach(function (opt) {
-        opt.hidden = !!(sectorId && opt.dataset.sectorId !== sectorId);
+      employerSelect.innerHTML = "";
+      if (blankOption) employerSelect.appendChild(blankOption.cloneNode(true));
+      allEmployers.forEach(function (opt) {
+        if (sectorId && opt.sectorId !== sectorId) return;
+        var o = document.createElement("option");
+        o.value = opt.value;
+        o.textContent = opt.text;
+        o.dataset.sectorId = opt.sectorId;
+        if (opt.value === selectedValue) o.selected = true;
+        employerSelect.appendChild(o);
+      });
+    }
+
+    // No Search button: every select/checkbox submits immediately, and each
+    // resulting page load re-renders the next level (Employer, then
+    // Position) already narrowed — so a fresh, simpler reload replaces what
+    // used to be a client-side live-fetch cascade.
+    [sectorSelect, employerSelect, positionSelect, statusCheckbox].forEach(function (el) {
+      if (!el) return;
+      el.addEventListener("change", function () {
+        if (el === sectorSelect) { employerSelect.value = ""; positionSelect.value = ""; }
+        if (el === employerSelect) { positionSelect.value = ""; }
+        form.submit();
       });
     });
 
-    employerSelect.addEventListener('change', function () {
-      es_resetPositions();
-      var employerId = employerSelect.value;
-      if (!employerId) return;
-      fetch('/api/employer/' + encodeURIComponent(employerId) + '/positions')
-        .then(function (r) { return r.json(); })
-        .then(function (rows) {
-          positionSelect.disabled = false;
-          rows.forEach(function (row) {
-            var o = document.createElement('option');
-            o.value = row.sector_id + '::' + row.title_norm;
-            o.textContent = row.label;
-            positionSelect.appendChild(o);
-          });
-        });
+    // Text fields can't auto-submit on every keystroke, so they submit on
+    // Enter instead — never on blur, which would fire mid-tab-through
+    // (e.g. leaving First Name for Last Name) and submit too early.
+    Array.prototype.forEach.call(form.querySelectorAll('input[type="text"], input[type="number"]'), function (inp) {
+      inp.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); form.submit(); }
+      });
     });
   })();
 </script>

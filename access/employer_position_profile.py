@@ -14,9 +14,10 @@ from models.employer_profile import TitleVariant
 
 def list_positions_for_employer(employer_id: str) -> list[dict]:
     """Every normalized position held at one employer — for the Employee
-    search page's employer-cascading position picker (fetched on demand,
-    not pre-embedded, since there are ~19,000 employer+position combos
-    province-wide — too many to ship in every page load)."""
+    search page's employer-cascading position picker. Looked up server-side
+    for just the selected employer, not pre-embedded for every employer up
+    front, since there are ~19,000 employer+position combos province-wide —
+    too many to ship in every page load."""
     df = query(
         "SELECT sector_id, title_norm FROM employer_position_wide WHERE employer_id = ? ORDER BY title_norm",
         [employer_id],

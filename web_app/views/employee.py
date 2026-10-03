@@ -1,10 +1,9 @@
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, render_template, request
 
 from access.employee_profile import get_employee_profile
 from access.employee_search import list_sectors, search_employees, sector_population_overview
 from access.employer_position_profile import list_positions_for_employer
 from access.employer_profile import list_employers_for_filter
-from web_app.formatting import proper_case
 
 bp = Blueprint("employee", __name__)
 
@@ -92,14 +91,3 @@ def profile_page(employee_id):
     if profile is None:
         return render_template("not_found.html", what="employee", key=employee_id), 404
     return render_template("employee.html", profile=profile)
-
-
-@bp.route("/api/employer/<employer_id>/positions")
-def employer_positions_json(employer_id):
-    """Backs the Employee search page's sector->employer->position cascade:
-    fetched on demand when an employer is picked, rather than pre-embedding
-    all ~19,000 employer+position combos in every page load."""
-    rows = list_positions_for_employer(employer_id)
-    for r in rows:
-        r["label"] = proper_case(r["title_norm"])
-    return jsonify(rows)
