@@ -22,7 +22,7 @@ def _escape_like(s: str) -> str:
 
 
 def search_employers(
-    name_contains: str | None = None, sector_id: str | None = None, limit: int = SEARCH_LIMIT
+    name_contains: str | None = None, sector_id: str | None = None, limit: int | None = SEARCH_LIMIT
 ) -> list[EmployerSearchResult]:
     conditions = []
     params: list = []
@@ -34,17 +34,32 @@ def search_employers(
         params.append(sector_id)
 
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    limit_clause = "LIMIT ?" if limit is not None else ""
     sql = f"""
         SELECT employer_id, employer_name, sector_id, sector_name, current_year,
                current_headcount, current_avg_total_comp
         FROM employer_wide
         {where_clause}
         ORDER BY current_headcount DESC
-        LIMIT ?
+        {limit_clause}
     """
-    params.append(limit)
+    if limit is not None:
+        params.append(limit)
     df = query(sql, params)
     return [EmployerSearchResult(**row) for row in records(df)]
+
+
+def sector_employer_counts() -> list[dict]:
+    """Employer count per sector, province-wide — for the "employers by
+    sector" overview bar list on the search page. Excludes the sentinel
+    sectors (-1 unknown, 99 seconded) just like the sector picker does.
+    """
+    df = query("""
+        SELECT sector_id, sector_name, COUNT(*) AS employer_count
+        FROM employer_wide WHERE sector_id NOT IN ('-1', '99')
+        GROUP BY sector_id, sector_name ORDER BY employer_count DESC
+    """)
+    return records(df)
 
 
 def get_employer_profile(employer_id: str) -> Optional[EmployerProfile]:

@@ -7,4 +7,13 @@
 <p><a href="{{ back_safe or url_for('employee.search') }}">&larr; {{ 'back to profile' if back_safe else 'back to search' }}</a></p>
 {% include "_employer_fragment.html" %}
 {{ scoped_employee_search('at ' ~ (employer.employer_name|proper), scope_employer_id=employer.employer_id, scope_label=employer.employer_name|proper) }}
+
+<script type="application/json" id="employer-trend-data">{{ trend_json|tojson }}</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var trend = JSON.parse(document.getElementById('employer-trend-data').textContent);
+    renderTrendChart('employer-trend-chart', trend);
+  });
+</script>
 {% endblock %}

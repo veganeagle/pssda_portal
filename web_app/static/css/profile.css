@@ -38,9 +38,11 @@ header.topbar{
   display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
   position:sticky; top:0; z-index:10;
 }
-header.topbar .brand-link{color:var(--text); text-decoration:none; display:inline-flex; align-items:center; gap:0.1em;}
+header.topbar .brand-link{color:var(--text); text-decoration:none; display:inline-flex; align-items:baseline; gap:0.1em;}
 header.topbar .brand-link:hover{color:var(--accent);}
 header.topbar .dot{color:var(--accent);}
+header.topbar .brand-tagline{font-size:0.68rem; font-weight:500; color:var(--mute); letter-spacing:0; margin-left:0.6rem; white-space:nowrap;}
+@media (max-width:720px){header.topbar .brand-tagline{display:none;}}
 header.topbar .tabs{display:flex; gap:1.1rem; font-weight:600; font-size:0.88rem;}
 header.topbar .tabs a{color:var(--mute); text-decoration:none;}
 header.topbar .tabs a:hover{color:var(--text);}
@@ -195,7 +197,8 @@ footer.note{color:var(--mute); font-size:0.76rem; padding-top:0.35rem;}
 .bento .span2{grid-column:span 2;}
 .bento .span4{grid-column:span 4;}
 .bento .span6{grid-column:span 6;}
-@media (max-width:860px){ .bento .span2,.bento .span4{grid-column:span 6;} }
+.bento .span3{grid-column:span 3;}
+@media (max-width:860px){ .bento .span2,.bento .span3,.bento .span4{grid-column:span 6;} }
 .bento .card{display:flex; flex-direction:column; gap:0.15rem;}
 .bento .card h3{margin-bottom:0.85rem;}
 
@@ -218,6 +221,14 @@ footer.note{color:var(--mute); font-size:0.76rem; padding-top:0.35rem;}
 .mini-row .s{color:var(--mute); font-size:0.72rem; display:block; margin-top:0.1rem;}
 .mini-row .job-sub{color:var(--mute); font-size:0.72rem; font-weight:500;}
 .mini-row .n{color:var(--mute); white-space:nowrap;}
+
+.bar-row{padding:0.32rem 0;}
+.bar-row-top{display:flex; justify-content:space-between; align-items:baseline; gap:0.5rem; font-size:0.8rem; margin-bottom:0.22rem;}
+.bar-row-top a{font-weight:600; color:var(--text); text-decoration:none;}
+.bar-row-top a:hover{color:var(--accent);}
+.bar-row-top .n{color:var(--mute); white-space:nowrap;}
+.bar-track{height:7px; background:var(--surface-2); border-radius:4px; overflow:hidden;}
+.bar-fill{height:100%; border-radius:4px; min-width:2px;}
 
 .insight-note{background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:0.6rem 0.75rem; font-size:0.78rem; margin-top:0.6rem;}
 .insight-note b{color:var(--accent);}

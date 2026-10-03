@@ -18,6 +18,17 @@
   <div class="tile accent"><div class="label">Total disclosed payroll</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
 </div>
 
+{% if employer.history|length > 1 %}
+<div class="panel">
+  <h2>Headcount &amp; payroll over time <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
+  <svg class="trend-chart" id="employer-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+  <div class="trend-legend">
+    <span><span class="sw" style="background:var(--accent);"></span>Total payroll</span>
+    <span><span class="sw bars" style="background:var(--mute);"></span>Employees on list</span>
+  </div>
+</div>
+{% endif %}
+
 <div class="panel">
   <h2>Top positions <span class="sub">FY{{ employer.current.year }} &middot; ranked by employees on list</span></h2>
   <table class="result-table" id="employer-top-positions-table" data-collapse="5" data-csv="{{ (employer.employer_name ~ '-top-positions')|lower }}.csv">

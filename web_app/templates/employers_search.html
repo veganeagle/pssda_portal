@@ -7,12 +7,38 @@
   <p class="lede">Browse every public-sector employer on the list, from the largest school boards and municipalities to the smallest library board.</p>
 </div>
 
+<div class="bento">
+  <div class="card span3">
+    <h3>Employers by sector</h3>
+    {% for s in sector_counts %}
+    <div class="bar-row">
+      <div class="bar-row-top">
+        <a href="{{ url_for('employer.search', sector=s.sector_id) }}">{{ s.sector_name|proper }}</a>
+        <span class="n mono">{{ "{:,}".format(s.employer_count) }}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:{{ s.pct_of_max }}%; background:{{ s.color }};"></div></div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="card span3">
+    <h3>Largest employers <span class="sub">by employees on list</span></h3>
+    {% for e in top_employers %}
+    <div class="mini-row">
+      <span class="t"><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}">{{ e.employer_name|proper }}</a>
+        <span class="s">{{ (e.sector_name or e.sector_id)|proper }}</span></span>
+      <span class="n mono">{{ "{:,}".format(e.current_headcount) }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
 <div class="search-panel">
   <form method="get" action="{{ url_for('employer.search') }}">
     <div class="search-grid">
       <label>Name contains<input type="text" name="name" value="{{ request.args.get('name', '') }}"></label>
       <label>Sector
-        <select name="sector">
+        <select name="sector" onchange="this.form.submit()">
           <option value="">Any</option>
           {% for s in sectors %}
           <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
@@ -25,7 +51,15 @@
 </div>
 
 <div class="panel">
-  <p class="result-summary">{{ results|length }} employer(s){% if results|length == 50 %} (showing top 50 by employees on list){% endif %}</p>
+  <p class="result-summary">
+    {% if show_all %}
+    {{ results|length }} employer(s) &mdash; showing all.
+    <a href="{{ url_for('employer.search', name=name, sector=sector) }}">show top 50 only &rarr;</a>
+    {% else %}
+    {{ results|length }} employer(s){% if results|length == 50 %} (showing top 50 by employees on list) &middot;
+    <a href="{{ url_for('employer.search', name=name, sector=sector, all=1) }}">see all &rarr;</a>{% endif %}
+    {% endif %}
+  </p>
   <table class="result-table" id="employer-search-results" data-collapse="5" data-csv="employer-search-results.csv">
     <tr><th>Employer</th><th>Sector</th><th class="num">Employees on List</th><th class="num">Avg. total comp</th></tr>
     {% for e in results %}

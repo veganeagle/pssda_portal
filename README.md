@@ -1,4 +1,4 @@
-# PSSDA Portal
+# OPSCI.ca — Ontario Public Sector Compensation Insights
 
 A research/benchmarking tool over 16 years (2010–2025) of Ontario public-sector
 salary disclosure data — entity-resolved employees, employers, and normalized

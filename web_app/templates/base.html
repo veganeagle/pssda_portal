@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>{% block title %}PSSDA Portal{% endblock %}</title>
+<title>{% block title %}OPSCI.ca{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 <body>
 <header class="topbar">
-  <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> PSSDA Portal</a>
+  <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> OPSCI.ca<span class="brand-tagline">Ontario Public Sector Compensation Insights</span></a>
   <nav class="tabs">
     <a href="{{ url_for('position.search') }}">Positions</a>
     <a href="{{ url_for('employer.search') }}">Employers</a>
