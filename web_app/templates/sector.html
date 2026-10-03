@@ -122,7 +122,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var trend = JSON.parse(document.getElementById('sector-trend-data').textContent);
-    renderTrendChart('sector-trend-chart', trend);
+    renderTrendChart('sector-trend-chart', trend, {countFormat: 'raw'});
     var mix = JSON.parse(document.getElementById('sector-position-mix-data').textContent);
     renderDonutChart('sector-position-donut', 'sector-position-legend', mix);
   });

@@ -111,14 +111,18 @@ JSON. Run these after any pipeline or model change.
 
 | Route | What it shows |
 |---|---|
-| `/search` (also `/`) | Employee search — name, sector, employer-contains, title-contains, year-present. Requires at least one filter (no open browse of individuals). |
+| `/` | Home dashboard — the "all Ontario" landing page: province trend chart, sector payroll-mix donut, fastest movers, largest employers, top disclosed earners preview, a curated "Ontario's highest paid..." notable-roles grid, and a top-15-roles table. A sector picker jumps to the matching `/sector/<id>` page. |
+| `/sector/<id>` | One of the 11 real sectors, modeled on the home dashboard but a standalone template (not homologated with it) — same shape of cards (trend, fastest movers, a role-mix donut, largest employers, top earners preview), plus a 6-card "highest paid normalized positions" grid (always distinct roles, floor of 5 incumbents, pinned to the sector's own current year) and a "top 15 roles in {sector}" table. |
+| `/search` | Employee search — name, sector, employer-contains, title-contains, year-present. Requires at least one filter (no open browse of individuals). |
 | `/employee/<id>` | One person: current role, peer-standing percentile (3 tiers), full disclosure history with YoY/gap/switch/promotion flags. |
-| `/employers` | Employer search — name-contains, sector. No filter = top 50 by headcount. |
-| `/employer/<id>` | One employer: workforce history, top positions (by headcount, with median/P90 salary band and a real composition breakdown — see `SUNSHINE.md` on why that matters), top disclosed earners. |
-| `/positions` | Position search — title-contains, sector. Positions are keyed by `(sector, title_norm)`, never title alone (a bare title spans unrelated domains). |
+| `/employers` | Employer search — name-contains, sector (auto-submits on change). Above the form: a dense "employers by sector" table (count, disclosed employees with an inline sparkline, median employer size, largest employer). No filter = top 50 by disclosed employees, with a "see all" escape hatch to the unfiltered list. |
+| `/employer/<id>` | One employer: a disclosed-payroll-&-employees trend chart, top positions (by headcount, with median/P90 salary band and a real composition breakdown — see `SUNSHINE.md` on why that matters), full workforce history, top disclosed earners. |
+| `/positions` | Position search — title-contains, sector (auto-submits on change). Above the form: a "positions by sector" table (disclosed employees with sparkline, count of distinct normalized positions, % of disclosed employees whose title actually normalized, most frequent role). Positions are keyed by `(sector, title_norm)`, never title alone (a bare title spans unrelated domains). |
 | `/position/<sector_id>/<title_norm>` | One position, province-wide: trend over time, matched-cohort raise (not a naive year-average), leaderboard of every employer offering this role. |
 | `/employer/<id>/position/<sector_id>/<title_norm>` | The "combo" page — one position at one specific employer. Reached only as a second step from an employer's or position's table, never searched directly: clicking a position/employer name in those tables drills into the combo (the contextually relevant destination), with a small "province-wide"/"overall" label alongside for the explicit escape hatch to the broader page. Both directions land on the same combo page. |
 | `/top-earners` | Province-wide leaderboard, filterable by sector, employer-contains, and an exact position (live-filterable dropdown, not free text — see the position-filter JS for why free text was rejected: it mixed unrelated roles across sectors). |
+
+Every page's headcount/payroll language is standardized on "disclosed employees"/"disclosed payroll" (never bare "headcount"/"payroll", which would misleadingly suggest an employer's full workforce or budget) — one footnote in `base.html`'s footer, rendered site-wide, spells out the precise definition once, including that disclosed payroll is a sum of *salary only* (not total compensation).
 
 ## Cubes
 

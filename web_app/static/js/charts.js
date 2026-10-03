@@ -1,8 +1,11 @@
 // Shared chart renderers used by the home dashboard and every sector page:
-//   window.renderTrendChart(svgId, trend) — a zero-based dual-series combo
-//     chart (grey bars = headcount, accent line = total payroll), both on
-//     their own scale against the same year grid. trend is
-//     [{year, headcount, total_payroll}, ...].
+//   window.renderTrendChart(svgId, trend, opts) — a zero-based dual-series
+//     combo chart (grey bars = headcount, accent line = total payroll), both
+//     on their own scale against the same year grid. trend is
+//     [{year, headcount, total_payroll}, ...]. opts.countFormat: "k"
+//     (default; "405K people" — fine at province scale) or "raw" ("733
+//     people" — K-rounding a small sector/employer to "1K" is misleading,
+//     not just imprecise).
 //   window.renderDonutChart(svgId, legendId, items) — a donut with a legend
 //     list underneath, one color per item in order. items is
 //     [{name, value}, ...]; the caller decides what "value" means (payroll,
@@ -16,6 +19,10 @@
 
   function cssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function fmtCount(n, mode) {
+    return mode === "raw" ? n.toLocaleString() : (n / 1000).toFixed(0) + "K";
   }
 
   function colScale(values, h, padT, padB) {
@@ -41,9 +48,10 @@
     return pts.map(function (p, i) { return (i === 0 ? "M" : "L") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ");
   }
 
-  window.renderTrendChart = function (svgId, trend) {
+  window.renderTrendChart = function (svgId, trend, opts) {
     var svg = document.getElementById(svgId);
     if (!svg || !trend || !trend.length) return;
+    var countFormat = (opts && opts.countFormat) || "k";
     var vb = svg.viewBox.baseVal, w = vb.width, h = vb.height;
     var headcounts = trend.map(function (d) { return d.headcount; });
     var payrolls = trend.map(function (d) { return d.total_payroll; });
@@ -58,9 +66,9 @@
       '<text x="2" y="' + (h - 20) + '" font-size="11" fill="' + ink + '" font-family="JetBrains Mono, monospace">' + first.year + '</text>' +
       '<text x="' + (w - 2) + '" y="' + (h - 20) + '" font-size="11" fill="' + ink + '" font-family="JetBrains Mono, monospace" text-anchor="end">' + last.year + '</text>' +
       '<text x="2" y="' + (h - 6) + '" font-size="11" fill="' + cssVar("--mute") + '" font-family="JetBrains Mono, monospace">' +
-        (headcounts[0] / 1000).toFixed(0) + 'K people &middot; $' + (payrolls[0] / 1e9).toFixed(1) + 'B</text>' +
+        fmtCount(headcounts[0], countFormat) + ' people &middot; $' + (payrolls[0] / 1e9).toFixed(1) + 'B</text>' +
       '<text x="' + (w - 2) + '" y="' + (h - 6) + '" font-size="11" fill="' + cssVar("--mute") + '" font-family="JetBrains Mono, monospace" text-anchor="end">' +
-        (headcounts[headcounts.length - 1] / 1000).toFixed(0) + 'K people &middot; $' + (payrolls[payrolls.length - 1] / 1e9).toFixed(1) + 'B</text>';
+        fmtCount(headcounts[headcounts.length - 1], countFormat) + ' people &middot; $' + (payrolls[payrolls.length - 1] / 1e9).toFixed(1) + 'B</text>';
   };
 
   window.renderDonutChart = function (svgId, legendId, items) {

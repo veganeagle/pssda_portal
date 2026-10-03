@@ -100,6 +100,7 @@ button:hover, .btn:hover{filter:brightness(1.05);}
 .dense-table th{padding:0.2rem 0.5rem 0.3rem;}
 .dense-table td{padding:0.18rem 0.5rem;}
 .dense-table .dot{display:inline-block; width:0.55rem; height:0.55rem; border-radius:50%; margin-right:0.45rem; vertical-align:middle;}
+.dense-table .s{color:var(--mute); font-weight:500; font-size:0.72rem; display:block; margin-top:0.1rem;}
 
 /* Name and Years get a fixed floor (covers ~90% of names / exactly fits
    "YYYY-YYYY") so a long title/employer can't squeeze them onto two lines —

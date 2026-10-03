@@ -7,11 +7,35 @@
   <p class="lede">The province-wide leaderboard of the highest-paid disclosed employees*, filterable by sector, employer, and exact position.</p>
 </div>
 
+<div class="bento">
+  <div class="card span6">
+    <h3>Top earners by sector <span class="sub">FY{{ year }}</span></h3>
+    <table class="result-table dense-table">
+      <tr><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">Share of top {{ "{:,}".format(top_n_province) }}</th><th class="num">P90 salary</th><th>Top earner</th></tr>
+      {% for s in sector_overview %}
+      <tr>
+        <td><a href="{{ url_for('top_earners.index', sector=s.sector_id) }}"><span class="dot" style="background:{{ s.color }};"></span>{{ s.sector_name|proper }}</a></td>
+        <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ s.pct_of_max }}%, transparent {{ s.pct_of_max }}%);">{{ "{:,}".format(s.n_employees) }}</td>
+        <td class="num mono">{{ s.pct_top_province }}%</td>
+        <td class="num mono">${{ "{:,.0f}".format(s.p90_salary) }}</td>
+        <td>
+          {% if s.top_employee_id %}
+          <a href="{{ url_for('employee.profile_page', employee_id=s.top_employee_id, back=request.path) }}">{{ s.top_first_name|proper }} {{ s.top_last_name|proper }}</a>
+          <span class="s"><a href="{{ url_for('employer.profile_page', employer_id=s.top_employer_id, back=request.path) }}">{{ s.top_employer_name|proper|truncate(28, True, '…') }}</a> &middot; <span class="mono">${{ "{:,.0f}".format(s.top_total_comp) }}</span></span>
+          {% else %}&mdash;{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
 <div class="search-panel">
+  <h2 class="search-panel-title">Filter the leaderboard</h2>
   <form method="get" action="{{ url_for('top_earners.index') }}">
     <div class="search-grid">
       <label>Sector
-        <select name="sector" id="sector-select">
+        <select name="sector" id="sector-select" onchange="document.getElementById('position-select').value=''; this.form.submit();">
           <option value="">Province-wide</option>
           {% for s in sectors %}
           <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>

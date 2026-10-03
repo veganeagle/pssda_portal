@@ -22,6 +22,40 @@ def list_available_years() -> list[int]:
     return [int(y) for y in df["year"]]
 
 
+TOP_N_PROVINCE = 1000
+
+
+def sector_top_earners_overview() -> list[dict]:
+    """One row per sector, current year only — disclosed employees, how many
+    of them land in the province-wide top 1000 by total comp, the sector's
+    P90 salary, and its single highest-paid person — for the "top earners by
+    sector" table on the search page. Excludes the sentinel sectors (-1
+    unknown, 99 seconded) just like the sector picker does.
+    """
+    df = query("""
+        WITH cy AS (SELECT MAX(year) AS y FROM top_earners_history),
+        base AS (SELECT * FROM top_earners_history WHERE year = (SELECT y FROM cy)),
+        totals AS (
+            SELECT sector_id, sector_name, COUNT(*) AS n_employees,
+                   SUM(CASE WHEN rank_province <= ? THEN 1 ELSE 0 END)::INTEGER AS n_in_top_province,
+                   PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY salary_paid) AS p90_salary
+            FROM base WHERE sector_id NOT IN ('-1', '99')
+            GROUP BY sector_id, sector_name
+        ), top1 AS (
+            SELECT sector_id, employee_id, first_name, last_name, employer_id, employer_name, total_comp,
+                   ROW_NUMBER() OVER (PARTITION BY sector_id ORDER BY total_comp DESC) AS rn
+            FROM base WHERE sector_id NOT IN ('-1', '99')
+        )
+        SELECT t.sector_id, t.sector_name, t.n_employees, t.n_in_top_province, t.p90_salary,
+               r.employee_id AS top_employee_id, r.first_name AS top_first_name, r.last_name AS top_last_name,
+               r.employer_id AS top_employer_id, r.employer_name AS top_employer_name, r.total_comp AS top_total_comp
+        FROM totals t
+        LEFT JOIN top1 r ON r.sector_id = t.sector_id AND r.rn = 1
+        ORDER BY t.n_employees DESC
+    """, [TOP_N_PROVINCE])
+    return records(df)
+
+
 def search_top_earners(
     sector_id: str | None = None, employer_contains: str | None = None,
     title_norm: str | None = None, year: int | None = None, limit: int = DEFAULT_LIMIT,
