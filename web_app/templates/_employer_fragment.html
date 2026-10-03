@@ -4,7 +4,7 @@
     <p class="role">{{ (employer.sector_name or employer.sector_id)|proper }}{% if employer.subsector and employer.subsector != 'TBD' %} &middot; {{ employer.subsector|replace('_', ' ')|proper }}{% endif %} &middot; FY{{ employer.current.year }}</p>
   </div>
   <div class="tag-row">
-    <span class="tag">{{ "{:,}".format(employer.current.headcount) }} disclosed in {{ employer.current.year }}</span>
+    <span class="tag">{{ "{:,}".format(employer.current.headcount) }} disclosed employees* in {{ employer.current.year }}</span>
     <span class="tag">{{ employer.years_present }} yrs on file ({{ employer.first_year_present }}&ndash;{{ employer.last_year_present }})</span>
     {% if employer.municipality %}<span class="tag">{{ employer.municipality|proper }}</span>{% endif %}
     {% if employer.population %}<span class="tag">Pop. {{ "{:,.0f}".format(employer.population) }}</span>{% endif %}
@@ -15,33 +15,30 @@
 <div class="grid">
   <div class="tile"><div class="label">Avg. salary</div><div class="value mono">${{ "{:,.0f}".format(employer.current.avg_salary) }}</div></div>
   <div class="tile"><div class="label">Avg. total comp</div><div class="value mono">${{ "{:,.0f}".format(employer.current.avg_total_comp) }}</div></div>
-  <div class="tile accent"><div class="label">Total disclosed payroll</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
+  <div class="tile accent"><div class="label">Disclosed payroll*</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
 </div>
 
 {% if employer.history|length > 1 %}
 <div class="panel">
-  <h2>Headcount &amp; payroll over time <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
+  <h2>Disclosed payroll &amp; employees over time <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
   <svg class="trend-chart" id="employer-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
   <div class="trend-legend">
-    <span><span class="sw" style="background:var(--accent);"></span>Total payroll</span>
-    <span><span class="sw bars" style="background:var(--mute);"></span>Employees on list</span>
+    <span><span class="sw" style="background:var(--accent);"></span>Disclosed payroll</span>
+    <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
   </div>
 </div>
 {% endif %}
 
 <div class="panel">
-  <h2>Top positions <span class="sub">FY{{ employer.current.year }} &middot; ranked by employees on list</span></h2>
+  <h2>Top positions <span class="sub">FY{{ employer.current.year }} &middot; ranked by disclosed employees</span></h2>
   <table class="result-table" id="employer-top-positions-table" data-collapse="5" data-csv="{{ (employer.employer_name ~ '-top-positions')|lower }}.csv">
-    <tr><th class="num">#</th><th>Position</th><th class="num">Employees on List</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Raise</th></tr>
+    <tr><th class="num">#</th><th>Position</th><th class="num">Disclosed Emp.</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Raise</th></tr>
     {% for tp in employer.top_positions %}
     <tr>
       <td class="num mono">{{ tp.rank }}</td>
       <td>
         <a href="{{ url_for('combo.profile_page', employer_id=employer.employer_id, sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}">{{ tp.title_norm|proper }}</a>
         <a class="alt-link" href="{{ url_for('position.profile_page', sector_id=tp.sector_id, title_norm=tp.title_norm, back=request.path) }}" title="{{ tp.title_norm|proper }}, province-wide (all employers)">province-wide</a>
-        {% if tp.variants %}
-        <small class="muted" style="display:block;">{% for v in tp.variants %}{{ v.variant|proper }} {{ v.headcount }}{% if not loop.last %} &middot; {% endif %}{% endfor %}</small>
-        {% endif %}
       </td>
       <td class="num mono">{{ "{:,}".format(tp.headcount) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(tp.median_salary) }}</td>
@@ -62,7 +59,7 @@
   <h2>Workforce history <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history" id="employer-history-table" data-collapse="5" data-csv="{{ (employer.employer_name ~ '-workforce-history')|lower }}.csv">
-      <tr><th>Year</th><th class="num">Employees on List</th><th class="num">Avg. salary</th><th class="num">Avg. total comp</th><th class="num">Total payroll</th><th class="num">Newly disclosed</th><th class="num">Gender</th></tr>
+      <tr><th>Year</th><th class="num">Disclosed Emp.</th><th class="num">Avg. salary</th><th class="num">Avg. total comp</th><th class="num">Disclosed payroll</th><th class="num">Newly disclosed</th><th class="num">Gender</th></tr>
       {% for h in employer.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>

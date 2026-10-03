@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from models.home_dashboard import FastMover, TopEmployer, TrendYear
+from models.home_dashboard import FastMover, TopEmployer, TopPosition, TrendYear
 
 
 class PositionShare(BaseModel):
@@ -40,3 +40,4 @@ class SectorProfile(BaseModel):
     position_mix: list[PositionShare]
     top_employers: list[TopEmployer]
     top_positions: list[SectorTopPosition]
+    top_roles: list[TopPosition]

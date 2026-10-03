@@ -4,8 +4,8 @@
 
 <div class="hero">
   <h1>{{ sector.sector_name|proper }}</h1>
-  <p class="lede">{{ "{:,}".format(sector.current_headcount) }} public sector employees earned $100K+ in {{ sector.current_year }}, across {{ "{:,}".format(sector.current_employers) }} employers in this sector.
-    {% if sector.yoy_payroll_change is not none %}Total disclosed payroll {{ 'grew' if sector.yoy_payroll_change >= 0 else 'fell' }} {{ "{:+.1%}".format(sector.yoy_payroll_change) }} year over year{% endif %}.
+  <p class="lede">{{ "{:,}".format(sector.current_headcount) }} disclosed employees* earned $100K+ in {{ sector.current_year }}, across {{ "{:,}".format(sector.current_employers) }} employers in this sector.
+    {% if sector.yoy_payroll_change is not none %}Disclosed payroll* {{ 'grew' if sector.yoy_payroll_change >= 0 else 'fell' }} {{ "{:+.1%}".format(sector.yoy_payroll_change) }} year over year{% endif %}.
     {% if sector.common_positions %}The most common roles here are {{ sector.common_positions[:-1]|map('proper')|join(', ') }}{% if sector.common_positions|length > 1 %} and {% endif %}{{ sector.common_positions[-1]|proper }}.{% endif %}</p>
   <div class="sector-picker">
     <label for="sector-picker-select">Jump to:</label>
@@ -21,11 +21,11 @@
 <div class="dashboard-mat">
 <div class="bento">
   <div class="card span4">
-    <h3>{{ sector.sector_name|proper }} payroll &amp; headcount <span class="sub">{{ sector.trend[0].year }}&ndash;{{ sector.current_year }}</span></h3>
+    <h3>{{ sector.sector_name|proper }} disclosed payroll &amp; employees <span class="sub">{{ sector.trend[0].year }}&ndash;{{ sector.current_year }}</span></h3>
     <svg class="trend-chart" id="sector-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
     <div class="trend-legend">
-      <span><span class="sw" style="background:var(--accent);"></span>Total payroll</span>
-      <span><span class="sw bars" style="background:var(--mute);"></span>Headcount</span>
+      <span><span class="sw" style="background:var(--accent);"></span>Disclosed payroll</span>
+      <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
     </div>
   </div>
 
@@ -46,7 +46,7 @@
   </div>
 
   <div class="card span2">
-    <h3>Most common positions <span class="sub">{{ sector.current_year }} headcount</span></h3>
+    <h3>Most common positions <span class="sub">{{ sector.current_year }} disclosed employees</span></h3>
     <div class="donut-wrap">
       <svg viewBox="0 0 42 42" id="sector-position-donut"></svg>
       <div class="donut-legend" id="sector-position-legend"></div>
@@ -94,29 +94,24 @@
   </div>
 
   <div class="card span6">
-    <h3>Top disclosed earners <span class="sub">{{ sector.sector_name|proper }} &middot; {{ sector.current_year }}</span></h3>
-    <div class="result-table" style="overflow-x:auto;">
-      <table class="result-table" id="sector-top-earners-table" data-collapse="5" data-csv="{{ (sector.sector_name ~ '-top-earners')|lower }}.csv">
-        <tr><th class="num">#</th><th>Name</th><th>Employer</th><th>Position</th><th class="num">Total comp</th><th class="num">YoY</th></tr>
-        {% for r in top_earners %}
-        <tr>
-          <td class="num mono">#{{ r.rank_sector }}</td>
-          <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
-          <td><a href="{{ url_for('employer.profile_page', employer_id=r.employer_id, back=request.path) }}" title="{{ r.employer_name|proper }}">{{ r.employer_name|proper|truncate(60, True, '…') }}</a></td>
-          <td>{% if r.title_norm %}<a href="{{ url_for('position.profile_page', sector_id=r.sector_id, title_norm=r.title_norm, back=request.path) }}" title="{{ r.job_title|proper }}">{{ r.job_title|proper|truncate(60, True, '…') }}</a>{% else %}{{ r.job_title|proper|truncate(60, True, '…') }}{% endif %}</td>
-          <td class="num mono">${{ "{:,.0f}".format(r.total_comp) }}</td>
-          <td class="num">
-            {% if r.comparable_to_prior_year and r.yoy_salary_increase is not none %}
-            <span class="chip {{ 'chip-pos' if r.yoy_salary_increase >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(r.yoy_salary_increase) }}</span>
-            {% else %}
-            <span class="chip chip-mute">n/a</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
-    <p class="muted" style="margin-top:0.5rem;">Includes anyone in this sector's top earners regardless of whether their disclosed title matched a normalized position &mdash; "Position" is blank, not a link, when it didn't.</p>
+    <h3>Top 15 roles in {{ sector.sector_name|proper }} <span class="sub">disclosed employees, median salary, matched raise</span></h3>
+    <table class="result-table" id="sector-top-roles-table" data-collapse="5" data-csv="{{ (sector.sector_name ~ '-top-15-roles')|lower }}.csv">
+      <tr><th>Role</th><th class="num">Disclosed Emp.</th><th class="num">Median</th><th class="num">Raise</th></tr>
+      {% for p in sector.top_roles %}
+      <tr>
+        <td><a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.path) }}">{{ p.title_norm|proper }}</a></td>
+        <td class="num mono">{{ "{:,}".format(p.headcount) }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(p.median_salary) }}</td>
+        <td class="num">
+          {% if p.avg_raise_matched is not none %}
+          <span class="chip {{ 'chip-pos' if p.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1f}".format(p.avg_raise_matched*100) }}%</span>
+          {% else %}
+          <span class="chip chip-mute">n/a</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
   </div>
 </div>
 </div>

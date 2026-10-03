@@ -9,7 +9,7 @@
 </head>
 <body>
 <header class="topbar">
-  <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> OPSCI.ca<span class="brand-tagline">Ontario Public Sector Compensation Insights</span></a>
+  <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> OPSCI.ca</a>
   <nav class="tabs">
     <a href="{{ url_for('position.search') }}">Positions</a>
     <a href="{{ url_for('employer.search') }}">Employers</a>
@@ -17,7 +17,10 @@
     <a href="{{ url_for('top_earners.index') }}">Top Earners</a>
   </nav>
 </header>
-<main>{% block content %}{% endblock %}</main>
+<main>
+{% block content %}{% endblock %}
+<footer class="site-footnote">* "Disclosed" means required to appear on Ontario's Public Sector Salary Disclosure ("Sunshine List") — employees who earned $100,000 or more in salary that year. Disclosed payroll is the sum of salary paid to that group only (it excludes taxable benefits — it is not total compensation), and disclosed employees is a count of that group only. Neither figure reflects an employer's full workforce or full payroll spend, only the disclosed portion of it.</footer>
+</main>
 <script src="{{ url_for('static', filename='js/table_tools.js') }}"></script>
 </body>
 </html>

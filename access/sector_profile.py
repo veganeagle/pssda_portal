@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from access._rows import records
 from access.db import query
-from models.home_dashboard import FastMover, TopEmployer, TrendYear
+from models.home_dashboard import FastMover, TopEmployer, TopPosition, TrendYear
 from models.sector_profile import PositionShare, SectorProfile, SectorTopPosition
 
 # Below this, a role's matched-cohort raise is too easily swung by a handful
@@ -16,6 +16,7 @@ from models.sector_profile import PositionShare, SectorProfile, SectorTopPositio
 FAST_MOVER_MIN_HEADCOUNT = 50
 POSITION_MIX_TOP_N = 5
 TOP_POSITION_MIN_HEADCOUNT = 5
+TOP_ROLES_LIMIT = 15
 
 
 def list_sectors_for_picker() -> list[dict]:
@@ -98,12 +99,22 @@ def get_sector_profile(sector_id: str) -> SectorProfile | None:
     """, [sector_id, current_year, TOP_POSITION_MIN_HEADCOUNT, sector_id, current_year])
     top_positions = [SectorTopPosition(**row) for row in records(positions_df)]
 
+    roles_df = query("""
+        SELECT sector_id, sector_name, title_norm,
+               current_headcount AS headcount, current_median_salary AS median_salary,
+               current_avg_raise_matched AS avg_raise_matched
+        FROM position_wide WHERE sector_id = ? AND title_norm IS NOT NULL AND current_year = ?
+        ORDER BY current_headcount DESC LIMIT ?
+    """, [sector_id, current_year, TOP_ROLES_LIMIT])
+    top_roles = [TopPosition(**row) for row in records(roles_df)]
+
     return SectorProfile(
         sector_id=sector_id, sector_name=sector_name, current_year=current_year,
         current_headcount=current_headcount, current_employers=current_employers,
         current_payroll=trend[-1].total_payroll, yoy_payroll_change=yoy_payroll_change,
         common_positions=common_positions, trend=trend, fastest_movers=fastest_movers,
         position_mix=position_mix, top_employers=top_employers, top_positions=top_positions,
+        top_roles=top_roles,
     )
 
 

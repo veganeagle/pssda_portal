@@ -4,7 +4,7 @@
 
 <div class="hero">
   <h1>Search Positions</h1>
-  <p class="lede">Browse every normalized role tracked province-wide, and compare headcount and pay for the same job across employers and sectors.</p>
+  <p class="lede">Browse every normalized role tracked province-wide, and compare disclosed employees and pay for the same job across employers and sectors.</p>
 </div>
 
 <div class="search-panel">
@@ -25,9 +25,9 @@
 </div>
 
 <div class="panel">
-  <p class="result-summary">{{ results|length }} position(s){% if results|length == 50 %} (showing top 50 by employees on list){% endif %}</p>
+  <p class="result-summary">{{ results|length }} position(s){% if results|length == 50 %} (showing top 50 by disclosed employees){% endif %}</p>
   <table class="result-table" id="position-search-results" data-collapse="5" data-csv="position-search-results.csv">
-    <tr><th>Position</th><th>Sector</th><th class="num">Employees on List</th><th class="num">Avg. total comp</th></tr>
+    <tr><th>Position</th><th>Sector</th><th class="num">Disclosed Emp.*</th><th class="num">Avg. total comp</th></tr>
     {% for p in results %}
     <tr>
       <td><a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.full_path) }}">{{ p.title_norm|proper }}</a></td>

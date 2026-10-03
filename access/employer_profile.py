@@ -49,15 +49,32 @@ def search_employers(
     return [EmployerSearchResult(**row) for row in records(df)]
 
 
-def sector_employer_counts() -> list[dict]:
-    """Employer count per sector, province-wide — for the "employers by
-    sector" overview bar list on the search page. Excludes the sentinel
-    sectors (-1 unknown, 99 seconded) just like the sector picker does.
+def sector_employer_overview() -> list[dict]:
+    """One row per sector — employer count, total headcount represented,
+    median employer size, and the sector's single largest employer (by
+    current headcount) — for the "employers by sector" table on the search
+    page. Excludes the sentinel sectors (-1 unknown, 99 seconded) just like
+    the sector picker does.
     """
     df = query("""
-        SELECT sector_id, sector_name, COUNT(*) AS employer_count
-        FROM employer_wide WHERE sector_id NOT IN ('-1', '99')
-        GROUP BY sector_id, sector_name ORDER BY employer_count DESC
+        WITH base AS (
+            SELECT sector_id, sector_name, employer_id, employer_name, current_headcount
+            FROM employer_wide WHERE sector_id NOT IN ('-1', '99')
+        ), agg AS (
+            SELECT sector_id, sector_name, COUNT(*) AS employer_count,
+                   SUM(current_headcount)::BIGINT AS total_headcount,
+                   ROUND(MEDIAN(current_headcount))::INTEGER AS median_employer_size
+            FROM base GROUP BY sector_id, sector_name
+        ), largest AS (
+            SELECT sector_id, employer_id, employer_name, current_headcount,
+                   ROW_NUMBER() OVER (PARTITION BY sector_id ORDER BY current_headcount DESC) AS rn
+            FROM base
+        )
+        SELECT a.sector_id, a.sector_name, a.employer_count, a.total_headcount, a.median_employer_size,
+               l.employer_id AS largest_employer_id, l.employer_name AS largest_employer_name,
+               l.current_headcount AS largest_headcount
+        FROM agg a JOIN largest l ON l.sector_id = a.sector_id AND l.rn = 1
+        ORDER BY a.total_headcount DESC
     """)
     return records(df)
 

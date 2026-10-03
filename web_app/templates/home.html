@@ -3,8 +3,8 @@
 {% block content %}
 
 <div class="hero">
-  <h1>Interrogate Ontario Public Sector Salary Data</h1>
-  <p class="lede">{{ "{:,}".format(dashboard.current_headcount) }} public sector employees earned $100K+ in {{ dashboard.current_year }}, across {{ "{:,}".format(dashboard.current_employers) }} employers. Explore the salary relationships and trends by employers, positions and years. Our platform maps individual and positional salary data across the last 16 years of Sunshine List data. Understand increases based on year-over-year individual mapping, not just aggregates.</p>
+  <h1>Ontario Public Sector Compensation Insights</h1>
+  <p class="lede">{{ "{:,}".format(dashboard.current_headcount) }} disclosed employees* earned $100K+ in {{ dashboard.current_year }}, across {{ "{:,}".format(dashboard.current_employers) }} employers. Explore the salary relationships and trends by employers, positions and years. Our platform maps individual and positional salary data across the last 16 years of Sunshine List data. Understand increases based on year-over-year individual mapping, not just aggregates.</p>
   <div class="sector-picker">
     <label for="sector-picker-select">This is the all-Ontario view &mdash; jump to one sector:</label>
     <select id="sector-picker-select" onchange="if(this.value){location.href=this.value;}">
@@ -19,11 +19,11 @@
 <div class="dashboard-mat">
 <div class="bento">
   <div class="card span4">
-    <h3>Province payroll &amp; headcount <span class="sub">{{ dashboard.trend[0].year }}&ndash;{{ dashboard.current_year }}</span></h3>
+    <h3>Province disclosed payroll &amp; employees <span class="sub">{{ dashboard.trend[0].year }}&ndash;{{ dashboard.current_year }}</span></h3>
     <svg class="trend-chart" id="dashboard-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
     <div class="trend-legend">
-      <span><span class="sw" style="background:var(--accent);"></span>Total payroll</span>
-      <span><span class="sw bars" style="background:var(--mute);"></span>Headcount</span>
+      <span><span class="sw" style="background:var(--accent);"></span>Disclosed payroll*</span>
+      <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
     </div>
   </div>
 
@@ -42,7 +42,7 @@
   </div>
 
   <div class="card span2">
-    <h3>Where the money goes <span class="sub">{{ dashboard.current_year }} payroll</span></h3>
+    <h3>Where the money goes <span class="sub">{{ dashboard.current_year }} disclosed payroll</span></h3>
     <div class="donut-wrap">
       <svg viewBox="0 0 42 42" id="dashboard-sector-donut"></svg>
       <div class="donut-legend" id="dashboard-sector-legend"></div>
@@ -98,10 +98,10 @@
   </div>
 
   <div class="card span6">
-    <h3>Top 15 roles province-wide <span class="sub">headcount, median salary, matched raise</span></h3>
+    <h3>Top 15 roles province-wide <span class="sub">disclosed employees, median salary, matched raise</span></h3>
     <div class="result-table" style="overflow-x:auto;">
       <table class="result-table" id="home-top-positions-table" data-collapse="5" data-csv="top-15-positions.csv">
-        <tr><th>Role</th><th>Sector</th><th class="num">Headcount</th><th class="num">Median</th><th class="num">Raise</th></tr>
+        <tr><th>Role</th><th>Sector</th><th class="num">Disclosed Emp.</th><th class="num">Median</th><th class="num">Raise</th></tr>
         {% for p in dashboard.top_positions %}
         <tr>
           <td><a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.path) }}">{{ p.title_norm|proper }}</a></td>

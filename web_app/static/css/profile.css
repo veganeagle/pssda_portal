@@ -41,8 +41,6 @@ header.topbar{
 header.topbar .brand-link{color:var(--text); text-decoration:none; display:inline-flex; align-items:baseline; gap:0.1em;}
 header.topbar .brand-link:hover{color:var(--accent);}
 header.topbar .dot{color:var(--accent);}
-header.topbar .brand-tagline{font-size:0.68rem; font-weight:500; color:var(--mute); letter-spacing:0; margin-left:0.6rem; white-space:nowrap;}
-@media (max-width:720px){header.topbar .brand-tagline{display:none;}}
 header.topbar .tabs{display:flex; gap:1.1rem; font-weight:600; font-size:0.88rem;}
 header.topbar .tabs a{color:var(--mute); text-decoration:none;}
 header.topbar .tabs a:hover{color:var(--text);}
@@ -51,6 +49,7 @@ main{max-width:980px; margin:0 auto; padding:1rem 16px 2rem; display:flex; flex-
 
 /* ---- search form ---- */
 .search-panel{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem;}
+.search-panel-title{font-size:0.95rem; font-weight:700; margin:0 0 0.6rem;}
 .search-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:0.6rem 1rem;}
 @media (max-width:720px){ .search-grid{grid-template-columns:1fr 1fr;} }
 @media (max-width:460px){ .search-grid{grid-template-columns:1fr;} }
@@ -95,6 +94,11 @@ button:hover, .btn:hover{filter:brightness(1.05);}
 .result-table tr:hover td{background:var(--surface-2);}
 .result-table a{font-weight:700; text-decoration:none;}
 .result-table a:hover{text-decoration:underline;}
+.result-table .muted{color:var(--mute); font-weight:500;}
+
+.dense-table{font-size:0.78rem;}
+.dense-table th{padding:0.2rem 0.5rem 0.3rem;}
+.dense-table td{padding:0.18rem 0.5rem;}
 
 /* Name and Years get a fixed floor (covers ~90% of names / exactly fits
    "YYYY-YYYY") so a long title/employer can't squeeze them onto two lines —
@@ -185,6 +189,7 @@ table.history tr:hover td{background:var(--surface-2);}
 :root[data-theme="dark"] .flag-switch{background:#1c2c44; color:#8fb4ea;}
 
 footer.note{color:var(--mute); font-size:0.76rem; padding-top:0.35rem;}
+footer.site-footnote{color:var(--mute); font-size:0.74rem; line-height:1.5; padding:0.9rem 0 0.4rem; margin-top:0.5rem; border-top:1px solid var(--border);}
 
 /* ---- home dashboard (home.html) ---- */
 .hero{padding:0.6rem 0 0.3rem;}
@@ -222,13 +227,6 @@ footer.note{color:var(--mute); font-size:0.76rem; padding-top:0.35rem;}
 .mini-row .job-sub{color:var(--mute); font-size:0.72rem; font-weight:500;}
 .mini-row .n{color:var(--mute); white-space:nowrap;}
 
-.bar-row{padding:0.32rem 0;}
-.bar-row-top{display:flex; justify-content:space-between; align-items:baseline; gap:0.5rem; font-size:0.8rem; margin-bottom:0.22rem;}
-.bar-row-top a{font-weight:600; color:var(--text); text-decoration:none;}
-.bar-row-top a:hover{color:var(--accent);}
-.bar-row-top .n{color:var(--mute); white-space:nowrap;}
-.bar-track{height:7px; background:var(--surface-2); border-radius:4px; overflow:hidden;}
-.bar-fill{height:100%; border-radius:4px; min-width:2px;}
 
 .insight-note{background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:0.6rem 0.75rem; font-size:0.78rem; margin-top:0.6rem;}
 .insight-note b{color:var(--accent);}
