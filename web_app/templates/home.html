@@ -3,8 +3,17 @@
 {% block content %}
 
 <div class="hero">
-  <h1>Interrogate Ontario Public Sector Salary Data.</h1>
+  <h1>Interrogate Ontario Public Sector Salary Data</h1>
   <p class="lede">{{ "{:,}".format(dashboard.current_headcount) }} public sector employees earned $100K+ in {{ dashboard.current_year }}, across {{ "{:,}".format(dashboard.current_employers) }} employers. Explore the salary relationships and trends by employers, positions and years. Our platform maps individual and positional salary data across the last 16 years of Sunshine List data. Understand increases based on year-over-year individual mapping, not just aggregates.</p>
+  <div class="sector-picker">
+    <label for="sector-picker-select">This is the all-Ontario view &mdash; jump to one sector:</label>
+    <select id="sector-picker-select" onchange="if(this.value){location.href=this.value;}">
+      <option value="">All Ontario</option>
+      {% for s in sectors %}
+      <option value="{{ url_for('sector.profile_page', sector_id=s.sector_id) }}">{{ s.sector_name|proper }}</option>
+      {% endfor %}
+    </select>
+  </div>
 </div>
 
 <div class="dashboard-mat">
@@ -115,5 +124,6 @@
 </div>
 
 <script type="application/json" id="dashboard-data">{{ dashboard_json|tojson }}</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script src="{{ url_for('static', filename='js/home_dashboard.js') }}"></script>
 {% endblock %}

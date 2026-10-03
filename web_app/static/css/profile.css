@@ -58,6 +58,14 @@ main{max-width:980px; margin:0 auto; padding:1rem 16px 2rem; display:flex; flex-
   border-radius:6px; background:var(--surface-2); color:var(--text);
 }
 .search-grid input:focus, .search-grid select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.sector-picker{display:flex; align-items:center; gap:0.6rem; margin-top:0.2rem; flex-wrap:wrap;}
+.sector-picker label{font-size:0.8rem; color:var(--mute); font-weight:600;}
+.sector-picker select{
+  font-family:inherit; font-size:0.85rem; padding:0.32rem 0.55rem; border:1px solid var(--border);
+  border-radius:6px; background:var(--surface); color:var(--text);
+}
+
+
 .year-nav{display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem;}
 .year-nav a{font-weight:700; font-size:0.86rem; text-decoration:none;}
 .year-nav a:hover{text-decoration:underline;}

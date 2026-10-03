@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template
 
 from access.home_dashboard import get_home_dashboard
+from access.sector_profile import list_sectors_for_picker
 from web_app.formatting import proper_case
 
 bp = Blueprint("home", __name__)
@@ -38,4 +39,6 @@ def index():
         "trend": [t.model_dump() for t in dashboard.trend],
         "sectors": _donut_sectors(dashboard.sectors),
     }
-    return render_template("home.html", dashboard=dashboard, dashboard_json=dashboard_json)
+    return render_template(
+        "home.html", dashboard=dashboard, dashboard_json=dashboard_json, sectors=list_sectors_for_picker(),
+    )
