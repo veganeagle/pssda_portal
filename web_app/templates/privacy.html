@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Privacy — OPSCI.ca{% endblock %}
+{% block description %}How OPSCI handles public salary records, messages you send us and information about website visits.{% endblock %}
+{% block content %}
+<article class="prose">
+  <h1>Privacy</h1>
+  <p class="lede">OPSCI is a project of kdsay labs inc. This page explains the information used by the website and how to contact us with a privacy question.</p>
+
+  <h2>Public salary records</h2>
+  <p>OPSCI displays information from Ontario's public-sector salary disclosures and adds analysis, including links between records across years. These links and other derived measures are estimates. <a href="{{ url_for('pages.about_the_data') }}">About the data</a> explains how they work.</p>
+
+  <h2>When you contact us</h2>
+  <p>If you email us, we receive your email address and the information you choose to send. We use that information to respond to your message and investigate questions or corrections.</p>
+  <p>Please avoid sending sensitive personal information that isn't needed to explain your question.</p>
+
+  <h2>Website information</h2>
+  <p>OPSCI does not use cookies, analytics or advertising, and pages do not load content from other websites.</p>
+  <p>To keep the site available for everyone, it limits how many pages one visitor can request per hour. To do this, it keeps each visitor's IP address in memory for up to one hour. These records are not written to disk.</p>
+
+  <h2>Privacy questions</h2>
+  <p>For a privacy question or concern about a record, contact <a href="mailto:{{ contact_email }}"><b>{{ contact_email }}</b></a> and include the relevant page link. We will review concerns about how information is presented or linked on OPSCI.</p>
+</article>
+{% endblock %}

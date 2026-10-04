@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}About the data — OPSCI.ca{% endblock %}
+{% block description %}How OPSCI uses Ontario's public-sector salary disclosures: who is included, how employees are matched across years, job-title groups, annual increases and other estimates.{% endblock %}
+{% block content %}
+<article class="prose">
+  <h1>About the data</h1>
+  <p class="lede">OPSCI uses Ontario's public-sector salary disclosures, commonly known as the Sunshine List. The records show names, employers, job titles, disclosed salary and taxable benefits for employees whose annual salary meets the $100,000 disclosure threshold.</p>
+  <p>OPSCI currently covers the {{ first_year }}&ndash;{{ current_year }} disclosures. The year shown refers to the year the pay was received, rather than the year the list was published.</p>
+
+  <h2>Who is included</h2>
+  <p>The Sunshine List is not a complete workforce list. Employees below the disclosure threshold are missing, so the coverage varies by job and employer.</p>
+  <p>When we refer to disclosed employees or disclosed salary, we mean the employees and pay represented in these records.</p>
+
+  <h2>Connecting employees across years</h2>
+  <p>We use names, employers, job titles and other information in the records to match employees from one year to the next. This lets us build salary histories and compare pay for the same employees over time.</p>
+  <p>Matching is an estimate. Two people can have the same name, and a person can change their name, job or employer. We may sometimes join records that belong to different people or fail to connect records that belong to the same person.</p>
+
+  <h2>Comparing job titles</h2>
+  <p>Employers often use different titles for similar work. OPSCI groups related titles so you can compare jobs across employers. The original titles remain available in the relevant views.</p>
+  <p>These groups are useful for comparison, but jobs within a group may still differ in duties, seniority or working hours.</p>
+
+  <h2>Understanding annual increases</h2>
+  <p>Our same-employee increases only count people who held the same job group at the same employer in two consecutive years. This gives a different view from comparing two group averages, which may include different people.</p>
+  <p>An increase in annual pay is not necessarily a change in base salary. Overtime, leave, partial-year work, retroactive pay and final-year payments can all affect the amount disclosed. When a person changes employers during a year, their pay for that year is combined into a single annual figure, and which employer it is shown under may be uncertain.</p>
+  <p>The results are useful for understanding patterns, rather than confirming the reason for a particular person's pay change.</p>
+
+  <h2>Other estimates</h2>
+  <p>Gender is estimated from first names and is only shown as a share of a large group, never for an individual. A promotion is flagged when a person's job title changes and their disclosed salary rises by 10% or more in the same year. These estimates are not confirmed personal or employment information.</p>
+  <p>Appearing on the list for the first time does not necessarily mean someone was newly hired. Disappearing from it does not necessarily mean they left their job.</p>
+
+  <h2>Salary and benefits</h2>
+  <p>Disclosed salary is the annual amount reported by the employer. Taxable benefits are reported separately. Together, they do not represent every benefit, pension contribution or other employment cost.</p>
+
+  <h2>Questions and corrections</h2>
+  <p>If a record appears to be linked to the wrong person, or a job grouping looks wrong, please <a href="{{ url_for('pages.contact') }}">contact us</a> with the page link and year.</p>
+  <p>For an error in an employer's original reported salary or other source information, the reporting employer is the starting point. You can also let us know so we can review how it appears on OPSCI.</p>
+
+  <h2>Source</h2>
+  <p><a href="https://www.ontario.ca/page/public-sector-salary-disclosure">Ontario public-sector salary disclosure</a></p>
+</article>
+{% endblock %}

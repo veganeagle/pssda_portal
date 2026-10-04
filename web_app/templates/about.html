@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}About — OPSCI.ca{% endblock %}
+{% block description %}OPSCI helps people explore Ontario public-sector compensation across employers, jobs and years. A project of kdsay labs inc.{% endblock %}
+{% block content %}
+<article class="prose">
+  <h1>About OPSCI</h1>
+  <p class="lede">OPSCI helps people explore Ontario public-sector compensation across employers, jobs and years.</p>
+  <p>The Sunshine List is a useful starting point. OPSCI adds context by connecting records across years, grouping similar job titles and offering comparisons between employers and sectors.</p>
+  <p>The site is built for people who want to understand the patterns: employer and policy analysts, researchers, journalists and interested professionals. You can also start with a familiar name or explore Top Earners and follow the links into a wider analysis.</p>
+
+  <h2>What makes OPSCI useful</h2>
+  <p>Looking at the same employees over time helps distinguish changes in their pay from changes in who appears on a list. Grouping related titles makes it easier to compare similar jobs across different employers.</p>
+  <p>These tools support deeper analysis while keeping the original disclosed information accessible. Our aim is to make useful comparisons easy to explore and understand.</p>
+
+  <h2>Who is behind it</h2>
+  <p>OPSCI is a project of kdsay labs inc. It is independent of the Ontario government and the employers included in the data.</p>
+  <p>Questions, ideas or corrections? <a href="{{ url_for('pages.contact') }}">Contact us</a>. To learn how the analysis works, visit <a href="{{ url_for('pages.about_the_data') }}">About the data</a>.</p>
+</article>
+{% endblock %}

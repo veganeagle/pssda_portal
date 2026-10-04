@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Contact — OPSCI.ca{% endblock %}
+{% block description %}Questions, ideas or corrections about OPSCI — how to get in touch and how to report a problem with the data.{% endblock %}
+{% block content %}
+<article class="prose">
+  <h1>Contact</h1>
+  <p class="lede">Have a question, an idea or a correction? We'd like to hear from you.</p>
+  <p>Email: <a href="mailto:{{ contact_email }}"><b>{{ contact_email }}</b></a></p>
+  <p>If you're reporting a problem with the data, please include:</p>
+  <ul>
+    <li>The page link and year.</li>
+    <li>A short description of what looks wrong.</li>
+  </ul>
+  <p>Please don't send identification documents or confidential employment records.</p>
+  <p>OPSCI is a project of kdsay labs inc.</p>
+</article>
+{% endblock %}

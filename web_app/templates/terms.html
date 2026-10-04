@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Terms &amp; disclaimer — OPSCI.ca{% endblock %}
+{% block description %}How to understand and use OPSCI's analysis of Ontario public-sector salary disclosures.{% endblock %}
+{% block content %}
+<article class="prose">
+  <h1>Terms &amp; disclaimer</h1>
+  <p class="lede">OPSCI is a project of kdsay labs inc. It provides tools for exploring Ontario public-sector salary disclosures and related analysis.</p>
+
+  <h2>Understanding the information</h2>
+  <p>The original disclosures are reported by employers. OPSCI adds employee matching, job groupings and other estimates to help people explore patterns over time.</p>
+  <p>Errors may occur in the original records or in our analysis. The data is not a complete workforce list, and annual pay can be affected by overtime, leave, partial-year work and other circumstances. Please read <a href="{{ url_for('pages.about_the_data') }}">About the data</a> when interpreting the results.</p>
+
+  <h2>Using the results</h2>
+  <p>Use OPSCI as a starting point for research and comparison. Check the source records and relevant context before relying on a result for an important decision or publishing a claim about an individual.</p>
+  <p>An estimate or ranking does not establish someone's identity, employment history, performance or the reason for their pay.</p>
+
+  <h2>Independence</h2>
+  <p>OPSCI is independent of the Ontario government and the employers shown. Inclusion on the site does not imply their endorsement.</p>
+
+  <h2>Corrections and updates</h2>
+  <p>We may update records, matching rules, job groups and calculations as the data or methods change. If you believe something is wrong, please <a href="{{ url_for('pages.contact') }}">contact us</a>.</p>
+
+  <h2>Source information</h2>
+  <p>The underlying data comes from Ontario's public-sector salary disclosures. If you reuse source data, check the terms that apply to that source. This page does not grant additional rights to government data.</p>
+</article>
+{% endblock %}

@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}OPSCI.ca{% endblock %}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<meta name="description" content="{% block description %}Explore Ontario public-sector pay across employers, jobs and years, built on 16 years of Sunshine List salary disclosures.{% endblock %}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 <body>
@@ -23,6 +22,16 @@
 <main>
 {% block content %}{% endblock %}
 <footer class="site-footnote">* "Disclosed" means required to appear on Ontario's Public Sector Salary Disclosure ("Sunshine List") — employees who earned $100,000 or more in salary that year. Disclosed payroll is the sum of salary paid to that group only (it excludes taxable benefits — it is not total compensation), and disclosed employees is a count of that group only. Neither figure reflects an employer's full workforce or full payroll spend, only the disclosed portion of it.</footer>
+<footer class="site-footer">
+  <nav aria-label="Site information">
+    <a href="{{ url_for('pages.about') }}">About</a><span class="sep" aria-hidden="true">&middot;</span>
+    <a href="{{ url_for('pages.about_the_data') }}">About the data</a><span class="sep" aria-hidden="true">&middot;</span>
+    <a href="{{ url_for('pages.contact') }}">Contact</a><span class="sep" aria-hidden="true">&middot;</span>
+    <a href="{{ url_for('pages.privacy') }}">Privacy</a><span class="sep" aria-hidden="true">&middot;</span>
+    <a href="{{ url_for('pages.terms') }}">Terms &amp; disclaimer</a>
+  </nav>
+  <p class="owner">A project of kdsay labs inc.</p>
+</footer>
 </main>
 <script src="{{ url_for('static', filename='js/table_tools.js') }}"></script>
 </body>
