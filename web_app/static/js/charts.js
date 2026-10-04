@@ -25,6 +25,20 @@
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
+  // Draws in real pixels: the viewBox is set to the SVG's own rendered box (its
+  // CSS height and the card's width), so axis text never stretches, and the
+  // chart is redrawn at the new size when the window is resized.
+  function fitViewBox(svg, redraw) {
+    var r = svg.getBoundingClientRect();
+    svg.setAttribute("viewBox", "0 0 " + Math.round(r.width) + " " + Math.round(r.height));
+    if (!svg.hasAttribute("data-fitted")) {
+      svg.setAttribute("data-fitted", "");
+      var timer;
+      window.addEventListener("resize", function () { clearTimeout(timer); timer = setTimeout(redraw, 150); });
+    }
+    return svg.viewBox.baseVal;
+  }
+
   function fmtCount(n, mode) {
     return mode === "raw" ? n.toLocaleString() : (n / 1000).toFixed(0) + "K";
   }
@@ -56,12 +70,12 @@
     var svg = document.getElementById(svgId);
     if (!svg || !trend || !trend.length) return;
     var countFormat = (opts && opts.countFormat) || "k";
-    var vb = svg.viewBox.baseVal, w = vb.width, h = vb.height;
+    var vb = fitViewBox(svg, function () { window.renderTrendChart(svgId, trend, opts); }), w = vb.width, h = vb.height;
     var headcounts = trend.map(function (d) { return d.headcount; });
     var payrolls = trend.map(function (d) { return d.total_payroll; });
     var bars = barsRects(headcounts, w, h, 10, 34, cssVar("--mute") || "#5f6b7a");
     var pPath = linePath(payrolls, w, h, 10, 34);
-    var accent = cssVar("--accent") || "#c8752b";
+    var accent = cssVar("--accent");
     var ink = cssVar("--text") || "#1c2733";
     var first = trend[0], last = trend[trend.length - 1];
     svg.innerHTML =
@@ -83,7 +97,9 @@
   window.renderCompareBarChart = function (svgId, legendId, seriesA, seriesB, labelA, labelB) {
     var svg = document.getElementById(svgId);
     if (!svg || !seriesA || !seriesA.length || !seriesB || !seriesB.length) return;
-    var vb = svg.viewBox.baseVal, w = vb.width, h = vb.height;
+    var vb = fitViewBox(svg, function () {
+      window.renderCompareBarChart(svgId, legendId, seriesA, seriesB, labelA, labelB);
+    }), w = vb.width, h = vb.height;
     var padT = 10, padB = 24;
     var n = seriesA.length;
     var valuesA = seriesA.map(function (d) { return d.headcount; });
@@ -94,7 +110,7 @@
     var groupW = w / n;
     var barW = groupW * 0.32;
     var gap = groupW * 0.06;
-    var accent = cssVar("--accent") || "#c8752b";
+    var accent = cssVar("--accent");
     var secondary = "#3f7fb8";
     var mute = cssVar("--mute") || "#5f6b7a";
     var bars = "", labels = "";

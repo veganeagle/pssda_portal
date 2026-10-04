@@ -120,7 +120,7 @@
       <td class="num">{% if comparison.b.pct_comp_change is not none %}<span class="chip {{ 'chip-pos' if comparison.b.pct_comp_change >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(comparison.b.pct_comp_change) }}</span>{% else %}&mdash;{% endif %}</td>
     </tr>
     <tr>
-      <td>Disclosed payroll*</td>
+      <td>Total disclosed salary*</td>
       <td class="num mono">${{ "{:,.0f}".format(comparison.a.disclosed_payroll) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(comparison.b.disclosed_payroll) }}</td>
     </tr>
@@ -132,7 +132,7 @@
 
 <div class="panel">
   <h2>5-year trend <span class="sub">disclosed employees</span></h2>
-  <svg class="trend-chart" id="compare-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+  <svg class="trend-chart" id="compare-trend-chart"></svg>
   <div class="trend-legend" id="compare-trend-legend"></div>
 </div>
 

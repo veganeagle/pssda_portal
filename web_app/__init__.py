@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from werkzeug.middleware.proxy_fix import ProxyFix
+from access.home_dashboard import get_year_range
 from web_app.formatting import proper_case
 from web_app.rate_limit import limiter
 from web_app.views import (
@@ -25,6 +26,10 @@ def create_app():
     app.jinja_env.filters["proper"] = proper_case
 
     limiter.init_app(app)
+
+    @app.context_processor
+    def site_years():
+        return {"site_years": get_year_range()}
 
     @app.errorhandler(429)
     def rate_limited(e):

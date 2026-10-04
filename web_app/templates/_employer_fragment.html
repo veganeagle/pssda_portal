@@ -15,7 +15,7 @@
 <div class="grid">
   <div class="tile"><div class="label">Avg. salary</div><div class="value mono">${{ "{:,.0f}".format(employer.current.avg_salary) }}</div></div>
   <div class="tile"><div class="label">Avg. total comp</div><div class="value mono">${{ "{:,.0f}".format(employer.current.avg_total_comp) }}</div></div>
-  <div class="tile accent"><div class="label">Disclosed payroll*</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
+  <div class="tile accent"><div class="label">Total disclosed salary*</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
 </div>
 
 {% if all_employers %}
@@ -66,10 +66,10 @@
 
 {% if employer.history|length > 1 %}
 <div class="panel">
-  <h2>Disclosed payroll &amp; employees over time <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
-  <svg class="trend-chart" id="employer-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+  <h2>Total disclosed salary &amp; employees over time <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
+  <svg class="trend-chart" id="employer-trend-chart"></svg>
   <div class="trend-legend">
-    <span><span class="sw" style="background:var(--accent);"></span>Disclosed payroll</span>
+    <span><span class="sw" style="background:var(--accent);"></span>Total disclosed salary</span>
     <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
   </div>
 </div>
@@ -105,7 +105,7 @@
   <h2>Workforce history <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
   <div class="history-wrap">
     <table class="history" id="employer-history-table" data-collapse="5" data-csv="{{ (employer.employer_name ~ '-workforce-history')|lower }}.csv">
-      <tr><th>Year</th><th class="num">Disclosed Emp.</th><th class="num">Avg. salary</th><th class="num">Avg. total comp</th><th class="num">Disclosed payroll</th><th class="num">Newly disclosed</th><th class="num">Gender</th></tr>
+      <tr><th>Year</th><th class="num">Disclosed Emp.</th><th class="num">Avg. salary</th><th class="num">Avg. total comp</th><th class="num">Total disclosed salary</th><th class="num">Newly disclosed</th><th class="num">Gender</th></tr>
       {% for h in employer.history %}
       <tr>
         <td class="mono">{{ h.year }}</td>

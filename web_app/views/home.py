@@ -41,4 +41,5 @@ def index():
     }
     return render_template(
         "home.html", dashboard=dashboard, dashboard_json=dashboard_json, sectors=list_sectors_for_picker(),
+        year_span=dashboard.current_year - dashboard.trend[0].year + 1,
     )

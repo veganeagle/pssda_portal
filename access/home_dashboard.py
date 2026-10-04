@@ -17,6 +17,13 @@ from models.home_dashboard import (
 FAST_MOVER_MIN_HEADCOUNT = 3000
 
 
+def get_year_range() -> tuple[int, int]:
+    """First and latest disclosure year in the published data — for the
+    site-wide header label, so it never needs a literal."""
+    df = query("SELECT MIN(year) AS first_year, MAX(year) AS last_year FROM employer_history")
+    return int(df.first_year[0]), int(df.last_year[0])
+
+
 def get_home_dashboard() -> HomeDashboard:
     trend_df = query("""
         SELECT year, SUM(headcount) AS headcount, SUM(total_payroll) AS total_payroll

@@ -2,20 +2,20 @@
 {% block title %}OPSCI.ca — Ontario Public Sector Compensation Insights{% endblock %}
 {% block content %}
 
-<div class="hero">
-  <h1>Ontario Public Sector Compensation Insights</h1>
-  <p class="lede">{{ "{:,}".format(dashboard.current_headcount) }} disclosed employees* earned $100K+ in {{ dashboard.current_year }}, across {{ "{:,}".format(dashboard.current_employers) }} employers.</p>
-  <p class="lede">Explore Ontario public-sector pay across employers, jobs and years. OPSCI brings together Sunshine List records to help you compare employers, follow salary changes and understand patterns beyond a single annual list.</p>
-  <p class="lede">Start with an employer, a job or an employee&mdash;or explore Top Earners using the filters.</p>
-  <ul class="explore-links">
-    <li><a href="{{ url_for('position.search') }}">Positions</a> <span>&mdash; compare similar jobs across employers</span></li>
-    <li><a href="{{ url_for('employer.search') }}">Employers</a> <span>&mdash; pay, job groups and changes over time</span></li>
-    <li><a href="{{ url_for('employee.search') }}">Employees</a> <span>&mdash; look up an employee's salary history</span></li>
-    <li><a href="{{ url_for('top_earners.index') }}">Top Earners</a> <span>&mdash; highest disclosed salaries by year, sector and job</span></li>
-  </ul>
-  <p class="data-note">Sunshine List data covers salaries of $100,000 or more. Employee matching and other derived measures are estimates. <a href="{{ url_for('pages.about_the_data') }}">About the data</a></p>
+<div class="hero hero-home">
+  <p class="eyebrow">Ontario &middot; Public sector compensation</p>
+  <h1>Ontario Public Sector<br>Compensation Insights</h1>
+  <p class="lede">Explore salaries across employers, jobs and years. Follow changes over time, compare similar roles and discover the patterns behind Ontario&rsquo;s Sunshine List. Employee matching and other derived measures are estimates. <a href="{{ url_for('pages.about_the_data') }}">About the data</a></p>
+</div>
+
+<div class="overview-bar">
+  <div class="summary-stats">
+    <div class="summary-stat"><strong class="mono">{{ "{:,}".format(dashboard.current_headcount) }}</strong><span>Disclosed employees* &middot; {{ dashboard.current_year }}</span></div>
+    <div class="summary-stat"><strong class="mono">{{ "{:,}".format(dashboard.current_employers) }}</strong><span>Employers &middot; {{ dashboard.current_year }}</span></div>
+    <div class="summary-stat"><strong>{{ year_span }} years</strong><span>{{ dashboard.trend[0].year }}&ndash;{{ dashboard.current_year }}</span></div>
+  </div>
   <div class="sector-picker">
-    <label for="sector-picker-select">This is the all-Ontario view &mdash; jump to one sector:</label>
+    <label for="sector-picker-select">Explore a sector</label>
     <select id="sector-picker-select" onchange="if(this.value){location.href=this.value;}">
       <option value="">All Ontario</option>
       {% for s in sectors %}
@@ -28,10 +28,10 @@
 <div class="dashboard-mat">
 <div class="bento">
   <div class="card span4">
-    <h3>Province disclosed payroll &amp; employees <span class="sub">{{ dashboard.trend[0].year }}&ndash;{{ dashboard.current_year }}</span></h3>
-    <svg class="trend-chart" id="dashboard-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+    <h3>Total disclosed salary &amp; employees <span class="sub">{{ dashboard.trend[0].year }}&ndash;{{ dashboard.current_year }}</span></h3>
+    <svg class="trend-chart" id="dashboard-trend-chart"></svg>
     <div class="trend-legend">
-      <span><span class="sw" style="background:var(--accent);"></span>Disclosed payroll*</span>
+      <span><span class="sw" style="background:var(--accent);"></span>Total disclosed salary*</span>
       <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
     </div>
   </div>
@@ -47,18 +47,18 @@
       <span class="chip chip-pos">+{{ "%.1f"|format(m.avg_raise_matched*100) }}%</span>
     </div>
     {% endfor %}
-    <p class="muted" style="font-size:0.72rem; margin-top:0.5rem;">Same person, same role, same employer, consecutive years &mdash; not a raw average. 3,000+ person minimum so this reflects real workforces, not noisy small cells.</p>
+    <p class="muted">Same person, same role, same employer, consecutive years &mdash; not a raw average. 3,000+ person minimum so this reflects real workforces, not noisy small cells.</p>
   </div>
 
-  <div class="card span2">
-    <h3>Where the money goes <span class="sub">{{ dashboard.current_year }} disclosed payroll</span></h3>
+  <div class="card span2 trio">
+    <h3>Where the money goes <span class="sub">{{ dashboard.current_year }} total disclosed salary</span></h3>
     <div class="donut-wrap">
       <svg viewBox="0 0 42 42" id="dashboard-sector-donut"></svg>
       <div class="donut-legend" id="dashboard-sector-legend"></div>
     </div>
   </div>
 
-  <div class="card span2">
+  <div class="card span2 trio">
     <h3>Largest employers <span class="sub"><a href="{{ url_for('employer.search') }}">full index &rarr;</a></span></h3>
     {% for e in dashboard.top_employers[:6] %}
     <div class="mini-row">
@@ -71,7 +71,7 @@
     {% endfor %}
   </div>
 
-  <div class="card span2">
+  <div class="card span2 trio trio-last">
     <h3>Top disclosed earners <span class="sub"><a href="{{ url_for('top_earners.index') }}">leaderboard &rarr;</a></span></h3>
     {% for p in dashboard.top_earners[:5] %}
     <div class="mini-row">
@@ -132,9 +132,9 @@
 </div>
 </div>
 
-<section class="card">
-  <h2 class="search-panel-title">More than an annual list</h2>
-  <div class="feature-strip">
+<section class="why-section">
+  <h2>More than an annual list</h2>
+  <div class="why-grid">
     <div>
       <h3>Follow changes over time</h3>
       <p>OPSCI matches employees across years so you can explore changes in their disclosed salary, rather than relying only on changes in a group's average.</p>

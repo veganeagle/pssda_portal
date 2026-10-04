@@ -5,7 +5,7 @@
 <div class="hero">
   <h1>{{ sector.sector_name|proper }}</h1>
   <p class="lede">{{ "{:,}".format(sector.current_headcount) }} disclosed employees* earned $100K+ in {{ sector.current_year }}, across {{ "{:,}".format(sector.current_employers) }} employers in this sector.
-    {% if sector.yoy_payroll_change is not none %}Disclosed payroll* {{ 'grew' if sector.yoy_payroll_change >= 0 else 'fell' }} {{ "{:+.1%}".format(sector.yoy_payroll_change) }} year over year{% endif %}.
+    {% if sector.yoy_payroll_change is not none %}Total disclosed salary* {{ 'grew' if sector.yoy_payroll_change >= 0 else 'fell' }} {{ "{:+.1%}".format(sector.yoy_payroll_change) }} year over year{% endif %}.
     {% if sector.common_positions %}The most common roles here are {{ sector.common_positions[:-1]|map('proper')|join(', ') }}{% if sector.common_positions|length > 1 %} and {% endif %}{{ sector.common_positions[-1]|proper }}.{% endif %}</p>
   <div class="sector-picker">
     <label for="sector-picker-select">Jump to:</label>
@@ -21,10 +21,10 @@
 <div class="dashboard-mat">
 <div class="bento">
   <div class="card span4">
-    <h3>{{ sector.sector_name|proper }} disclosed payroll &amp; employees <span class="sub">{{ sector.trend[0].year }}&ndash;{{ sector.current_year }}</span></h3>
-    <svg class="trend-chart" id="sector-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+    <h3>{{ sector.sector_name|proper }} total disclosed salary &amp; employees <span class="sub">{{ sector.trend[0].year }}&ndash;{{ sector.current_year }}</span></h3>
+    <svg class="trend-chart" id="sector-trend-chart"></svg>
     <div class="trend-legend">
-      <span><span class="sw" style="background:var(--accent);"></span>Disclosed payroll</span>
+      <span><span class="sw" style="background:var(--accent);"></span>Total disclosed salary</span>
       <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
     </div>
   </div>
@@ -42,10 +42,10 @@
     {% else %}
     <p class="muted" style="font-size:0.82rem;">No role in this sector clears 50 people with a comparable matched raise.</p>
     {% endfor %}
-    <p class="muted" style="font-size:0.72rem; margin-top:0.5rem;">Same person, same role, same employer, consecutive years &mdash; not a raw average.</p>
+    <p class="muted">Same person, same role, same employer, consecutive years &mdash; not a raw average.</p>
   </div>
 
-  <div class="card span2">
+  <div class="card span2 trio">
     <h3>Most common positions <span class="sub">{{ sector.current_year }} disclosed employees</span></h3>
     <div class="donut-wrap">
       <svg viewBox="0 0 42 42" id="sector-position-donut"></svg>
@@ -53,7 +53,7 @@
     </div>
   </div>
 
-  <div class="card span2">
+  <div class="card span2 trio">
     <h3>Largest employers <span class="sub"><a href="{{ url_for('employer.search', sector=sector.sector_id) }}">full index &rarr;</a></span></h3>
     {% for e in sector.top_employers[:6] %}
     <div class="mini-row">
@@ -63,7 +63,7 @@
     {% endfor %}
   </div>
 
-  <div class="card span2">
+  <div class="card span2 trio trio-last">
     <h3>Top disclosed earners <span class="sub"><a href="{{ url_for('top_earners.index', sector=sector.sector_id) }}">leaderboard &rarr;</a></span></h3>
     {% for r in top_earners[:5] %}
     <div class="mini-row">
