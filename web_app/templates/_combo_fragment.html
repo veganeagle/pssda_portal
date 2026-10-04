@@ -28,8 +28,8 @@
 </div>
 
 {% if comparable_employers %}
-<div class="compare-picker">
-  <label for="compare-select">Compare with:</label>
+<div class="compare-cta">
+  <span class="compare-cta-label">&#8644; Compare this role with&hellip;</span>
   <select id="compare-select" onchange="if(this.value){location.href=this.value;}">
     <option value="">Pick another employer offering {{ combo.title_norm|proper }}&hellip;</option>
     {% for e in comparable_employers %}

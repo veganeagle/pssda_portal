@@ -18,16 +18,50 @@
   <div class="tile accent"><div class="label">Disclosed payroll*</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
 </div>
 
-{% if comparable_employers %}
-<div class="compare-picker">
-  <label for="compare-select">Compare with:</label>
-  <select id="compare-select" onchange="if(this.value){location.href=this.value;}">
-    <option value="">Pick another {{ (employer.sector_name or employer.sector_id)|proper }} employer&hellip;</option>
-    {% for e in comparable_employers %}
-    <option value="{{ url_for('compare.employer', a=employer.employer_id, b=e.employer_id) }}">{{ e.employer_name|proper }}</option>
+{% if all_employers %}
+<div class="compare-cta">
+  <span class="compare-cta-label">&#8644; Compare this employer with&hellip;</span>
+  <select id="compare-sector-select">
+    {% for s in sectors %}
+    <option value="{{ s.sector_id }}" {% if s.sector_id == employer.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
+    {% endfor %}
+  </select>
+  <select id="compare-employer-select" data-url-template="{{ url_for('compare.employer', a=employer.employer_id, b='__B__') }}">
+    <option value="">Pick an employer&hellip;</option>
+    {% for e in all_employers %}
+    <option value="{{ e.employer_id }}" data-sector-id="{{ e.sector_id }}">{{ e.employer_name|proper }}</option>
     {% endfor %}
   </select>
 </div>
+<script>
+  (function () {
+    var sectorSelect = document.getElementById("compare-sector-select");
+    var employerSelect = document.getElementById("compare-employer-select");
+    if (!sectorSelect || !employerSelect) return;
+    var allOptions = Array.prototype.map.call(
+      employerSelect.querySelectorAll("option[data-sector-id]"),
+      function (o) { return { value: o.value, text: o.textContent, sectorId: o.dataset.sectorId }; }
+    );
+    function rebuild() {
+      employerSelect.innerHTML = '<option value="">Pick an employer&hellip;</option>';
+      allOptions.forEach(function (opt) {
+        if (opt.sectorId !== sectorSelect.value) return;
+        var o = document.createElement("option");
+        o.value = opt.value;
+        o.textContent = opt.text;
+        o.dataset.sectorId = opt.sectorId;
+        employerSelect.appendChild(o);
+      });
+    }
+    sectorSelect.addEventListener("change", rebuild);
+    employerSelect.addEventListener("change", function () {
+      if (employerSelect.value) {
+        location.href = employerSelect.dataset.urlTemplate.replace("__B__", employerSelect.value);
+      }
+    });
+    rebuild();
+  })();
+</script>
 {% endif %}
 
 {% if employer.history|length > 1 %}

@@ -1,10 +1,11 @@
-"""Side-by-side comparison: two employers in the same sector, or the same
-normalized position at two different employers in the same sector. Both
-sides are always pinned to the dataset's actual current year (never a
-possibly-stale per-entity "current year" — see the sector top-positions fix
-for why that distinction matters). Cross-sector comparison is deliberately
-not offered yet, for either mode — keeps "comparable" well defined without
-a design conversation about what cross-sector comparability would even mean.
+"""Side-by-side comparison: two employers (same sector or, now, any two
+sectors — e.g. a university vs. a college), or the same normalized position
+at two different employers in the same sector. Both sides are always pinned
+to the dataset's actual current year (never a possibly-stale per-entity
+"current year" — see the sector top-positions fix for why that distinction
+matters). Position/combo mode stays same-sector-only: title_norm is keyed by
+sector, so a cross-sector "match" would just be a coincidence of spelling,
+not a real comparable role.
 """
 from __future__ import annotations
 
@@ -22,18 +23,6 @@ TREND_YEARS = 5
 
 def _current_year() -> int:
     return int(query("SELECT MAX(current_year) AS y FROM employer_wide").iloc[0]["y"])
-
-
-def list_comparable_employers(sector_id: str, exclude_employer_id: str) -> list[dict]:
-    """Other employers in the same sector, currently active (so every
-    comparison is guaranteed to resolve — no picking a defunct employer and
-    hitting an empty comparison)."""
-    df = query("""
-        SELECT employer_id, employer_name FROM employer_wide
-        WHERE sector_id = ? AND employer_id != ? AND current_year = (SELECT MAX(current_year) FROM employer_wide)
-        ORDER BY employer_name
-    """, [sector_id, exclude_employer_id])
-    return records(df)
 
 
 def list_comparable_employers_for_position(sector_id: str, title_norm: str, exclude_employer_id: str) -> list[dict]:
@@ -232,5 +221,4 @@ if __name__ == "__main__":
     print(f"positions: TEACHER at {pcomp.a.employer_name} ({pcomp.a.headcount:,}) vs {pcomp.b.employer_name} ({pcomp.b.headcount:,})")
     print(f"  raise: {pcomp.a.pct_comp_change}, {pcomp.b.pct_comp_change} (matched={pcomp.a.is_matched_raise})")
 
-    print(f"comparable employers for TDSB's sector: {len(list_comparable_employers('10', '10_0013'))}")
     print(f"comparable employers for TDSB's TEACHER role: {len(list_comparable_employers_for_position('10', 'TEACHER', '10_0013'))}")

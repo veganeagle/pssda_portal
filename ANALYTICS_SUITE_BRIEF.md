@@ -22,17 +22,27 @@ domains). The three original goals, and where each stands:
    exact position, in both years), never a same-role year-over-year average
    of two different populations. See `SUNSHINE.md` #2 and
    `pipeline/matched_cohort.py`.
-3. **Comparisons between similar entities.** Partially done. Positions are
+3. **Comparisons between similar entities.** Mostly done. Positions are
    already scoped to `(sector, title_norm)` as the safe comparable unit
    (raw title alone spans unrelated domains — e.g. a police "Inspector" vs. a
-   health-unit "Inspector"). The sector dashboards now cover one layer of
-   this (every sector vs. every other sector: trend, role mix, fastest
-   movers, 6-highest-paid). What's *not* built: an explicit "find peer
-   employers" feature using `Population`, `Region`, or `SubSector` (all
-   already sit in `employer_wide`, just unused for peer-grouping) — e.g.
-   "show me municipalities within 20% of this one's population" or "compare
-   Constable pay across regions." Nobody's designed what "similar" should
-   mean yet; that's a real open design question, not an implementation gap.
+   health-unit "Inspector"). The sector dashboards cover one layer of this
+   (every sector vs. every other sector: trend, role mix, fastest movers,
+   6-highest-paid). Direct side-by-side comparison is now built —
+   `/compare/employer` and `/compare/position` (`access/comparison.py`,
+   `web_app/views/compare.py`): two employers, or the same normalized
+   position at two employers in the same sector. Employer-mode comparison is
+   *not* restricted to one sector — a sector picker on the page (defaulting
+   to the left-hand employer's own sector, changeable) lets the right-hand
+   side come from anywhere, e.g. a university vs. a college; roles/earners
+   that don't exist on one side just show "not offered here" rather than
+   erroring. What's *still not* built: an explicit "find peer employers"
+   feature using `Population`, `Region`, or `SubSector` (all already sit in
+   `employer_wide`, just unused for peer-grouping) — e.g. "show me
+   municipalities within 20% of this one's population." That's a
+   recommendation/discovery feature (surfacing *which* employer to compare
+   against), distinct from the comparison page itself (which now handles any
+   two employers you already know you want to compare), and nobody's
+   designed what "similar" should mean yet.
 
 ## What exists
 
@@ -70,6 +80,29 @@ leaderboard, each backed by its own precomputed cube.
   benefits) — confirmed from `pipeline/cubes/employer_profile.py`'s own
   aggregation, not assumed.
 - **Rebranded to OPSCI.ca** — "Ontario Public Sector Compensation Insights."
+- **Side-by-side employer/position comparison** (`/compare/employer`,
+  `/compare/position`) — workforce/pay tables (right-justified, employer
+  names as links to the profile), a grouped year-by-year bar chart
+  (disclosed employees, one pair of columns per year — replaced an earlier
+  line-chart attempt that read as flat noise with two differently-scaled
+  series on one axis), a most-common-roles table for employer-mode, and
+  matched top earners. Entry points live on the employer and combo profile
+  pages (`.compare-cta`, visually prominent by design) and on the comparison
+  page itself (a smaller in-page picker to change the right-hand side
+  without navigating back). Employer-mode's sector picker makes the
+  right-hand side cross-sector-capable, per "The goal" #3 above.
+- **Title-normalization dictionary gaps found via the comparison feature,
+  fixed in `pssda_pipeline`**: "City Manager" wasn't mapped at all (Toronto's
+  and Ottawa's City Manager showed as unmatched "not offered here" rows in a
+  municipality-vs-municipality comparison — the exact-match variant existed
+  in the dictionary but had a blank `Title_Norm`, i.e. reviewed but never
+  finished). Also added "Director of Education" and "Associate Director"
+  (School Boards sector) variant coverage, including "...AND TREASURER..."
+  compounds mapped to the generic `TREASURER` role for consistency with an
+  existing sibling convention. A reminder that dictionary coverage gaps are
+  usually found this way — a feature that cross-references two employers'
+  title lists surfaces a blank `Title_Norm` immediately, a single employer's
+  own page doesn't.
 - **`Title_Norm` label/breakdown fix.** Aggregating by `Title_Norm` is
   necessary (many employers don't share a finer split — see the TDSB
   Teacher/Principal case in `SUNSHINE.md`-adjacent commit history), but
@@ -109,30 +142,28 @@ leaderboard, each backed by its own precomputed cube.
    `Region` breakdown on the sector pages that have the data (see below),
    reusing the donut component already built. `Region` specifically is the
    thing `SUNSHINE.md` names as a goal ("regional pay disparity analysis")
-   and has never been surfaced anywhere in the UI.
-3. **Side-by-side employer compare** — two *organizations* (e.g. two school
-   boards), not two individuals. Natural next step once #2 gives `Region`/
-   `SubSector`/`Population` to ground what "comparable" means; this is
-   effectively goal 3 from "The goal" above, finally getting built.
-4. **A user-facing correction/contact mechanism** — for reporting suspected
+   and has never been surfaced anywhere in the UI. Once this lands, it's
+   also the natural base for the still-open "find peer employers"
+   recommendation feature noted under "The goal" #3 above.
+3. **A user-facing correction/contact mechanism** — for reporting suspected
    entity-resolution errors (mis-merged or over-split people, e.g. the
    Kevin Smith case below) or other data issues. Doesn't exist in any form
    yet (no contact page, no report-a-problem link anywhere in the UI).
-5. **A methodology/limitations page** — explain what "disclosed" means,
+4. **A methodology/limitations page** — explain what "disclosed" means,
    known entity-resolution error modes, the title-normalization coverage
    gap, matched-cohort raise methodology, etc., in plain language for a
    visitor rather than scattered across `SUNSHINE.md` (a dev doc) and
    inline muted footnotes.
-6. **Visual/UI polish pass** — deliberately after 1–5, so it's one coherent
+5. **Visual/UI polish pass** — deliberately after 1–4, so it's one coherent
    design pass over a fuller, more stable set of pages instead of several
    piecemeal ones.
-7. **Basic SEO/social metadata** (meta description, OG tags) — after the UI
+6. **Basic SEO/social metadata** (meta description, OG tags) — after the UI
    pass, and after the methodology page exists to describe. Cheap, worth
    doing now that this is a real branded public site (OPSCI.ca) rather than
    a dev tool.
-8. **Retirement-year comp-inflation investigation** — scoped research only
+7. **Retirement-year comp-inflation investigation** — scoped research only
    (see below), no build commitment.
-9. **Pre-2010 data (back to 1996)** — parked; explicitly undecided, and it's
+8. **Pre-2010 data (back to 1996)** — parked; explicitly undecided, and it's
    a `pssda_pipeline`-side data-sourcing question, not a portal task, so
    there's nothing to scope here yet.
 
@@ -146,10 +177,13 @@ leaderboard, each backed by its own precomputed cube.
   yet — using it needs real pipeline work, not just a new query. `Rank_Norm`,
   `Segment_Norm`, and `French` exist as dictionary columns but are 0%
   populated — not usable yet, don't build around them.
-- **"Similar employers" peer-grouping / side-by-side compare**, per goal 3
-  above — needs a design conversation before building (same-size-tier?
-  same-subsector? same-region? some combination?), the same open question
-  the very first version of this brief raised and never resolved.
+- **"Similar employers" peer-grouping / recommendation**, per goal 3 above —
+  the comparison *page* is built (any two employers, or the same position at
+  two same-sector employers); what's still open is *suggesting* which
+  employer to compare against. Needs a design conversation before building
+  (same-size-tier? same-subsector? same-region? some combination?), the same
+  open question the very first version of this brief raised and never
+  resolved.
 - **Monetization tier** — discussed early (API access, bulk export, custom
   benchmarking reports were the leading ideas), nothing built. Everything
   live today is free-tier. Not in the numbered plan above — revisit once

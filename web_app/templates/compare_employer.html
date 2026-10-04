@@ -1,16 +1,73 @@
 {% extends "base.html" %}
-{% block title %}{{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }}{% endblock %}
+{% block title %}{{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }} &mdash; Comparison{% endblock %}
 {% block content %}
 
+<p><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id) }}">&larr; back to {{ comparison.a.employer_name|proper }}</a></p>
+
 <div class="hero">
-  <h1>{{ comparison.a.employer_name|proper }} <span class="muted">vs</span> {{ comparison.b.employer_name|proper }}</h1>
-  <p class="lede">{{ comparison.a.sector_name|proper }} &middot; FY{{ comparison.a.current_year }}</p>
+  <h1>Comparison: {{ comparison.a.employer_name|proper }} <span class="muted">vs</span> {{ comparison.b.employer_name|proper }}</h1>
+  <p class="lede">
+    {{ comparison.a.sector_name|proper }}{% if comparison.b.sector_id != comparison.a.sector_id %} <span class="muted">vs</span> {{ comparison.b.sector_name|proper }}{% endif %}
+    &middot; FY{{ comparison.a.current_year }}
+  </p>
+  {% if all_employers %}
+  <div class="compare-picker">
+    <label for="compare-sector-select">Sector:</label>
+    <select id="compare-sector-select">
+      {% for s in sectors %}
+      <option value="{{ s.sector_id }}" {% if s.sector_id == comparison.a.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
+      {% endfor %}
+    </select>
+    <label for="compare-employer-select">Change right-hand side:</label>
+    <select id="compare-employer-select" data-url-template="{{ url_for('compare.employer', a=comparison.a.employer_id, b='__B__') }}">
+      <option value="">{{ comparison.b.employer_name|proper }}</option>
+      {% for e in all_employers %}
+      <option value="{{ e.employer_id }}" data-sector-id="{{ e.sector_id }}">{{ e.employer_name|proper }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <script>
+    (function () {
+      var sectorSelect = document.getElementById("compare-sector-select");
+      var employerSelect = document.getElementById("compare-employer-select");
+      if (!sectorSelect || !employerSelect) return;
+      var blankOption = employerSelect.querySelector('option[value=""]');
+      var allOptions = Array.prototype.map.call(
+        employerSelect.querySelectorAll("option[data-sector-id]"),
+        function (o) { return { value: o.value, text: o.textContent, sectorId: o.dataset.sectorId }; }
+      );
+      function rebuild() {
+        employerSelect.innerHTML = "";
+        if (blankOption) employerSelect.appendChild(blankOption.cloneNode(true));
+        allOptions.forEach(function (opt) {
+          if (opt.sectorId !== sectorSelect.value) return;
+          var o = document.createElement("option");
+          o.value = opt.value;
+          o.textContent = opt.text;
+          o.dataset.sectorId = opt.sectorId;
+          employerSelect.appendChild(o);
+        });
+      }
+      sectorSelect.addEventListener("change", rebuild);
+      employerSelect.addEventListener("change", function () {
+        if (employerSelect.value) {
+          location.href = employerSelect.dataset.urlTemplate.replace("__B__", employerSelect.value);
+        }
+      });
+      rebuild();
+    })();
+  </script>
+  {% endif %}
 </div>
 
 <div class="panel">
   <h2>Workforce</h2>
   <table class="result-table compare-table">
-    <tr><th></th><th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th></tr>
+    <tr>
+      <th></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id, back=request.path) }}">{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</a></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.b.employer_id, back=request.path) }}">{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</a></th>
+    </tr>
     <tr>
       <td>Disclosed employees*</td>
       <td class="num mono">{{ "{:,}".format(comparison.a.headcount) }}</td>
@@ -37,7 +94,11 @@
 <div class="panel">
   <h2>Pay</h2>
   <table class="result-table compare-table">
-    <tr><th></th><th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th></tr>
+    <tr>
+      <th></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id, back=request.path) }}">{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</a></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.b.employer_id, back=request.path) }}">{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</a></th>
+    </tr>
     <tr>
       <td>Avg. salary</td>
       <td class="num mono">${{ "{:,.0f}".format(comparison.a.avg_salary) }}</td>
@@ -77,15 +138,15 @@
 
 {% if comparison.roles %}
 <div class="panel">
-  <h2>Most common roles <span class="sub">by {{ comparison.a.employer_name|proper|truncate(24, True, '…') }}'s headcount &middot; click a matched role to compare it directly</span></h2>
+  <h2>Most common roles (at {{ comparison.a.employer_name|proper|truncate(24, True, '…') }}) <span class="sub">by headcount &middot; click a matched role to compare it directly</span></h2>
   <div style="overflow-x:auto;">
     <table class="result-table" id="compare-roles-table" data-collapse="5">
       <tr>
         <th>Role</th>
-        <th class="num">{{ comparison.a.employer_name|proper|truncate(16, True, '…') }} Emp.</th>
+        <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id, back=request.path) }}">{{ comparison.a.employer_name|proper|truncate(16, True, '…') }}</a> Emp.</th>
         <th class="num">Median</th>
         <th class="num">Raise</th>
-        <th class="num">{{ comparison.b.employer_name|proper|truncate(16, True, '…') }} Emp.</th>
+        <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.b.employer_id, back=request.path) }}">{{ comparison.b.employer_name|proper|truncate(16, True, '…') }}</a> Emp.</th>
         <th class="num">Median</th>
         <th class="num">Raise</th>
       </tr>
@@ -120,8 +181,8 @@
   <div style="overflow-x:auto;">
     <table class="result-table">
       <tr>
-        <th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th class="num">Total comp</th>
-        <th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th><th class="num">Total comp</th>
+        <th><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id, back=request.path) }}">{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</a></th><th class="num">Total comp</th>
+        <th><a href="{{ url_for('employer.profile_page', employer_id=comparison.b.employer_id, back=request.path) }}">{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</a></th><th class="num">Total comp</th>
       </tr>
       {% for row in comparison.earners %}
       <tr>
@@ -148,7 +209,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var data = JSON.parse(document.getElementById('compare-trend-data').textContent);
-    renderCompareTrendChart('compare-trend-chart', 'compare-trend-legend', data.a, data.b,
+    renderCompareBarChart('compare-trend-chart', 'compare-trend-legend', data.a, data.b,
       {{ comparison.a.employer_name|proper|tojson }}, {{ comparison.b.employer_name|proper|tojson }});
   });
 </script>

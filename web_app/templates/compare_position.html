@@ -1,16 +1,33 @@
 {% extends "base.html" %}
-{% block title %}{{ comparison.title_norm|proper }}: {{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }}{% endblock %}
+{% block title %}{{ comparison.title_norm|proper }}: {{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }} &mdash; Comparison{% endblock %}
 {% block content %}
 
+<p><a href="{{ url_for('combo.profile_page', employer_id=comparison.a.employer_id, sector_id=comparison.a.sector_id, title_norm=comparison.title_norm) }}">&larr; back to {{ comparison.title_norm|proper }} at {{ comparison.a.employer_name|proper }}</a></p>
+
 <div class="hero">
-  <h1>{{ comparison.title_norm|proper }} <span class="muted">&mdash;</span> {{ comparison.a.employer_name|proper }} <span class="muted">vs</span> {{ comparison.b.employer_name|proper }}</h1>
+  <h1>Comparison: {{ comparison.title_norm|proper }} <span class="muted">&mdash;</span> {{ comparison.a.employer_name|proper }} <span class="muted">vs</span> {{ comparison.b.employer_name|proper }}</h1>
   <p class="lede">{{ comparison.a.sector_name|proper }} &middot; FY{{ comparison.a.current_year }}</p>
+  {% if other_employers %}
+  <div class="compare-picker">
+    <label for="compare-select">Change right-hand side:</label>
+    <select id="compare-select" onchange="if(this.value){location.href=this.value;}">
+      <option value="">{{ comparison.b.employer_name|proper }}</option>
+      {% for e in other_employers %}
+      <option value="{{ url_for('compare.position', sector=comparison.a.sector_id, title=comparison.title_norm, a=comparison.a.employer_id, b=e.employer_id) }}">{{ e.employer_name|proper }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% endif %}
 </div>
 
 <div class="panel">
   <h2>Workforce</h2>
   <table class="result-table compare-table">
-    <tr><th></th><th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th></tr>
+    <tr>
+      <th></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id, back=request.path) }}">{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</a></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.b.employer_id, back=request.path) }}">{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</a></th>
+    </tr>
     <tr>
       <td>Disclosed employees*</td>
       <td class="num mono">{{ "{:,}".format(comparison.a.headcount) }}</td>
@@ -37,7 +54,11 @@
 <div class="panel">
   <h2>Pay</h2>
   <table class="result-table compare-table">
-    <tr><th></th><th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th></tr>
+    <tr>
+      <th></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id, back=request.path) }}">{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</a></th>
+      <th class="num"><a href="{{ url_for('employer.profile_page', employer_id=comparison.b.employer_id, back=request.path) }}">{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</a></th>
+    </tr>
     <tr>
       <td>Avg. salary</td>
       <td class="num mono">${{ "{:,.0f}".format(comparison.a.avg_salary) }}</td>
@@ -77,8 +98,8 @@
   <div style="overflow-x:auto;">
     <table class="result-table">
       <tr>
-        <th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th class="num">Total comp</th>
-        <th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th><th class="num">Total comp</th>
+        <th><a href="{{ url_for('employer.profile_page', employer_id=comparison.a.employer_id, back=request.path) }}">{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</a></th><th class="num">Total comp</th>
+        <th><a href="{{ url_for('employer.profile_page', employer_id=comparison.b.employer_id, back=request.path) }}">{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</a></th><th class="num">Total comp</th>
       </tr>
       {% for row in comparison.earners %}
       <tr>
@@ -107,7 +128,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var data = JSON.parse(document.getElementById('compare-trend-data').textContent);
-    renderCompareTrendChart('compare-trend-chart', 'compare-trend-legend', data.a, data.b,
+    renderCompareBarChart('compare-trend-chart', 'compare-trend-legend', data.a, data.b,
       {{ comparison.a.employer_name|proper|tojson }}, {{ comparison.b.employer_name|proper|tojson }});
   });
 </script>

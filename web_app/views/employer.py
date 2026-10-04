@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request
 
-from access.comparison import list_comparable_employers
 from access.employee_search import list_sectors
-from access.employer_profile import get_employer_profile, search_employers, sector_employer_overview
+from access.employer_profile import get_employer_profile, list_employers_for_filter, search_employers, sector_employer_overview
+from access.sector_profile import list_sectors_for_picker
 
 bp = Blueprint("employer", __name__)
 
@@ -42,7 +42,11 @@ def profile_page(employer_id):
         {"year": h.year, "headcount": h.headcount, "total_payroll": h.total_payroll}
         for h in sorted(employer.history, key=lambda h: h.year)
     ]
-    comparable_employers = list_comparable_employers(employer.sector_id, employer_id)
+    # All active employers, any sector — the compare box's sector picker lets
+    # the right-hand side come from a different sector than this one (e.g.
+    # comparing a university to a college).
+    all_employers = [e for e in list_employers_for_filter(active_only=True) if e["employer_id"] != employer_id]
     return render_template(
-        "employer.html", employer=employer, trend_json=trend_json, comparable_employers=comparable_employers,
+        "employer.html", employer=employer, trend_json=trend_json,
+        all_employers=all_employers, sectors=list_sectors_for_picker(),
     )

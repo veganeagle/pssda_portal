@@ -11,9 +11,10 @@
 //     [{name, value}, ...]; the caller decides what "value" means (payroll,
 //     headcount, ...) and is responsible for capping the item count (e.g.
 //     top 5 + "Other") since the donut doesn't do that itself.
-//   window.renderCompareTrendChart(svgId, legendId, seriesA, seriesB, labelA,
-//     labelB) — two headcount lines on one shared scale, for the employer/
-//     position comparison pages. seriesA/seriesB: [{year, headcount}, ...].
+//   window.renderCompareBarChart(svgId, legendId, seriesA, seriesB, labelA,
+//     labelB) — grouped bars, one pair per year, for the employer/position
+//     comparison pages. seriesA/seriesB: [{year, headcount}, ...], same
+//     years in the same order on both.
 (function () {
   var DONUT_COLORS = [
     "#2f6f6b", "#b8831e", "#6b8f3f", "#8b5fb8", "#c2574a",
@@ -74,33 +75,42 @@
         fmtCount(headcounts[headcounts.length - 1], countFormat) + ' people &middot; $' + (payrolls[payrolls.length - 1] / 1e9).toFixed(1) + 'B</text>';
   };
 
-  // Two-line comparison chart (e.g. disclosed-employee counts for two
-  // employers/combos over the same years) — same axis for both lines so
-  // their scale is directly comparable, unlike two separate small charts.
-  // seriesA/seriesB: [{year, headcount}, ...], same year range on both.
-  window.renderCompareTrendChart = function (svgId, legendId, seriesA, seriesB, labelA, labelB) {
+  // Grouped bar chart (e.g. disclosed-employee counts for two employers/
+  // combos, one pair of bars per year) — a line chart reads as near-flat
+  // noise once two series with different scales are forced onto one axis;
+  // paired bars per year make each year's comparison legible on its own.
+  // seriesA/seriesB: [{year, headcount}, ...], same years in order on both.
+  window.renderCompareBarChart = function (svgId, legendId, seriesA, seriesB, labelA, labelB) {
     var svg = document.getElementById(svgId);
     if (!svg || !seriesA || !seriesA.length || !seriesB || !seriesB.length) return;
     var vb = svg.viewBox.baseVal, w = vb.width, h = vb.height;
+    var padT = 10, padB = 24;
+    var n = seriesA.length;
     var valuesA = seriesA.map(function (d) { return d.headcount; });
     var valuesB = seriesB.map(function (d) { return d.headcount; });
-    // Both lines share one scale (combined max) so they're directly comparable.
-    var sharedScale = colScale(valuesA.concat(valuesB), h, 10, 24);
-    function pathFor(values) {
-      var n = values.length, stepX = w / n;
-      var pts = values.map(function (v, i) { return [i * stepX + stepX / 2, sharedScale(v)]; });
-      return pts.map(function (p, i) { return (i === 0 ? "M" : "L") + p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ");
-    }
+    var max = Math.max.apply(null, valuesA.concat(valuesB)) || 1;
+    var sy = function (v) { return h - padB - (v / max) * (h - padT - padB); };
+    var base = h - padB;
+    var groupW = w / n;
+    var barW = groupW * 0.32;
+    var gap = groupW * 0.06;
     var accent = cssVar("--accent") || "#c8752b";
     var secondary = "#3f7fb8";
-    var ink = cssVar("--text") || "#1c2733";
     var mute = cssVar("--mute") || "#5f6b7a";
-    var first = seriesA[0].year, last = seriesA[seriesA.length - 1].year;
-    svg.innerHTML =
-      '<path d="' + pathFor(valuesA) + '" fill="none" stroke="' + accent + '" stroke-width="2.75" stroke-linejoin="round"/>' +
-      '<path d="' + pathFor(valuesB) + '" fill="none" stroke="' + secondary + '" stroke-width="2.75" stroke-linejoin="round"/>' +
-      '<text x="2" y="' + (h - 6) + '" font-size="11" fill="' + ink + '" font-family="JetBrains Mono, monospace">' + first + '</text>' +
-      '<text x="' + (w - 2) + '" y="' + (h - 6) + '" font-size="11" fill="' + ink + '" font-family="JetBrains Mono, monospace" text-anchor="end">' + last + '</text>';
+    var bars = "", labels = "";
+    for (var i = 0; i < n; i++) {
+      var groupX = i * groupW;
+      var xA = groupX + groupW / 2 - gap / 2 - barW;
+      var xB = groupX + groupW / 2 + gap / 2;
+      var yA = sy(valuesA[i]), yB = sy(valuesB[i]);
+      bars += '<rect x="' + xA.toFixed(1) + '" y="' + yA.toFixed(1) + '" width="' + barW.toFixed(1) +
+        '" height="' + (base - yA).toFixed(1) + '" fill="' + accent + '" rx="1.5"/>';
+      bars += '<rect x="' + xB.toFixed(1) + '" y="' + yB.toFixed(1) + '" width="' + barW.toFixed(1) +
+        '" height="' + (base - yB).toFixed(1) + '" fill="' + secondary + '" rx="1.5"/>';
+      labels += '<text x="' + (groupX + groupW / 2).toFixed(1) + '" y="' + (h - 8) + '" font-size="11" fill="' +
+        mute + '" font-family="JetBrains Mono, monospace" text-anchor="middle">' + seriesA[i].year + '</text>';
+    }
+    svg.innerHTML = bars + labels;
     var legend = document.getElementById(legendId);
     if (legend) {
       legend.innerHTML =
