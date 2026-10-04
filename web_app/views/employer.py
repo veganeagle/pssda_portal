@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 
+from access.comparison import list_comparable_employers
 from access.employee_search import list_sectors
 from access.employer_profile import get_employer_profile, search_employers, sector_employer_overview
 
@@ -41,4 +42,7 @@ def profile_page(employer_id):
         {"year": h.year, "headcount": h.headcount, "total_payroll": h.total_payroll}
         for h in sorted(employer.history, key=lambda h: h.year)
     ]
-    return render_template("employer.html", employer=employer, trend_json=trend_json)
+    comparable_employers = list_comparable_employers(employer.sector_id, employer_id)
+    return render_template(
+        "employer.html", employer=employer, trend_json=trend_json, comparable_employers=comparable_employers,
+    )

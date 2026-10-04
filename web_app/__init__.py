@@ -1,7 +1,9 @@
 from flask import Flask, render_template
 from web_app.formatting import proper_case
 from web_app.rate_limit import limiter
-from web_app.views import combo_bp, employee_bp, employer_bp, home_bp, position_bp, sector_bp, top_earners_bp
+from web_app.views import (
+    combo_bp, compare_bp, employee_bp, employer_bp, home_bp, position_bp, sector_bp, top_earners_bp,
+)
 
 
 def create_app():
@@ -13,6 +15,7 @@ def create_app():
     app.register_blueprint(sector_bp)
     app.register_blueprint(top_earners_bp)
     app.register_blueprint(combo_bp)
+    app.register_blueprint(compare_bp)
     app.jinja_env.filters["proper"] = proper_case
 
     limiter.init_app(app)

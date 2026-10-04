@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from access.employee_search import list_sectors
+from access.employer_profile import list_employers_for_filter
 from access.position_profile import get_position_profile, search_positions, sector_position_overview
 
 bp = Blueprint("position", __name__)
@@ -17,7 +18,8 @@ SECTOR_COLORS = [
 def search():
     title = request.args.get("title") or None
     sector = request.args.get("sector") or None
-    results = search_positions(title_contains=title, sector_id=sector)
+    employer = request.args.get("emp") or None
+    results = search_positions(title_contains=title, sector_id=sector, employer_id=employer)
 
     sector_overview = sector_position_overview()
     max_headcount = max((s["total_headcount"] for s in sector_overview), default=0)
@@ -28,6 +30,7 @@ def search():
 
     return render_template(
         "positions_search.html", results=results, sectors=list_sectors(), sector_overview=sector_overview,
+        employers_for_filter=list_employers_for_filter(), employer=employer,
     )
 
 

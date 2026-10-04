@@ -49,6 +49,11 @@ class PositionSearchResult(BaseModel):
     current_year: int
     current_headcount: int
     current_avg_total_comp: float
+    # Set only when the search was scoped to one employer (employer_position_wide
+    # instead of the province/sector-wide position_wide) — lets the results link
+    # to the combo page instead of the province-wide position page.
+    employer_id: Optional[str] = None
+    employer_name: Optional[str] = None
 
 
 class PositionOption(BaseModel):

@@ -92,6 +92,20 @@ main{max-width:980px; margin:0 auto; padding:1rem 16px 2rem; display:flex; flex-
 .year-nav-current{font-weight:800; font-size:0.95rem;}
 .year-nav-edge{color:var(--border); font-weight:700; font-size:0.86rem;}
 
+.pagination{display:flex; align-items:center; gap:1rem; margin-top:0.85rem; font-size:0.86rem; flex-wrap:wrap;}
+.pagination a{font-weight:700; text-decoration:none;}
+.pagination a:hover{text-decoration:underline;}
+.pagination span{color:var(--mute);}
+.pagination-export{margin-left:auto; color:var(--accent);}
+
+.compare-table td:first-child, .compare-table th:first-child{color:var(--mute); font-weight:600; white-space:nowrap;}
+.compare-picker{display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-top:0.5rem;}
+.compare-picker label{font-size:0.8rem; color:var(--mute); font-weight:600;}
+.compare-picker select{
+  font-family:inherit; font-size:0.85rem; padding:0.32rem 0.55rem; border:1px solid var(--border);
+  border-radius:6px; background:var(--surface); color:var(--text);
+}
+
 .search-actions{margin-top:0.75rem;}
 button, .btn{
   font-family:inherit; font-weight:700; font-size:0.88rem; background:var(--accent); color:#fff;

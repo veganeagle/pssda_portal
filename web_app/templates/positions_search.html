@@ -26,20 +26,28 @@
 </div>
 
 <div class="search-panel">
+  <p class="result-summary"><a href="{{ url_for('position.search') }}">Clear all filters</a></p>
   <h2 class="search-panel-title">Find a specific position</h2>
   <form method="get" action="{{ url_for('position.search') }}">
     <div class="search-grid">
-      <label>Title contains<input type="text" name="title" value="{{ request.args.get('title', '') }}"></label>
+      <label>Title contains<input type="text" name="title" id="pos-title-input" value="{{ request.args.get('title', '') }}"></label>
       <label>Sector
-        <select name="sector" onchange="this.form.submit()">
+        <select name="sector" id="pos-sector-select">
           <option value="">Any</option>
           {% for s in sectors %}
           <option value="{{ s.sector_id }}" {% if request.args.get('sector') == s.sector_id %}selected{% endif %}>{{ s.sector_name|proper }}</option>
           {% endfor %}
         </select>
       </label>
+      <label>Employer
+        <select name="emp" id="pos-employer-select">
+          <option value="">Any</option>
+          {% for e in employers_for_filter %}
+          <option value="{{ e.employer_id }}" data-sector-id="{{ e.sector_id }}" {% if e.employer_id == employer %}selected{% endif %}>{{ e.employer_name|proper }}</option>
+          {% endfor %}
+        </select>
+      </label>
     </div>
-    <div class="search-actions"><button type="submit">Search</button></div>
   </form>
 </div>
 
@@ -49,7 +57,14 @@
     <tr><th>Position</th><th>Sector</th><th class="num">Disclosed Emp.</th><th class="num">Avg. total comp</th></tr>
     {% for p in results %}
     <tr>
-      <td><a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.full_path) }}">{{ p.title_norm|proper }}</a></td>
+      <td>
+        {% if p.employer_id %}
+        <a href="{{ url_for('combo.profile_page', employer_id=p.employer_id, sector_id=p.sector_id, title_norm=p.title_norm, back=request.full_path) }}">{{ p.title_norm|proper }}</a>
+        <a class="alt-link" href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.full_path) }}" title="{{ p.title_norm|proper }}, province-wide (all employers)">province-wide</a>
+        {% else %}
+        <a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.full_path) }}">{{ p.title_norm|proper }}</a>
+        {% endif %}
+      </td>
       <td>{{ (p.sector_name or p.sector_id)|proper }}</td>
       <td class="num mono">{{ "{:,}".format(p.current_headcount) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(p.current_avg_total_comp) }}</td>
@@ -59,4 +74,56 @@
     {% endfor %}
   </table>
 </div>
+
+<script>
+  (function () {
+    var form = document.querySelector(".search-panel form");
+    if (!form) return;
+    var sectorSelect = document.getElementById("pos-sector-select");
+    var employerSelect = document.getElementById("pos-employer-select");
+    if (!sectorSelect || !employerSelect) return;
+
+    // Narrow the Employer dropdown's real <option> children to the current
+    // Sector, on load as much as on a later change (same fix as the
+    // Employee search chain filter — toggling `hidden` left some native
+    // dropdowns still showing the full unfiltered list).
+    var allEmployers = Array.prototype.map.call(
+      employerSelect.querySelectorAll("option[data-sector-id]"),
+      function (o) { return { value: o.value, text: o.textContent, sectorId: o.dataset.sectorId }; }
+    );
+    var blankOption = employerSelect.querySelector('option[value=""]');
+    (function narrowEmployers() {
+      var sectorId = sectorSelect.value;
+      var selectedValue = employerSelect.value;
+      employerSelect.innerHTML = "";
+      if (blankOption) employerSelect.appendChild(blankOption.cloneNode(true));
+      allEmployers.forEach(function (opt) {
+        if (sectorId && opt.sectorId !== sectorId) return;
+        var o = document.createElement("option");
+        o.value = opt.value;
+        o.textContent = opt.text;
+        o.dataset.sectorId = opt.sectorId;
+        if (opt.value === selectedValue) o.selected = true;
+        employerSelect.appendChild(o);
+      });
+    })();
+
+    // No Search button: Sector/Employer submit immediately; Title contains
+    // submits on Enter (not on every keystroke, and not on blur, which
+    // would fire mid-tab-through and submit before the user finishes
+    // typing).
+    [sectorSelect, employerSelect].forEach(function (el) {
+      el.addEventListener("change", function () {
+        if (el === sectorSelect) { employerSelect.value = ""; }
+        form.submit();
+      });
+    });
+    var titleInput = document.getElementById("pos-title-input");
+    if (titleInput) {
+      titleInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); form.submit(); }
+      });
+    }
+  })();
+</script>
 {% endblock %}

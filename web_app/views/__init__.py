@@ -1,4 +1,5 @@
 from .combo import bp as combo_bp
+from .compare import bp as compare_bp
 from .employee import bp as employee_bp
 from .employer import bp as employer_bp
 from .home import bp as home_bp

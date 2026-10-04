@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ comparison.title_norm|proper }}: {{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }}{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <h1>{{ comparison.title_norm|proper }} <span class="muted">&mdash;</span> {{ comparison.a.employer_name|proper }} <span class="muted">vs</span> {{ comparison.b.employer_name|proper }}</h1>
+  <p class="lede">{{ comparison.a.sector_name|proper }} &middot; FY{{ comparison.a.current_year }}</p>
+</div>
+
+<div class="panel">
+  <h2>Workforce</h2>
+  <table class="result-table compare-table">
+    <tr><th></th><th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th></tr>
+    <tr>
+      <td>Disclosed employees*</td>
+      <td class="num mono">{{ "{:,}".format(comparison.a.headcount) }}</td>
+      <td class="num mono">{{ "{:,}".format(comparison.b.headcount) }}</td>
+    </tr>
+    <tr>
+      <td>Growth vs {{ comparison.a.current_year - 1 }}</td>
+      <td class="num">{% if comparison.a.pct_headcount_growth is not none %}<span class="chip {{ 'chip-pos' if comparison.a.pct_headcount_growth >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(comparison.a.pct_headcount_growth) }}</span>{% else %}&mdash;{% endif %}</td>
+      <td class="num">{% if comparison.b.pct_headcount_growth is not none %}<span class="chip {{ 'chip-pos' if comparison.b.pct_headcount_growth >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(comparison.b.pct_headcount_growth) }}</span>{% else %}&mdash;{% endif %}</td>
+    </tr>
+    <tr>
+      <td>New to this role here</td>
+      <td class="num mono">{{ "{:,}".format(comparison.a.n_new) }}</td>
+      <td class="num mono">{{ "{:,}".format(comparison.b.n_new) }}</td>
+    </tr>
+    <tr>
+      <td>Attrition <span class="muted" style="font-weight:500;" title="No longer in this exact role at this employer — includes departures, internal moves to another role, and anyone who dipped below $100,000.">(?)</span></td>
+      <td class="num mono">{{ "{:,}".format(comparison.a.n_attrition) }}</td>
+      <td class="num mono">{{ "{:,}".format(comparison.b.n_attrition) }}</td>
+    </tr>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>Pay</h2>
+  <table class="result-table compare-table">
+    <tr><th></th><th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th></tr>
+    <tr>
+      <td>Avg. salary</td>
+      <td class="num mono">${{ "{:,.0f}".format(comparison.a.avg_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(comparison.b.avg_salary) }}</td>
+    </tr>
+    <tr>
+      <td>Avg. total comp</td>
+      <td class="num mono">${{ "{:,.0f}".format(comparison.a.avg_total_comp) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(comparison.b.avg_total_comp) }}</td>
+    </tr>
+    <tr>
+      <td>Est. benefits share of comp</td>
+      <td class="num mono">{{ "{:.1%}".format(comparison.a.pct_benefits) if comparison.a.pct_benefits is not none else "—" }}</td>
+      <td class="num mono">{{ "{:.1%}".format(comparison.b.pct_benefits) if comparison.b.pct_benefits is not none else "—" }}</td>
+    </tr>
+    <tr>
+      <td>Raise (matched-cohort)</td>
+      <td class="num">{% if comparison.a.pct_comp_change is not none %}<span class="chip {{ 'chip-pos' if comparison.a.pct_comp_change >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(comparison.a.pct_comp_change) }}</span>{% else %}<span class="chip chip-mute">n/a</span>{% endif %}</td>
+      <td class="num">{% if comparison.b.pct_comp_change is not none %}<span class="chip {{ 'chip-pos' if comparison.b.pct_comp_change >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(comparison.b.pct_comp_change) }}</span>{% else %}<span class="chip chip-mute">n/a</span>{% endif %}</td>
+    </tr>
+    <tr>
+      <td>Disclosed payroll* <span class="muted" style="font-weight:500;" title="Derived (avg. salary × headcount) — no exact sum exists at this granularity, this is a size estimate, not a precise total.">(est.)</span></td>
+      <td class="num mono">${{ "{:,.0f}".format(comparison.a.disclosed_payroll) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(comparison.b.disclosed_payroll) }}</td>
+    </tr>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>5-year trend <span class="sub">disclosed employees in this role</span></h2>
+  <svg class="trend-chart" id="compare-trend-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+  <div class="trend-legend" id="compare-trend-legend"></div>
+</div>
+
+<div class="panel">
+  <h2>Top disclosed earners in this role <span class="sub">FY{{ comparison.a.current_year }}</span></h2>
+  <div style="overflow-x:auto;">
+    <table class="result-table">
+      <tr>
+        <th>{{ comparison.a.employer_name|proper|truncate(28, True, '…') }}</th><th class="num">Total comp</th>
+        <th>{{ comparison.b.employer_name|proper|truncate(28, True, '…') }}</th><th class="num">Total comp</th>
+      </tr>
+      {% for row in comparison.earners %}
+      <tr>
+        {% if row.a %}
+        <td><a href="{{ url_for('employee.profile_page', employee_id=row.a.employee_id, back=request.path) }}">{{ row.a.first_name|proper }} {{ row.a.last_name|proper }}</a></td>
+        <td class="num mono">${{ "{:,.0f}".format(row.a.total_comp) }}</td>
+        {% else %}
+        <td colspan="2">&mdash;</td>
+        {% endif %}
+        {% if row.b %}
+        <td><a href="{{ url_for('employee.profile_page', employee_id=row.b.employee_id, back=request.path) }}">{{ row.b.first_name|proper }} {{ row.b.last_name|proper }}</a></td>
+        <td class="num mono">${{ "{:,.0f}".format(row.b.total_comp) }}</td>
+        {% else %}
+        <td colspan="2">&mdash;</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<p><a href="{{ url_for('compare.employer', a=comparison.a.employer_id, b=comparison.b.employer_id) }}">&larr; Compare these two employers overall instead</a></p>
+
+<script type="application/json" id="compare-trend-data">{{ trend_json|tojson }}</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var data = JSON.parse(document.getElementById('compare-trend-data').textContent);
+    renderCompareTrendChart('compare-trend-chart', 'compare-trend-legend', data.a, data.b,
+      {{ comparison.a.employer_name|proper|tojson }}, {{ comparison.b.employer_name|proper|tojson }});
+  });
+</script>
+{% endblock %}

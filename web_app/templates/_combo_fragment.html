@@ -27,6 +27,18 @@
   </div>
 </div>
 
+{% if comparable_employers %}
+<div class="compare-picker">
+  <label for="compare-select">Compare with:</label>
+  <select id="compare-select" onchange="if(this.value){location.href=this.value;}">
+    <option value="">Pick another employer offering {{ combo.title_norm|proper }}&hellip;</option>
+    {% for e in comparable_employers %}
+    <option value="{{ url_for('compare.position', sector=combo.sector_id, title=combo.title_norm, a=combo.employer_id, b=e.employer_id) }}">{{ e.employer_name|proper }}</option>
+    {% endfor %}
+  </select>
+</div>
+{% endif %}
+
 {% if combo.variants %}
 <div class="panel">
   <h2>Composition <span class="sub">FY{{ combo.current.year }}</span></h2>

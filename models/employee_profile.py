@@ -77,6 +77,13 @@ class EmployeeSearchResult(BaseModel):
 class SearchOutcome(BaseModel):
     results: list[EmployeeSearchResult]
     too_many: bool  # True when the match count exceeded the cap — results is [] in that case
+    # Set only for a search scoped to one employer (employer_id given) — an
+    # entity with a known, bounded size, so instead of the "too many, narrow
+    # your search" wall, it's paginated (or shown in full if small enough).
+    # None for the general/fuzzy case, where too_many above is what applies.
+    total_count: Optional[int] = None
+    page: int = 1
+    page_size: Optional[int] = None
 
 
 class EmployeeProfile(BaseModel):

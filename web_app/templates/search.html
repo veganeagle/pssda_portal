@@ -9,7 +9,9 @@
 
 <div class="search-panel">
   {% if scope_label %}
-  <p class="result-summary">Searching within <b>{{ scope_label }}</b> only &middot; <a href="{{ url_for('employee.search') }}">search everyone instead</a></p>
+  <p class="result-summary">Searching within <b>{{ scope_label }}</b> only</p>
+  {% elif not scope_employer_id and not scope_sector_id %}
+  <p class="result-summary"><a href="{{ url_for('employee.search') }}">Clear all filters</a></p>
   {% endif %}
   <form method="get" action="{{ url_for('employee.search') }}">
     {% if scope_employer_id %}<input type="hidden" name="employer_id" value="{{ scope_employer_id }}">{% endif %}
@@ -67,11 +69,11 @@
           {% endfor %}
         </select>
       </label>
-      <label>Position <span class="muted" style="font-weight:500;">(at that employer)</span>
-        <select name="position" id="es-position-select" {% if not general_employer_id %}disabled{% endif %}>
+      <label>Position <span class="muted" style="font-weight:500;">{% if general_employer_id %}(at that employer){% elif general_sector_id %}(in that sector){% else %}(province-wide){% endif %}</span>
+        <select name="position" id="es-position-select">
           <option value="">Any</option>
           {% for p in preselected_positions %}
-          <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if general_position and general_position[0] == p.sector_id and general_position[1] == p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}</option>
+          <option value="{{ p.sector_id }}::{{ p.title_norm }}" {% if general_position and general_position[0] == p.sector_id and general_position[1] == p.title_norm %}selected{% endif %}>{{ p.title_norm|proper }}{% if position_scope_is_global %} &mdash; {{ p.sector_name|proper }}{% endif %}</option>
           {% endfor %}
         </select>
       </label>
@@ -86,21 +88,36 @@
   {% if outcome.too_many %}
   <p class="result-summary">More than 100 matches &mdash; please narrow your search.</p>
   {% else %}
-  <p class="result-summary">{{ outcome.results|length }} result(s){% if comp_range %} &middot; total comp from ${{ "{:,.0f}".format(comp_range[0]) }} to ${{ "{:,.0f}".format(comp_range[1]) }}{% endif %}</p>
-  <table class="result-table employee-results-table" id="employee-search-results" data-collapse="5" data-csv="employee-search-results.csv">
-    <tr><th>Name</th><th>Current title</th><th>Current employer</th><th class="num">Total comp</th><th>Years</th></tr>
-    {% for r in outcome.results %}
-    <tr>
-      <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
-      <td>{{ r.current_job_title|proper|truncate(60, True, '…') }}</td>
-      <td>{{ r.current_employer_name|proper }}</td>
-      <td class="num mono">${{ "{:,.0f}".format(r.current_total_comp) }}</td>
-      <td class="mono">{{ r.first_seen_year }}&ndash;{{ r.last_seen_year }}</td>
-    </tr>
+    {% if outcome.page_size %}
+    <p class="result-summary">
+      Showing {{ (outcome.page - 1) * outcome.page_size + 1 }}&ndash;{{ (outcome.page - 1) * outcome.page_size + outcome.results|length }} of {{ "{:,}".format(outcome.total_count) }}
+      {% if comp_range %} &middot; total comp from ${{ "{:,.0f}".format(comp_range[0]) }} to ${{ "{:,.0f}".format(comp_range[1]) }}{% endif %}
+    </p>
     {% else %}
-    <tr><td colspan="5">No matches.</td></tr>
-    {% endfor %}
-  </table>
+    <p class="result-summary">{{ outcome.results|length }} result(s){% if comp_range %} &middot; total comp from ${{ "{:,.0f}".format(comp_range[0]) }} to ${{ "{:,.0f}".format(comp_range[1]) }}{% endif %}</p>
+    {% endif %}
+    <table class="result-table employee-results-table" id="employee-search-results" data-collapse="5" data-csv="employee-search-results.csv">
+      <tr><th>Name</th><th>Current title</th><th>Current employer</th><th class="num">Total comp</th><th>Years</th></tr>
+      {% for r in outcome.results %}
+      <tr>
+        <td><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a></td>
+        <td>{{ r.current_job_title|proper|truncate(60, True, '…') }}</td>
+        <td>{{ r.current_employer_name|proper }}</td>
+        <td class="num mono">${{ "{:,.0f}".format(r.current_total_comp) }}</td>
+        <td class="mono">{{ r.first_seen_year }}&ndash;{{ r.last_seen_year }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">No matches.</td></tr>
+      {% endfor %}
+    </table>
+    {% if outcome.page_size %}
+    <div class="pagination">
+      {% if prev_url %}<a href="{{ prev_url }}">&larr; Previous</a>{% endif %}
+      <span>Page {{ outcome.page }} of {{ ((outcome.total_count - 1) // outcome.page_size) + 1 }}</span>
+      {% if next_url %}<a href="{{ next_url }}">Next &rarr;</a>{% endif %}
+      <a href="{{ export_url }}" class="pagination-export">Download full list &middot; {{ "{:,}".format(outcome.total_count) }} rows (CSV)</a>
+    </div>
+    {% endif %}
   {% endif %}
 </div>
 {% endif %}

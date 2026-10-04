@@ -49,10 +49,18 @@ def search_employers(
     return [EmployerSearchResult(**row) for row in records(df)]
 
 
-def list_employers_for_filter() -> list[dict]:
+def list_employers_for_filter(active_only: bool = True) -> list[dict]:
     """Every employer, lightweight — id/name/sector only — for the Employee
-    search page's sector-cascading employer picker."""
-    df = query("SELECT employer_id, employer_name, sector_id FROM employer_wide ORDER BY employer_name")
+    search page's sector-cascading employer picker. active_only=True (the
+    default, matching that page's own "Active only" default) excludes
+    employers whose last disclosure year is before the dataset's current
+    year — e.g. an office dissolved or folded into another ministry still
+    has a row here (so its own profile page still resolves), but offering
+    it in an "active" picker is a dead end: no one currently disclosed can
+    match it, so picking it always returns zero results.
+    """
+    where = "WHERE current_year = (SELECT MAX(current_year) FROM employer_wide)" if active_only else ""
+    df = query(f"SELECT employer_id, employer_name, sector_id FROM employer_wide {where} ORDER BY employer_name")
     return records(df)
 
 

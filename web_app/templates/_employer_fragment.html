@@ -18,6 +18,18 @@
   <div class="tile accent"><div class="label">Disclosed payroll*</div><div class="value mono">${{ "{:,.0f}".format(employer.current.total_payroll) }}</div></div>
 </div>
 
+{% if comparable_employers %}
+<div class="compare-picker">
+  <label for="compare-select">Compare with:</label>
+  <select id="compare-select" onchange="if(this.value){location.href=this.value;}">
+    <option value="">Pick another {{ (employer.sector_name or employer.sector_id)|proper }} employer&hellip;</option>
+    {% for e in comparable_employers %}
+    <option value="{{ url_for('compare.employer', a=employer.employer_id, b=e.employer_id) }}">{{ e.employer_name|proper }}</option>
+    {% endfor %}
+  </select>
+</div>
+{% endif %}
+
 {% if employer.history|length > 1 %}
 <div class="panel">
   <h2>Disclosed payroll &amp; employees over time <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>

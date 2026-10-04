@@ -23,8 +23,15 @@ def _escape_like(s: str) -> str:
 
 
 def search_positions(
-    title_contains: str | None = None, sector_id: str | None = None, limit: int = SEARCH_LIMIT
+    title_contains: str | None = None, sector_id: str | None = None, employer_id: str | None = None,
+    limit: int = SEARCH_LIMIT,
 ) -> list[PositionSearchResult]:
+    """employer_id scopes to one employer's own positions (employer_position_wide)
+    instead of the province/sector-wide aggregate (position_wide) — same two
+    tables, same shape of columns, so this is a straight swap, not two code
+    paths. employer_id is never user-controlled free text (always a picked
+    option value), but it's still bound as a parameter like everything else.
+    """
     conditions = []
     params: list = []
     if title_contains:
@@ -33,12 +40,17 @@ def search_positions(
     if sector_id:
         conditions.append("sector_id = ?")
         params.append(sector_id)
+    if employer_id:
+        conditions.append("employer_id = ?")
+        params.append(employer_id)
 
+    table = "employer_position_wide" if employer_id else "position_wide"
+    employer_cols = ", employer_id, employer_name" if employer_id else ""
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
     sql = f"""
         SELECT sector_id, title_norm, sector_name, current_year,
-               current_headcount, current_avg_total_comp
-        FROM position_wide
+               current_headcount, current_avg_total_comp{employer_cols}
+        FROM {table}
         {where_clause}
         ORDER BY current_headcount DESC
         LIMIT ?
