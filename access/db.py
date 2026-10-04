@@ -36,4 +36,7 @@ for view_name, filename in _PROFILE_TABLES.items():
 
 
 def query(sql: str, params: list | None = None):
-    return con.execute(sql, params or []).fetchdf()  # parameterized only — see README "Security pattern"
+    # cursor() per query: one DuckDB connection isn't safe to share across
+    # request threads; a cursor is a cheap duplicate connection to the same
+    # in-memory database, so the views above stay visible.
+    return con.cursor().execute(sql, params or []).fetchdf()  # parameterized only — see README "Security pattern"
