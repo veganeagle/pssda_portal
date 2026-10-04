@@ -131,20 +131,20 @@ leaderboard, each backed by its own precomputed cube.
   disproportionately have `TenureOnList` ending that same year, but
   deliberately *not* prioritized yet (see the fresh plan below).
 
-## Prioritized plan (as of this pass)
+## Prioritized plan (next up)
 
-1. **Top Earners and Employee search parity** — bring both up to the
-   Employers/Positions treatment: an info section above the search box,
-   consistent terminology. Employee search has no natural aggregate the way
-   the others do, so this one's worth a discuss-first like the sector pages
-   got, not a straight copy of the pattern.
-2. **Subsegment features** — the cheap part first: a `SubSector` donut and a
+1. **Subsegment features** — the cheap part first: a `SubSector` donut and a
    `Region` breakdown on the sector pages that have the data (see below),
    reusing the donut component already built. `Region` specifically is the
    thing `SUNSHINE.md` names as a goal ("regional pay disparity analysis")
    and has never been surfaced anywhere in the UI. Once this lands, it's
    also the natural base for the still-open "find peer employers"
    recommendation feature noted under "The goal" #3 above.
+2. **Top Earners and Employee search parity** — bring both up to the
+   Employers/Positions treatment: an info section above the search box,
+   consistent terminology. Employee search has no natural aggregate the way
+   the others do, so this one's worth a discuss-first like the sector pages
+   got, not a straight copy of the pattern.
 3. **A user-facing correction/contact mechanism** — for reporting suspected
    entity-resolution errors (mis-merged or over-split people, e.g. the
    Kevin Smith case below) or other data issues. Doesn't exist in any form
