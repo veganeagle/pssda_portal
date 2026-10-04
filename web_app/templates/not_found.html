@@ -4,5 +4,5 @@
 {% set back = request.args.get('back') %}
 {% set back_safe = back if back and back.startswith('/') and not back.startswith('//') else None %}
 <p>No {{ what }} found for "{{ key }}".</p>
-<p><a href="{{ back_safe or url_for('employee.search') }}">&larr; {{ 'back' if back_safe else 'back to search' }}</a></p>
+<p><a href="{{ back_safe or url_for('home.index') }}">&larr; {{ 'back' if back_safe else 'back to home' }}</a></p>
 {% endblock %}

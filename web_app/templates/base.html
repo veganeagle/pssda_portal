@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}OPSCI.ca{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -9,13 +10,15 @@
 </head>
 <body>
 <header class="topbar">
-  <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> OPSCI.ca</a>
-  <nav class="tabs">
-    <a href="{{ url_for('position.search') }}">Positions</a>
-    <a href="{{ url_for('employer.search') }}">Employers</a>
-    <a href="{{ url_for('employee.search') }}">Employees</a>
-    <a href="{{ url_for('top_earners.index') }}">Top Earners</a>
-  </nav>
+  <div class="topbar-inner">
+    <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> OPSCI.ca</a>
+    <nav class="tabs">
+      <a href="{{ url_for('position.search') }}">Positions</a>
+      <a href="{{ url_for('employer.search') }}">Employers</a>
+      <a href="{{ url_for('employee.search') }}">Employees</a>
+      <a href="{{ url_for('top_earners.index') }}">Top Earners</a>
+    </nav>
+  </div>
 </header>
 <main>
 {% block content %}{% endblock %}

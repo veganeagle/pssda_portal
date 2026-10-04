@@ -34,9 +34,12 @@ a{color:var(--accent);}
 
 header.topbar{
   background:var(--surface); border-bottom:1px solid var(--border);
-  padding:0.6rem 16px; font-weight:800; font-size:1.1rem; letter-spacing:-0.01em;
-  display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
+  font-weight:800; font-size:1.1rem; letter-spacing:-0.01em;
   position:sticky; top:0; z-index:10;
+}
+header.topbar .topbar-inner{
+  max-width:980px; margin:0 auto; padding:0.6rem 16px;
+  display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
 }
 header.topbar .brand-link{color:var(--text); text-decoration:none; display:inline-flex; align-items:baseline; gap:0.1em;}
 header.topbar .brand-link:hover{color:var(--accent);}

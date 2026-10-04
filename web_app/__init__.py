@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from werkzeug.middleware.proxy_fix import ProxyFix
 from web_app.formatting import proper_case
 from web_app.rate_limit import limiter
 from web_app.views import (
@@ -8,6 +9,10 @@ from web_app.views import (
 
 def create_app():
     app = Flask(__name__)
+    # Trusts exactly one proxy hop (Caddy/nginx) for the real client IP, which
+    # both per-IP limiters key on — gunicorn must bind to 127.0.0.1 only, or a
+    # client could spoof X-Forwarded-For directly.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     app.register_blueprint(home_bp)
     app.register_blueprint(employee_bp)
     app.register_blueprint(employer_bp)
@@ -23,6 +28,14 @@ def create_app():
     @app.errorhandler(429)
     def rate_limited(e):
         return render_template("rate_limited.html"), 429
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template("not_found.html", what="page", key=request.path), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return render_template("server_error.html"), 500
 
     @app.route("/health")
     def health():
