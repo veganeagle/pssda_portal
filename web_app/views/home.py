@@ -3,6 +3,7 @@ from flask import Blueprint, render_template
 from access.home_dashboard import get_home_dashboard
 from access.sector_profile import list_sectors_for_picker
 from web_app.formatting import proper_case
+from web_app.visit_counter import record_visit
 
 bp = Blueprint("home", __name__)
 
@@ -42,4 +43,5 @@ def index():
     return render_template(
         "home.html", dashboard=dashboard, dashboard_json=dashboard_json, sectors=list_sectors_for_picker(),
         year_span=dashboard.current_year - dashboard.trend[0].year + 1,
+        visits=record_visit(),
     )

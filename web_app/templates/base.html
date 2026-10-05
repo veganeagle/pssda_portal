@@ -12,10 +12,9 @@
   <div class="topbar-inner">
     <a href="{{ url_for('home.index') }}" class="brand-link"><span class="dot">&#9679;</span> OPSCI.ca</a>
     <nav class="tabs">
-      <a href="{{ url_for('position.search') }}">Positions</a>
-      <a href="{{ url_for('employer.search') }}">Employers</a>
-      <a href="{{ url_for('employee.search') }}">Employees</a>
-      <a href="{{ url_for('top_earners.index') }}">Top Earners</a>
+      {% for bp, endpoint, label in [('position', 'position.search', 'Positions'), ('employer', 'employer.search', 'Employers'), ('employee', 'employee.search', 'Employees'), ('top_earners', 'top_earners.index', 'Top Earners')] %}
+      <a href="{{ url_for(endpoint) }}"{% if request.blueprint == bp %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
+      {% endfor %}
     </nav>
     <span class="header-note">Ontario &middot; {{ site_years[0] }}&ndash;{{ site_years[1] }}</span>
   </div>
@@ -31,6 +30,7 @@
     <a href="{{ url_for('pages.privacy') }}">Privacy</a>
     <a href="{{ url_for('pages.terms') }}">Terms &amp; disclaimer</a>
   </nav>
+  {% if visits %}<p class="visit-count">{{ "{:,}".format(visits) }} visits</p>{% endif %}
   <p class="owner">A project of kdsay labs inc.</p>
 </footer>
 </main>
