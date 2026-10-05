@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ comparison.title_norm|proper }}: {{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }} &mdash; Comparison{% endblock %}
+{% block title %}{{ comparison.title_norm|proper }}: {{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }} — Comparison | OPSCI.ca{% endblock %}
 {% block content %}
 
 <p><a href="{{ url_for('combo.profile_page', employer_id=comparison.a.employer_id, sector_id=comparison.a.sector_id, title_norm=comparison.title_norm) }}">&larr; back to {{ comparison.title_norm|proper }} at {{ comparison.a.employer_name|proper }}</a></p>

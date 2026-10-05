@@ -6,6 +6,8 @@ rankings.py), never mixed across years.
 """
 from __future__ import annotations
 
+from functools import cache, lru_cache
+
 from access._rows import records
 from access.db import query
 from models.top_earners import TopEarnerRow
@@ -25,6 +27,8 @@ def list_available_years() -> list[int]:
 TOP_N_PROVINCE = 1000
 
 
+# Memoized per process: cube data only changes on a refresh, which restarts the app.
+@cache
 def sector_top_earners_overview() -> list[dict]:
     """One row per sector, current year only — disclosed employees, how many
     of them land in the province-wide top 1000 by total comp, the sector's
@@ -56,6 +60,7 @@ def sector_top_earners_overview() -> list[dict]:
     return records(df)
 
 
+@lru_cache(maxsize=256)
 def search_top_earners(
     sector_id: str | None = None, employer_contains: str | None = None,
     title_norm: str | None = None, year: int | None = None, limit: int = DEFAULT_LIMIT,

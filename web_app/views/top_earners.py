@@ -41,7 +41,7 @@ def index():
     prev_year = years[idx + 1] if 0 <= idx < len(years) - 1 else None  # older
     next_year = years[idx - 1] if idx > 0 else None  # more recent
 
-    sector_overview = sector_top_earners_overview()
+    sector_overview = [dict(s) for s in sector_top_earners_overview()]  # cached; copy before adding keys
     max_employees = max((s["n_employees"] for s in sector_overview), default=0)
     for i, s in enumerate(sector_overview):
         s["pct_of_max"] = round(s["n_employees"] / max_employees * 100, 1) if max_employees else 0

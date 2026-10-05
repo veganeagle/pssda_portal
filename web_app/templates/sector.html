@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}{{ sector.sector_name|proper }}{% endblock %}
+{% block title %}{{ sector.sector_name|proper }} Sunshine List salaries | OPSCI.ca{% endblock %}
+{% block description %}{{ sector.sector_name|proper }}: {{ "{:,}".format(sector.current_headcount) }} disclosed employees across {{ "{:,}".format(sector.current_employers) }} employers in {{ sector.current_year }}. Pay trends, fastest-rising roles, largest employers and top earners from Ontario's Sunshine List.{% endblock %}
 {% block content %}
 
 <div class="hero">

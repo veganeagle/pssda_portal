@@ -5,6 +5,8 @@ position_wide, top_earners_history) — no new pipeline cube needed.
 """
 from __future__ import annotations
 
+from functools import cache
+
 from access._rows import records
 from access.db import query
 from models.home_dashboard import (
@@ -17,6 +19,8 @@ from models.home_dashboard import (
 FAST_MOVER_MIN_HEADCOUNT = 3000
 
 
+# Memoized per process: cube data only changes on a refresh, which restarts the app.
+@cache
 def get_year_range() -> tuple[int, int]:
     """First and latest disclosure year in the published data — for the
     site-wide header label, so it never needs a literal."""
@@ -24,6 +28,7 @@ def get_year_range() -> tuple[int, int]:
     return int(df.first_year[0]), int(df.last_year[0])
 
 
+@cache
 def get_home_dashboard() -> HomeDashboard:
     trend_df = query("""
         SELECT year, SUM(headcount) AS headcount, SUM(total_payroll) AS total_payroll

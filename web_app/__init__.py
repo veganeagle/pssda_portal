@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from access.home_dashboard import get_year_range
@@ -25,6 +27,16 @@ def create_app():
     app.register_blueprint(compare_bp)
     app.register_blueprint(pages_bp)
     app.jinja_env.filters["proper"] = proper_case
+
+    # Static files are cached by browsers for a year; every static URL carries
+    # ?v=<file mtime>, so a changed file (git pull updates its mtime) gets a
+    # new URL and is fetched fresh on the next page load.
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 31536000
+
+    @app.url_defaults
+    def static_cache_buster(endpoint, values):
+        if endpoint == "static" and "filename" in values:
+            values["v"] = int(os.path.getmtime(os.path.join(app.static_folder, values["filename"])))
 
     limiter.init_app(app)
 

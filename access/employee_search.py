@@ -5,6 +5,8 @@ for the full record.
 """
 from __future__ import annotations
 
+from functools import cache
+
 from access._rows import records
 from access.db import query
 from models.employee_profile import EmployeeSearchResult, SearchOutcome, SectorOption
@@ -34,6 +36,8 @@ def list_sectors() -> list[SectorOption]:
     return [SectorOption(**row) for row in df.to_dict(orient="records")]
 
 
+# Memoized per process: cube data only changes on a refresh, which restarts the app.
+@cache
 def sector_population_overview() -> list[dict]:
     """One row per sector — the active (most-recent-year) disclosed
     population, how many are new this year (first ever appearance on the

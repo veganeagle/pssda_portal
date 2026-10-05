@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, url_for
 
 from access.home_dashboard import get_home_dashboard
 from access.sector_profile import list_sectors_for_picker
@@ -33,6 +33,18 @@ def _donut_sectors(sectors):
     return sorted(merged.values(), key=lambda d: d["total_payroll"], reverse=True)
 
 
+def _site_jsonld() -> dict:
+    """schema.org WebSite + Organization for the home page."""
+    return {
+        "@context": "https://schema.org",
+        "@graph": [
+            {"@type": "WebSite", "name": "OPSCI.ca", "alternateName": "Ontario Public Sector Compensation Insights",
+             "url": url_for("home.index", _external=True), "inLanguage": "en-CA",
+             "publisher": {"@type": "Organization", "name": "kdsay labs inc.", "url": "https://kdsay.com/"}},
+        ],
+    }
+
+
 @bp.route("/")
 def index():
     dashboard = get_home_dashboard()
@@ -44,4 +56,5 @@ def index():
         "home.html", dashboard=dashboard, dashboard_json=dashboard_json, sectors=list_sectors_for_picker(),
         year_span=dashboard.current_year - dashboard.trend[0].year + 1,
         visits=record_visit(),
+        jsonld=_site_jsonld(),
     )

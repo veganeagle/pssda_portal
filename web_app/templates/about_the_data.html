@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% block title %}About the data — OPSCI.ca{% endblock %}
+{% block title %}About the data | OPSCI.ca{% endblock %}
 {% block description %}How OPSCI uses Ontario's public-sector salary disclosures: who is included, how employees are matched across years, job-title groups, annual increases and other estimates.{% endblock %}
 {% block content %}
 <article class="prose">
   <h1>About the data</h1>
   <p class="lede">OPSCI uses Ontario's public-sector salary disclosures, commonly known as the Sunshine List. The records show names, employers, job titles, disclosed salary and taxable benefits for employees whose annual salary meets the $100,000 disclosure threshold.</p>
   <p>The Sunshine List dates to 1996. OPSCI publishes the {{ first_year }}&ndash;{{ current_year }} period to focus on the more recent data. The year shown refers to the year the pay was received, rather than the year the list was published.</p>
+  <p>For precise definitions of every measure on the site, see the <a href="{{ url_for('pages.data_dictionary') }}">data dictionary</a>.</p>
 
   <h2>Who is included</h2>
   <p>The Sunshine List is not a complete workforce list. Employees below the disclosure threshold are missing, so the coverage varies by job and employer.</p>

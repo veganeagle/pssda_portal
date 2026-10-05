@@ -12,6 +12,7 @@
 <meta property="og:description" content="{{ self.description() }}">
 <meta property="og:url" content="{{ request.base_url }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% if jsonld %}<script type="application/ld+json">{{ jsonld|tojson }}</script>{% endif %}
 </head>
 <body>
 <header class="topbar">

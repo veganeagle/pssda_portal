@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_macros.html" import scoped_employee_search %}
-{% block title %}{{ employer.employer_name|proper }}{% endblock %}
+{% block title %}{{ employer.employer_name|proper }} Sunshine List salaries | OPSCI.ca{% endblock %}
+{% block description %}{{ employer.employer_name|proper }} on Ontario's Sunshine List: {{ "{:,}".format(employer.current.headcount) }} disclosed employees in {{ employer.current.year }}, average salary ${{ "{:,.0f}".format(employer.current.avg_salary) }}. Top positions, top earners and pay trends {{ employer.first_year_present }}–{{ employer.last_year_present }}.{% endblock %}
 {% block content %}
 {% set back = request.args.get('back') %}
 {% set back_safe = back if back and back.startswith('/') and not back.startswith('//') else None %}

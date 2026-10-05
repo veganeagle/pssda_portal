@@ -91,7 +91,7 @@ def search():
     sector_overview = None
     employers_for_filter = None
     if not scoped:
-        sector_overview = sector_population_overview()
+        sector_overview = [dict(s) for s in sector_population_overview()]  # cached; copy before adding keys
         max_employees = max((s["n_employees"] for s in sector_overview), default=0)
         for i, s in enumerate(sector_overview):
             s["pct_of_max"] = round(s["n_employees"] / max_employees * 100, 1) if max_employees else 0

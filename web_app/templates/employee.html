@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ profile.first_name|proper }} {{ profile.last_name|proper }}{% endblock %}
+{% block title %}{{ profile.first_name|proper }} {{ profile.last_name|proper }} | OPSCI.ca{% endblock %}
 {% block content %}
 {% set back = request.args.get('back') %}
 {% set back_safe = back if back and back.startswith('/') and not back.startswith('//') else None %}

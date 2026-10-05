@@ -5,6 +5,8 @@ no new pipeline cube needed.
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 from access._rows import records
 from access.db import query
 from models.home_dashboard import FastMover, TopEmployer, TopPosition, TrendYear
@@ -24,6 +26,8 @@ def list_sectors_for_picker() -> list[dict]:
     return records(df)
 
 
+# Memoized per process: cube data only changes on a refresh, which restarts the app.
+@lru_cache(maxsize=64)
 def get_sector_profile(sector_id: str) -> SectorProfile | None:
     name_df = query("SELECT sector_name FROM sectors WHERE sector_id = ?", [sector_id])
     if name_df.empty:

@@ -22,6 +22,7 @@ Key facts for interpreting the data:
 ## Methodology and policies
 
 - [About the data]({{ url_for('pages.about_the_data', _external=True) }}): coverage, matching, job groups, increases, estimates
+- [Data dictionary]({{ url_for('pages.data_dictionary', _external=True) }}): definitions of every measure shown on the site
 - [About]({{ url_for('pages.about', _external=True) }})
 - [Terms & disclaimer]({{ url_for('pages.terms', _external=True) }})
 - [Privacy]({{ url_for('pages.privacy', _external=True) }})

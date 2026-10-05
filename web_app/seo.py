@@ -17,7 +17,7 @@ INDEXABLE_ENDPOINTS = {
     "home.index",
     "position.search", "employer.search", "employee.search", "top_earners.index",
     "sector.profile_page", "employer.profile_page",
-    "pages.about", "pages.about_the_data", "pages.contact", "pages.privacy", "pages.terms",
+    "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 }
 
 _IGNORED_ARGS = {"back"}

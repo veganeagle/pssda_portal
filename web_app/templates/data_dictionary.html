@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Data dictionary | OPSCI.ca{% endblock %}
+{% block description %}Definitions of every measure on OPSCI: disclosed employees, total disclosed salary, median and P90 salary, same-person raises, newly disclosed, attrition, rankings and estimates.{% endblock %}
+{% block content %}
+<article class="prose">
+  <h1>Data dictionary</h1>
+  <p class="lede">What each measure on OPSCI means and how it is calculated. For the background to the data and its limits, see <a href="{{ url_for('pages.about_the_data') }}">About the data</a>.</p>
+  {% for heading, items in sections %}
+  <h2>{{ heading }}</h2>
+  <dl class="dictionary">
+    {% for term, definition in items %}
+    <dt>{{ term }}</dt>
+    <dd>{{ definition }}</dd>
+    {% endfor %}
+  </dl>
+  {% endfor %}
+</article>
+{% endblock %}
