@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}OPSCI.ca{% endblock %}</title>
-<meta name="description" content="{% block description %}Explore Ontario public-sector pay across employers, jobs and years, built on 16 years of Sunshine List salary disclosures.{% endblock %}">
+<meta name="description" content="{% block description %}Explore Ontario public-sector pay across employers, jobs and years, built on Sunshine List salary disclosures from {{ site_years[0] }} to {{ site_years[1] }}.{% endblock %}">
+{% if indexable %}<link rel="canonical" href="{{ request.base_url }}">{% endif %}
+<meta property="og:site_name" content="OPSCI.ca">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ self.title() }}">
+<meta property="og:description" content="{{ self.description() }}">
+<meta property="og:url" content="{{ request.base_url }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 <body>

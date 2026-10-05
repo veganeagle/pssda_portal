@@ -1,0 +1,32 @@
+# OPSCI.ca — Ontario Public Sector Compensation Insights
+
+> OPSCI is an independent analysis site built on Ontario's public-sector salary disclosures (the "Sunshine List"), covering {{ site_years[0] }}–{{ site_years[1] }}. It links employee records across years, groups similar job titles, and compares pay across employers, jobs, sectors and years. A project of kdsay labs inc.
+
+Key facts for interpreting the data:
+
+- The disclosure covers employees paid $100,000 or more in salary in a calendar year. It is not a complete workforce list, and the threshold has never been indexed to inflation.
+- "Disclosed employees" and "total disclosed salary" refer only to people on the list; total disclosed salary is salary only, excluding taxable benefits.
+- Matching employees across years is an estimate: records may occasionally be joined or split incorrectly.
+- Raise figures are same-person comparisons (same job group in consecutive years; employer-level figures also require the same employer), not differences between group averages.
+- Appearing on the list for the first time does not necessarily mean a new hire; disappearing does not necessarily mean someone left.
+- Gender figures are name-based estimates shown only for groups, never for individuals.
+
+## Main pages
+
+- [Home]({{ url_for('home.index', _external=True) }}): province-wide trend, sector mix, largest employers, top roles
+- [Positions]({{ url_for('position.search', _external=True) }}): normalized job titles by sector
+- [Employers]({{ url_for('employer.search', _external=True) }}): every employer on the list, with sector overviews
+- [Top Earners]({{ url_for('top_earners.index', _external=True) }}): highest disclosed salaries by year, sector and position
+- [Employees]({{ url_for('employee.search', _external=True) }}): search for individuals on the list
+
+## Methodology and policies
+
+- [About the data]({{ url_for('pages.about_the_data', _external=True) }}): coverage, matching, job groups, increases, estimates
+- [About]({{ url_for('pages.about', _external=True) }})
+- [Terms & disclaimer]({{ url_for('pages.terms', _external=True) }})
+- [Privacy]({{ url_for('pages.privacy', _external=True) }})
+- [Contact]({{ url_for('pages.contact', _external=True) }}): {{ contact_email }}
+
+## Source
+
+- [Ontario public-sector salary disclosure](https://www.ontario.ca/page/public-sector-salary-disclosure)

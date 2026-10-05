@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /search/export
+
+# Pages that should not appear in search results (individual employee
+# profiles, position pages, comparisons, filtered views) are crawlable but
+# carry an X-Robots-Tag: noindex header instead of being blocked here.
+
+Sitemap: {{ url_for('pages.sitemap_xml', _external=True) }}

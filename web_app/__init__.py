@@ -3,6 +3,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from access.home_dashboard import get_year_range
 from web_app.formatting import proper_case
 from web_app.rate_limit import limiter
+from web_app.seo import is_indexable
 from web_app.views import (
     combo_bp, compare_bp, employee_bp, employer_bp, home_bp, pages_bp, position_bp, sector_bp, top_earners_bp,
 )
@@ -29,7 +30,13 @@ def create_app():
 
     @app.context_processor
     def site_years():
-        return {"site_years": get_year_range()}
+        return {"site_years": get_year_range(), "indexable": is_indexable()}
+
+    @app.after_request
+    def robots_header(resp):
+        if not is_indexable():
+            resp.headers["X-Robots-Tag"] = "noindex"
+        return resp
 
     @app.errorhandler(429)
     def rate_limited(e):
