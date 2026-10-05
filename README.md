@@ -107,6 +107,41 @@ JSON. Run these after any pipeline or model change.
 
 `GET /health` returns `{"status": "ok"}` — confirms the app started.
 
+## Production (opsci.ca)
+
+One Hetzner Cloud VM, `opsci-prod` (CX23, Falkenstein, Ubuntu 26.04, 2.28.102.159).
+DNS is a Hetzner DNS zone; WHC is the registrar only (nameservers point to
+Hetzner). Admin access is SSH as root with a key only (password login off).
+
+```
+/srv/opsci/app        git clone of this repo (owned by the `opsci` system user)
+/srv/opsci/app/data   profiles/ (copied, not in git) and visits.txt (runtime)
+/srv/opsci/venv       Python venv from requirements.txt (pinned)
+/etc/systemd/system/opsci.service   gunicorn: 1 worker, 8 threads, 127.0.0.1:8000
+/etc/caddy/Caddyfile  HTTPS, www -> apex redirect, security headers, no access log
+```
+
+One gunicorn worker on purpose: the rate limiter, export limiter and visit
+counter are single-process. gunicorn must stay bound to 127.0.0.1 — ProxyFix
+trusts exactly one proxy hop (Caddy).
+
+**Deploy a code change** (after pushing to GitHub):
+```
+ssh root@2.28.102.159 'sudo -u opsci git -C /srv/opsci/app pull && systemctl restart opsci'
+```
+If requirements.txt changed, also run
+`/srv/opsci/venv/bin/pip install -r /srv/opsci/app/requirements.txt` before the restart.
+
+**Refresh the data** (after rebuilding cubes locally), from the repo root:
+```
+tar cf - -C data profiles | ssh root@2.28.102.159 'tar xf - -C /srv/opsci/app/data && chown -R opsci:opsci /srv/opsci/app/data && systemctl restart opsci'
+```
+
+Logs: `journalctl -u opsci` (service events and errors only — no access logs
+are kept, per the Privacy page). Search-engine indexing policy lives in
+`web_app/seo.py`; `robots.txt`, `sitemap.xml` and `llms.txt` are served by
+`web_app/views/pages.py`.
+
 ## Pages
 
 | Route | What it shows |
