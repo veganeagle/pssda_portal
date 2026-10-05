@@ -46,7 +46,8 @@ def create_app():
 
     @app.after_request
     def robots_header(resp):
-        if not is_indexable():
+        # Pages only: icons, CSS and crawler files (robots.txt, sitemap) must stay unflagged.
+        if resp.mimetype == "text/html" and not is_indexable():
             resp.headers["X-Robots-Tag"] = "noindex"
         return resp
 

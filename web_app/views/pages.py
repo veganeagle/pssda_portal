@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, render_template, url_for
+from flask import Blueprint, Response, current_app, render_template, send_from_directory, url_for
 
 from access.employer_profile import list_employers_for_filter
 from access.home_dashboard import get_home_dashboard
@@ -80,6 +80,11 @@ _SITEMAP_STATIC = [
     "home.index", "position.search", "employer.search", "employee.search", "top_earners.index",
     "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 ]
+
+
+@bp.route("/favicon.ico")
+def favicon():
+    return send_from_directory(current_app.static_folder, "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
 
 @bp.route("/robots.txt")
