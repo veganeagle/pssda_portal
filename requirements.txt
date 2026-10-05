@@ -1,6 +1,7 @@
-flask
-duckdb
-pandas
-pyarrow
-pydantic
-Flask-Limiter
+flask==3.1.3
+duckdb==1.5.5
+pandas==2.3.3
+pyarrow==22.0.0
+pydantic==2.12.5
+Flask-Limiter==4.1.1
+gunicorn==26.2.0  # production server only (Linux); not used by the local dev server
