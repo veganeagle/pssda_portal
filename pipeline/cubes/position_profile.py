@@ -126,7 +126,11 @@ def build_position_by_employer(history: pd.DataFrame) -> pd.DataFrame:
     ).reset_index()
     money_cols = ["avg_total_comp", "median_salary", "p90_salary", "max_salary"]
     g[money_cols] = g[money_cols].round(0)
-    g["rank"] = g.groupby(["SectorID", "Title_Norm"])["headcount"].rank(method="dense", ascending=False).astype(int)
+    # Order: most disclosed employees first, then highest max salary, so
+    # single-incumbent roles (e.g. a police chief) list by pay rather than
+    # in arbitrary tie order. Rank is the row position in that order.
+    g = g.sort_values(["SectorID", "Title_Norm", "headcount", "max_salary"], ascending=[True, True, False, False])
+    g["rank"] = g.groupby(["SectorID", "Title_Norm"]).cumcount() + 1
 
     matched = cur[cur["MatchedCohort"]]
     avg_raise = matched.groupby(key)["YoYSalaryIncrease"].mean().round(4).rename("avg_raise_matched")
