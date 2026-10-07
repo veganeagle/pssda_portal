@@ -34,8 +34,8 @@ def data_dictionary():
 
 
 def _dataset_jsonld(first_year: int, last_year: int) -> dict:
-    """schema.org Dataset, for Google Dataset Search. No license is claimed:
-    none has been decided for OPSCI's derived data."""
+    """schema.org Dataset, for Google Dataset Search. `license` points at the
+    reuse terms on /terms (#reuse)."""
     return {
         "@context": "https://schema.org",
         "@type": "Dataset",
@@ -55,6 +55,7 @@ def _dataset_jsonld(first_year: int, last_year: int) -> dict:
         "isAccessibleForFree": True,
         "isBasedOn": "https://www.ontario.ca/page/public-sector-salary-disclosure",
         "variableMeasured": TERMS,
+        "license": url_for("pages.terms", _external=True) + "#reuse",
         "creator": {"@type": "Organization", "name": "kdsay labs inc.", "url": "https://kdsay.com/"},
     }
 
