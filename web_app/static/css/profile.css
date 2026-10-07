@@ -70,6 +70,7 @@ header.topbar .nav-menu-panel{
 }
 header.topbar .nav-menu-panel a{padding:0.34rem 0.95rem; font-size:0.86rem; font-weight:600; color:var(--header-text); text-decoration:none; line-height:1.35;}
 header.topbar .nav-menu-panel a:hover, header.topbar .nav-menu-panel a[aria-current]{background:rgba(255,255,255,0.08); color:var(--header-hover);}
+header.topbar .nav-menu-panel .nav-menu-all{border-bottom:1px solid rgba(255,255,255,0.14); margin-bottom:0.25rem; padding-bottom:0.45rem;}
 header.topbar .header-note{font-size:0.72rem; color:var(--header-note); font-weight:500; letter-spacing:0.04em; text-transform:uppercase;}
 @media (max-width:900px){ header.topbar .header-note{display:none;} }
 @media (max-width:600px){

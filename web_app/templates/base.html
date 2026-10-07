@@ -31,6 +31,7 @@
       <details class="nav-menu{% if request.blueprint == 'sector' %} active{% endif %}">
         <summary>Sectors</summary>
         <div class="nav-menu-panel">
+          <a href="{{ url_for('home.index') }}" class="nav-menu-all"{% if request.endpoint == 'home.index' %} aria-current="page"{% endif %}>All Ontario</a>
           {% for s in nav_sectors %}
           <a href="{{ url_for('sector.profile_page', sector_id=s.sector_id) }}"{% if request.blueprint == 'sector' and request.view_args.sector_id == s.sector_id %} aria-current="page"{% endif %}>{{ s.sector_name|proper }}</a>
           {% endfor %}
