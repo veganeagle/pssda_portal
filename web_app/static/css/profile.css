@@ -52,15 +52,29 @@ header.topbar .topbar-inner{
 }
 header.topbar .brand-link{color:var(--header-text); text-decoration:none; display:inline-flex; align-items:baseline; gap:0.35rem; font-size:1.45rem; letter-spacing:-0.05em;}
 header.topbar .dot{color:var(--header-dot); font-size:0.6rem; align-self:center;}
-header.topbar .tabs{display:flex; gap:1.6rem; font-weight:600; font-size:0.9rem; flex:1;}
+header.topbar .tabs{display:flex; flex-wrap:wrap; gap:0.3rem 1.6rem; font-weight:600; font-size:0.9rem; flex:1;}
+header.topbar .tabs a, header.topbar .nav-menu summary{white-space:nowrap;}
 header.topbar .tabs a{color:var(--header-text); text-decoration:none; padding:0.2rem 0;}
 header.topbar .brand-link:hover, header.topbar .tabs a:hover{color:var(--header-hover);}
 header.topbar .tabs a.active{color:var(--header-hover); box-shadow:inset 0 -2px 0 var(--header-dot);}
+header.topbar .nav-menu{position:relative;}
+header.topbar .nav-menu summary{list-style:none; cursor:pointer; color:var(--header-text); padding:0.2rem 0;}
+header.topbar .nav-menu summary::-webkit-details-marker{display:none;}
+header.topbar .nav-menu summary::after{content:" ▾"; font-size:0.8em;}
+header.topbar .nav-menu summary:hover, header.topbar .nav-menu[open] summary{color:var(--header-hover);}
+header.topbar .nav-menu.active summary{color:var(--header-hover); box-shadow:inset 0 -2px 0 var(--header-dot);}
+header.topbar .nav-menu-panel{
+  position:absolute; top:calc(100% + 0.55rem); left:-0.9rem; z-index:20; display:flex; flex-direction:column;
+  min-width:17rem; max-width:min(26rem, 92vw); padding:0.35rem 0; background:var(--header-bg);
+  border:1px solid var(--accent); border-radius:6px; box-shadow:0 10px 28px rgba(0,0,0,0.28);
+}
+header.topbar .nav-menu-panel a{padding:0.34rem 0.95rem; font-size:0.86rem; font-weight:600; color:var(--header-text); text-decoration:none; line-height:1.35;}
+header.topbar .nav-menu-panel a:hover, header.topbar .nav-menu-panel a[aria-current]{background:rgba(255,255,255,0.08); color:var(--header-hover);}
 header.topbar .header-note{font-size:0.72rem; color:var(--header-note); font-weight:500; letter-spacing:0.04em; text-transform:uppercase;}
 @media (max-width:900px){ header.topbar .header-note{display:none;} }
 @media (max-width:600px){
   header.topbar .topbar-inner{padding:0.5rem 16px;}
-  header.topbar .tabs{gap:1.1rem; font-size:0.84rem; flex-basis:100%;}
+  header.topbar .tabs{gap:0.3rem 1.1rem; font-size:0.84rem; flex-basis:100%;}
 }
 
 main{max-width:1240px; margin:0 auto; padding:0.6rem 24px 1.2rem; display:flex; flex-direction:column; gap:0.6rem;}

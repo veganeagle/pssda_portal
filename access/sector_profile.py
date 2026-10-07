@@ -21,6 +21,7 @@ TOP_POSITION_MIN_HEADCOUNT = 5
 TOP_ROLES_LIMIT = 15
 
 
+@lru_cache(maxsize=1)  # read on every page for the header's Sectors menu
 def list_sectors_for_picker() -> list[dict]:
     df = query("SELECT sector_id, sector_name FROM sectors WHERE sector_id NOT IN ('-1', '99') ORDER BY sector_name")
     return records(df)

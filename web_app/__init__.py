@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from access.home_dashboard import get_year_range
+from access.sector_profile import list_sectors_for_picker
 from web_app.formatting import proper_case
 from web_app.rate_limit import limiter
 from web_app.seo import is_indexable
@@ -42,7 +43,7 @@ def create_app():
 
     @app.context_processor
     def site_years():
-        return {"site_years": get_year_range(), "indexable": is_indexable()}
+        return {"site_years": get_year_range(), "indexable": is_indexable(), "nav_sectors": list_sectors_for_picker()}
 
     @app.after_request
     def robots_header(resp):
