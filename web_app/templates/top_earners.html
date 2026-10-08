@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import sector_view_head %}
 {% block title %}Ontario Sunshine List top earners by year and sector | OPSCI.ca{% endblock %}
 {% block description %}The highest disclosed public-sector earners in Ontario, ranked by total compensation for each year from {{ site_years[0] }} to {{ site_years[1] }}, filterable by sector and position.{% endblock %}
 {% block content %}
@@ -8,6 +9,44 @@
   <p class="lede">The province-wide leaderboard of the highest-paid disclosed employees*, filterable by sector and exact position. Looking for one specific employer's top earners? Its profile page has its own top-10 list.</p>
 </div>
 
+{% if sector_view %}
+{{ sector_view_head(sector_view.sector_id, sector_view.sector_name, url_for('top_earners.index', year=year)) }}
+<div class="bento">
+  <div class="card span3">
+    <h3>Biggest increases <span class="sub">total comp, {{ prior_year }} &rarr; {{ year }}</span></h3>
+    <form method="get" action="{{ url_for('top_earners.index') }}" class="inline-toggle">
+      <input type="hidden" name="sector" value="{{ sector_view.sector_id }}">
+      <input type="hidden" name="year" value="{{ year }}">
+      <label><input type="checkbox" name="moves" value="1" onchange="this.form.submit()"{% if include_moves %} checked{% endif %}> Include people who changed employer</label>
+    </form>
+    {% for r in increases %}
+    <div class="mini-row">
+      <span>
+        <span class="t"><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a> <span class="job-sub">&mdash; {{ r.job_title|proper }}</span></span>
+        <span class="s"><a href="{{ url_for('employer.profile_page', employer_id=r.employer_id, back=request.full_path) }}">{{ r.employer_name|proper }}</a> &middot; <span class="mono">${{ "{:,.0f}".format(r.prior_total_comp) }} &rarr; ${{ "{:,.0f}".format(r.total_comp) }}</span></span>
+      </span>
+      <span class="chip chip-pos" title="{{ '{:+.0%}'.format(r.pct_increase) }}">+${{ "{:,.0f}".format(r.increase) }}</span>
+    </div>
+    {% else %}
+    <p class="muted">No one in this sector was disclosed in both {{ prior_year }} and {{ year }}.</p>
+    {% endfor %}
+    <p class="muted">People disclosed in both years{% if not include_moves %}, at the same employer{% endif %}. Large jumps often reflect a partial previous year, a promotion, retroactive pay or a one-time payment, not a raise in base salary.</p>
+  </div>
+  <div class="card span3">
+    <h3>People earning ${{ "{:,}".format(high_earner_threshold) }}+ <span class="sub">total comp{% if trend_change is not none %} &middot; {{ "{:+.0%}".format(trend_change) }} since {{ high_trend[0].year }}{% endif %}</span></h3>
+    <div class="vbars">
+      {% for t in high_trend %}
+      <div class="vbar">
+        <span class="vbar-n mono">{{ "{:,}".format(t.n) }}</span>
+        <div class="vbar-track"><div class="vbar-fill" style="height:{{ t.pct_of_max }}%;"></div></div>
+        <span class="vbar-y mono">{{ t.year }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="muted">Nominal dollars: like the $100,000 disclosure line, ${{ "{:,}".format(high_earner_threshold) }} isn't adjusted for inflation.</p>
+  </div>
+</div>
+{% else %}
 <div class="bento">
   <div class="card span6">
     <h3>Top earners by sector <span class="sub">FY{{ year }}</span></h3>
@@ -30,6 +69,7 @@
     </table>
   </div>
 </div>
+{% endif %}
 
 <div class="search-panel">
   <h2 class="search-panel-title">Filter the leaderboard</h2>

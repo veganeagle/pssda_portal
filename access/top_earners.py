@@ -116,3 +116,49 @@ if __name__ == "__main__":
         print(f"{case} -> {len(rows)} rows in {elapsed:.1f}ms")
         for r in rows[:3]:
             print(f"    #{r.rank_province} province: {r.first_name} {r.last_name} — {r.job_title} @ {r.employer_name} — ${r.total_comp:,.0f}")
+
+
+# ---- sector view (Top Earners with a sector selected) ----
+
+HIGH_EARNER_THRESHOLD = 250_000   # total comp; nominal dollars, like the $100K line itself
+HIGH_EARNER_TREND_YEARS = 5
+INCREASES_LIMIT = 10
+
+
+@lru_cache(maxsize=128)
+def sector_high_earner_trend(sector_id: str, end_year: int) -> list[dict]:
+    """People in the sector at or above HIGH_EARNER_THRESHOLD total comp, for
+    the HIGH_EARNER_TREND_YEARS years ending at end_year."""
+    df = query("""
+        SELECT year, COUNT(*) FILTER (WHERE total_comp >= ?)::INTEGER AS n
+        FROM top_earners_history
+        WHERE sector_id = ? AND year BETWEEN ? AND ?
+        GROUP BY year ORDER BY year
+    """, [HIGH_EARNER_THRESHOLD, sector_id, end_year - HIGH_EARNER_TREND_YEARS + 1, end_year])
+    return records(df)
+
+
+@lru_cache(maxsize=256)
+def sector_biggest_increases(sector_id: str, year: int, include_employer_changes: bool = False) -> list[dict]:
+    """Largest year-over-year dollar increases in total comp, for people in the
+    sector this year who were also disclosed the year before. By default both
+    years must be at the same employer — that drops employer moves and most
+    record-linking errors (two different people with one name). Big jumps can
+    still be a partial prior year, retroactive or one-time pay, not a raise."""
+    df = query("""
+        WITH cur AS (
+            SELECT employee_id, first_name, last_name, employer_id, employer_name, job_title, total_comp
+            FROM top_earners_history WHERE year = ? AND sector_id = ?
+        ), prev AS (
+            SELECT employee_id, employer_id AS prior_employer_id, total_comp AS prior_total_comp
+            FROM top_earners_history WHERE year = ?
+        )
+        SELECT cur.*, prev.prior_total_comp,
+               cur.total_comp - prev.prior_total_comp AS increase,
+               cur.total_comp / prev.prior_total_comp - 1 AS pct_increase
+        FROM cur JOIN prev USING (employee_id)
+        WHERE ? OR cur.employer_id = prev.prior_employer_id
+        ORDER BY increase DESC
+        LIMIT ?
+    """, [year, sector_id, year - 1, include_employer_changes, INCREASES_LIMIT])
+    return records(df)

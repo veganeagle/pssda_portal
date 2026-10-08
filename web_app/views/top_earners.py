@@ -3,7 +3,8 @@ from flask import Blueprint, render_template, request
 from access.employee_search import list_sectors
 from access.position_profile import list_positions
 from access.top_earners import (
-    TOP_N_PROVINCE, list_available_years, search_top_earners, sector_top_earners_overview,
+    HIGH_EARNER_THRESHOLD, TOP_N_PROVINCE, list_available_years, search_top_earners, sector_biggest_increases,
+    sector_high_earner_trend, sector_top_earners_overview,
 )
 
 bp = Blueprint("top_earners", __name__)
@@ -48,8 +49,24 @@ def index():
         s["pct_top_province"] = round(s["n_in_top_province"] / TOP_N_PROVINCE * 100, 1)
         s["color"] = SECTOR_COLORS[i % len(SECTOR_COLORS)]
 
+    # A selected sector swaps the all-sector overview for that sector's
+    # biggest dollar increases and its trend in people earning $250K+.
+    sector_view = next((s for s in sector_overview if s["sector_id"] == sector), None) if sector else None
+    include_moves = request.args.get("moves") == "1"
+    increases = high_trend = trend_change = None
+    if sector_view:
+        increases = sector_biggest_increases(sector, year, include_moves)
+        high_trend = [dict(t) for t in sector_high_earner_trend(sector, year)]  # cached; copy before adding keys
+        max_n = max((t["n"] for t in high_trend), default=0)
+        for t in high_trend:
+            t["pct_of_max"] = round(t["n"] / max_n * 100, 1) if max_n else 0
+        if len(high_trend) > 1 and high_trend[0]["n"]:
+            trend_change = high_trend[-1]["n"] / high_trend[0]["n"] - 1
+
     return render_template(
         "top_earners.html", results=results, sectors=list_sectors(), positions=list_positions(),
         year=year, prev_year=prev_year, next_year=next_year, sector_overview=sector_overview,
-        top_n_province=TOP_N_PROVINCE,
+        top_n_province=TOP_N_PROVINCE, sector_view=sector_view, increases=increases,
+        include_moves=include_moves, prior_year=year - 1, high_trend=high_trend, trend_change=trend_change,
+        high_earner_threshold=HIGH_EARNER_THRESHOLD,
     )
