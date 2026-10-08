@@ -52,6 +52,14 @@ def create_app():
             resp.headers["X-Robots-Tag"] = "noindex"
         return resp
 
+    @app.after_request
+    def html_no_cache(resp):
+        # Browsers revalidate pages on every visit, so a deploy shows up
+        # immediately. Static files keep their long cache (versioned URLs).
+        if resp.mimetype == "text/html":
+            resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
     @app.errorhandler(429)
     def rate_limited(e):
         return render_template("rate_limited.html"), 429
