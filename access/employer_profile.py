@@ -1,6 +1,7 @@
 """Single-employer lookup: EmployerID -> EmployerProfile."""
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Optional
 
 from access._rows import records
@@ -92,6 +93,48 @@ def sector_employer_overview() -> list[dict]:
         ORDER BY a.total_headcount DESC
     """)
     return records(df)
+
+
+# A sector's fastest-growing employers, by year-over-year change in disclosed
+# employees. Small bases swing wildly (2 -> 5 people is +150%), so an employer
+# needs at least this many disclosed employees in the prior year to be ranked.
+GROWTH_MIN_PRIOR_HEADCOUNT = 25
+SECTOR_MIX_TOP_N = 5
+
+
+# Memoized per process: cube data only changes on a refresh, which restarts the app.
+@lru_cache(maxsize=32)
+def sector_employer_growth(sector_id: str, limit: int = 5) -> list[dict]:
+    df = query("""
+        WITH yr AS (SELECT MAX(year) AS y FROM employer_history),
+             cur AS (SELECT h.employer_id, h.headcount FROM employer_history h, yr WHERE h.year = yr.y),
+             prev AS (SELECT h.employer_id, h.headcount FROM employer_history h, yr WHERE h.year = yr.y - 1)
+        SELECT w.employer_id, w.employer_name, prev.headcount AS prior_headcount, cur.headcount AS headcount,
+               cur.headcount::DOUBLE / prev.headcount - 1 AS growth
+        FROM employer_wide w JOIN cur USING (employer_id) JOIN prev USING (employer_id)
+        WHERE w.sector_id = ? AND prev.headcount >= ?
+        ORDER BY growth DESC
+        LIMIT ?
+    """, [sector_id, GROWTH_MIN_PRIOR_HEADCOUNT, limit])
+    return records(df)
+
+
+@lru_cache(maxsize=32)
+def sector_employer_mix(sector_id: str) -> list[dict]:
+    """Current-year disclosed employees in a sector: the SECTOR_MIX_TOP_N
+    largest employers individually, everyone else rolled into one row."""
+    df = query("""
+        SELECT employer_id, employer_name, current_headcount AS headcount
+        FROM employer_wide
+        WHERE sector_id = ? AND current_year = (SELECT MAX(current_year) FROM employer_wide)
+        ORDER BY current_headcount DESC
+    """, [sector_id])
+    rows = records(df)
+    top, rest = rows[:SECTOR_MIX_TOP_N], rows[SECTOR_MIX_TOP_N:]
+    if rest:
+        top.append({"employer_id": None, "employer_name": None, "headcount": sum(r["headcount"] for r in rest),
+                    "n_employers": len(rest)})
+    return top
 
 
 def get_employer_profile(employer_id: str) -> Optional[EmployerProfile]:

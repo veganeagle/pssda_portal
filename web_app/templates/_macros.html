@@ -14,3 +14,14 @@
   </form>
 </div>
 {% endmacro %}
+
+{# Heading for the in-page sector view on Positions / Employers / Employees. #}
+{% macro sector_view_head(sector_id, sector_name, clear_url) %}
+<div class="sector-view-head">
+  <h2>{{ sector_name|proper }}</h2>
+  <span class="sector-view-links">
+    <a href="{{ clear_url }}">&larr; All sectors</a>
+    <a href="{{ url_for('sector.profile_page', sector_id=sector_id) }}">Sector dashboard &rarr;</a>
+  </span>
+</div>
+{% endmacro %}

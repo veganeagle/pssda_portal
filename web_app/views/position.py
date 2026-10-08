@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, request
 from access.employee_search import list_sectors
 from access.employer_profile import list_employers_for_filter
 from access.position_profile import get_position_profile, search_positions, sector_position_overview
+from access.sector_profile import get_sector_profile
+from web_app.formatting import proper_case
 
 bp = Blueprint("position", __name__)
 
@@ -28,9 +30,19 @@ def search():
         s["pct_mapped"] = round(s["normed_headcount"] / s["total_headcount"] * 100, 1) if s["total_headcount"] else 0
         s["color"] = SECTOR_COLORS[i % len(SECTOR_COLORS)]
 
+    # A selected sector swaps the all-sector overview for a compact view of
+    # that sector (fastest movers + position mix), drawn from the sector
+    # dashboard's own data.
+    sector_view = get_sector_profile(sector) if sector else None
+    position_mix_json = [
+        {"name": proper_case(m.title_norm), "value": m.headcount, "label": f"{m.headcount:,}"}
+        for m in sector_view.position_mix
+    ] if sector_view else None
+
     return render_template(
         "positions_search.html", results=results, sectors=list_sectors(), sector_overview=sector_overview,
         employers_for_filter=list_employers_for_filter(), employer=employer,
+        sector_view=sector_view, position_mix_json=position_mix_json,
     )
 
 

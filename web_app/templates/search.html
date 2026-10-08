@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import sector_view_head %}
 {% block title %}Search the Ontario Sunshine List by name | OPSCI.ca{% endblock %}
 {% block description %}Look up anyone who has appeared on Ontario's Sunshine List since {{ site_years[0] }}, by name, sector, employer or position, and follow their disclosed salary history.{% endblock %}
 {% block content %}
@@ -7,6 +8,34 @@
   <h1>Search Employees</h1>
   <p class="lede">Look up any individual who has appeared on Ontario's Sunshine List, by name, or by narrowing down sector, employer, and position.</p>
 </div>
+
+{% if sector_view %}
+{{ sector_view_head(sector_view.sector_id, sector_view.sector_name, url_for('employee.search')) }}
+<div class="bento">
+  <div class="card span3">
+    <h3>Top disclosed earners <span class="sub"><a href="{{ url_for('top_earners.index', sector=sector_view.sector_id) }}">leaderboard &rarr;</a></span></h3>
+    {% for r in sector_top_earners %}
+    <div class="mini-row">
+      <span>
+        <span class="t"><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a> <span class="job-sub">&mdash; {{ r.job_title|proper }}</span></span>
+        <span class="s"><a href="{{ url_for('employer.profile_page', employer_id=r.employer_id, back=request.full_path) }}">{{ r.employer_name|proper }}</a></span>
+      </span>
+      <span class="n mono">${{ "{:,.0f}".format(r.total_comp) }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="card span3">
+    <h3>Who's on the list <span class="sub">{{ site_years[1] }}</span></h3>
+    <div class="stat-grid">
+      <div class="summary-stat"><strong class="mono">{{ "{:,}".format(sector_view.n_employees) }}</strong><span>Disclosed employees*</span></div>
+      <div class="summary-stat"><strong class="mono">{{ sector_view.pct_new }}%</strong><span>New to the list this year</span></div>
+      <div class="summary-stat" title="Disclosed last year, not disclosed this year — includes genuine departures and anyone who simply dipped below the $100,000 threshold."><strong class="mono">{{ sector_view.pct_attrition }}%</strong><span>Left the list since last year</span></div>
+      <div class="summary-stat"><strong class="mono">{{ "%s%%"|format(sector_view.pct_female) if sector_view.pct_female is not none else "&mdash;"|safe }}</strong><span>Estimated female</span></div>
+    </div>
+    <p class="muted">"New" means first appearance on the list, not a new hire; "left the list" includes anyone whose pay fell below $100,000. Female share is estimated from first names.</p>
+  </div>
+</div>
+{% endif %}
 
 <div class="search-panel">
   {% if scope_label %}
@@ -32,7 +61,7 @@
       {% endif %}
     </div>
 
-    {% if sector_overview %}
+    {% if sector_overview and not sector_view %}
     <div class="bento" style="margin-top:0.85rem;">
       <div class="card span6">
         <h3>Who's on the list, by sector</h3>

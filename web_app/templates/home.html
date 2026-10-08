@@ -44,7 +44,7 @@
         <span class="t"><a href="{{ url_for('position.profile_page', sector_id=m.sector_id, title_norm=m.title_norm, back=request.path) }}">{{ m.title_norm|proper }}</a></span>
         <span class="s">{{ m.sector_name|proper }} &middot; {{ "{:,}".format(m.headcount) }} people</span>
       </span>
-      <span class="chip chip-pos">+{{ "%.1f"|format(m.avg_raise_matched*100) }}%</span>
+      <span class="chip chip-pos">{{ "{:+.1%}".format(m.avg_raise_matched) }}</span>
     </div>
     {% endfor %}
     <p class="muted">Same person, same role, consecutive years &mdash; not a raw average. 3,000+ person minimum so this reflects real workforces, not noisy small cells.</p>

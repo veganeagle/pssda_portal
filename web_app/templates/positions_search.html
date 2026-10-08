@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import sector_view_head %}
 {% block title %}Ontario public-sector jobs and salaries — Sunshine List | OPSCI.ca{% endblock %}
 {% block description %}Compare Ontario public-sector jobs across employers: grouped job titles by sector, with median and 90th-percentile salaries and same-person raises from the Sunshine List.{% endblock %}
 {% block content %}
@@ -8,6 +9,33 @@
   <p class="lede">Browse every normalized role tracked province-wide, and compare disclosed employees and pay for the same job across employers and sectors.</p>
 </div>
 
+{% if sector_view %}
+{{ sector_view_head(sector_view.sector_id, sector_view.sector_name, url_for('position.search')) }}
+<div class="bento">
+  <div class="card span3">
+    <h3>Fastest movers <span class="sub">50+ on the role</span></h3>
+    {% for m in sector_view.fastest_movers[:5] %}
+    <div class="mini-row">
+      <span>
+        <span class="t"><a href="{{ url_for('position.profile_page', sector_id=m.sector_id, title_norm=m.title_norm, back=request.full_path) }}">{{ m.title_norm|proper }}</a></span>
+        <span class="s">{{ "{:,}".format(m.headcount) }} people</span>
+      </span>
+      <span class="chip chip-pos">{{ "{:+.1%}".format(m.avg_raise_matched) }}</span>
+    </div>
+    {% else %}
+    <p class="muted">No role in this sector clears 50 people with a comparable matched raise.</p>
+    {% endfor %}
+    <p class="muted">Same person, same role, consecutive years &mdash; not a raw average.</p>
+  </div>
+  <div class="card span3">
+    <h3>Most common positions <span class="sub">{{ sector_view.current_year }} disclosed employees</span></h3>
+    <div class="donut-wrap donut-side">
+      <svg viewBox="0 0 42 42" id="sector-view-donut"></svg>
+      <div class="donut-legend" id="sector-view-legend"></div>
+    </div>
+  </div>
+</div>
+{% else %}
 <div class="bento">
   <div class="card span6">
     <h3>Positions by sector</h3>
@@ -25,6 +53,7 @@
     </table>
   </div>
 </div>
+{% endif %}
 
 <div class="search-panel">
   <p class="result-summary"><a href="{{ url_for('position.search') }}">Clear all filters</a></p>
@@ -127,4 +156,13 @@
     }
   })();
 </script>
+{% if sector_view %}
+<script type="application/json" id="sector-view-mix">{{ position_mix_json|tojson }}</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    renderDonutChart('sector-view-donut', 'sector-view-legend', JSON.parse(document.getElementById('sector-view-mix').textContent));
+  });
+</script>
+{% endif %}
 {% endblock %}

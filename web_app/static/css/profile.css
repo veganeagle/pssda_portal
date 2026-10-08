@@ -367,6 +367,17 @@ footer.site-footnote{color:var(--mute); font-size:0.74rem; line-height:1.55; pad
 .why-grid h3{font-size:0.86rem; font-weight:800; margin:0 0 0.2rem;}
 .why-grid p{margin:0; color:var(--mute); font-size:0.82rem; line-height:1.55;}
 
+/* ---- in-page sector view (Positions / Employers / Employees with a sector selected) ---- */
+.sector-view-head{display:flex; align-items:baseline; justify-content:space-between; gap:0.3rem 1rem; flex-wrap:wrap; padding-top:0.3rem;}
+.sector-view-head h2{font-size:1.3rem; font-weight:800; letter-spacing:-0.02em; margin:0;}
+.sector-view-links{display:flex; gap:1.2rem; font-size:0.84rem;}
+.sector-view-links a{text-decoration:none;}
+.sector-view-links a:hover{text-decoration:underline;}
+.donut-side{flex-direction:row; align-items:center; gap:1rem;}
+.donut-side svg{width:150px; height:150px;}
+@media (max-width:520px){ .donut-side{flex-direction:column;} }
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:0.9rem 1.2rem; margin:0.3rem 0 0.2rem;}
+
 /* ---- text pages (about, about the data, contact, privacy, terms) ---- */
 /* Sized to match Home: body ~ the dashboard's lede, headings ~ its card titles. */
 .prose{max-width:78ch; font-size:0.92rem; line-height:1.6;}

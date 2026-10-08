@@ -1,7 +1,11 @@
 from flask import Blueprint, render_template, request
 
 from access.employee_search import list_sectors
-from access.employer_profile import get_employer_profile, list_employers_for_filter, search_employers, sector_employer_overview
+from access.employer_profile import (
+    get_employer_profile, list_employers_for_filter, search_employers, sector_employer_growth, sector_employer_mix,
+    sector_employer_overview,
+)
+from web_app.formatting import proper_case
 from access.sector_profile import list_sectors_for_picker
 
 bp = Blueprint("employer", __name__)
@@ -27,9 +31,20 @@ def search():
         s["pct_of_max"] = round(s["total_headcount"] / max_headcount * 100, 1) if max_headcount else 0
         s["color"] = SECTOR_COLORS[i % len(SECTOR_COLORS)]
 
+    # A selected sector swaps the all-sector overview for that sector's
+    # fastest-growing employers and its share of disclosed employees.
+    sector_view = next((s for s in sector_overview if s["sector_id"] == sector), None) if sector else None
+    employer_growth = sector_employer_growth(sector) if sector_view else None
+    employer_mix_json = [
+        {"name": proper_case(m["employer_name"]) if m["employer_id"] else f"All other ({m['n_employers']} employers)",
+         "value": m["headcount"], "label": f"{m['headcount']:,}"}
+        for m in sector_employer_mix(sector)
+    ] if sector_view else None
+
     return render_template(
         "employers_search.html", results=results, sectors=list_sectors(), show_all=show_all,
         sector_overview=sector_overview, name=name, sector=sector,
+        sector_view=sector_view, employer_growth=employer_growth, employer_mix_json=employer_mix_json,
     )
 
 

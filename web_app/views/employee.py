@@ -10,6 +10,7 @@ from access.employee_search import (
 from access.employer_position_profile import list_positions_for_employer
 from access.employer_profile import list_employers_for_filter
 from access.position_profile import list_positions
+from access.top_earners import search_top_earners
 from web_app.export_limit import EXPORT_PROFILES_PER_HOUR, check_and_record_export
 
 bp = Blueprint("employee", __name__)
@@ -115,8 +116,13 @@ def search():
         preselected_positions = list_positions()
         position_scope_is_global = True
 
+    # A selected sector (general search only) adds a compact view of that
+    # sector: its top disclosed earners and its population figures.
+    sector_view = next((s for s in sector_overview if s["sector_id"] == general_sector_id), None)         if sector_overview and general_sector_id else None
+    sector_top_earners = search_top_earners(sector_id=general_sector_id, limit=5) if sector_view else None
+
     return render_template(
-        "search.html", searched=searched, outcome=outcome, sectors=list_sectors(), comp_range=comp_range,
+        "search.html", sector_view=sector_view, sector_top_earners=sector_top_earners, searched=searched, outcome=outcome, sectors=list_sectors(), comp_range=comp_range,
         scope_employer_id=scope_employer_id, scope_sector_id=scope_sector_id, scope_title_norm=scope_title_norm,
         scope_label=scope_label, sector_overview=sector_overview, employers_for_filter=employers_for_filter,
         general_employer_id=general_employer_id, general_position=general_position,
