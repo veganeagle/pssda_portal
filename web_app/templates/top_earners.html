@@ -19,7 +19,7 @@
       <input type="hidden" name="year" value="{{ year }}">
       <label><input type="checkbox" name="moves" value="1" onchange="this.form.submit()"{% if include_moves %} checked{% endif %}> Include people who changed employer</label>
     </form>
-    {% for r in increases %}
+    {% macro increase_row(r) %}
     <div class="mini-row">
       <span>
         <span class="t"><a href="{{ url_for('employee.profile_page', employee_id=r.employee_id, back=request.full_path) }}">{{ r.first_name|proper }} {{ r.last_name|proper }}</a> <span class="job-sub">&mdash; {{ r.job_title|proper }}</span></span>
@@ -27,9 +27,17 @@
       </span>
       <span class="chip chip-pos" title="{{ '{:+.0%}'.format(r.pct_increase) }}">+${{ "{:,.0f}".format(r.increase) }}</span>
     </div>
+    {% endmacro %}
+    {% for r in increases[:5] %}{{ increase_row(r) }}
     {% else %}
     <p class="muted">No one in this sector was disclosed in both {{ prior_year }} and {{ year }}.</p>
     {% endfor %}
+    {% if increases|length > 5 %}
+    <details class="more-rows">
+      <summary>Show all {{ increases|length }} &#9662;</summary>
+      {% for r in increases[5:] %}{{ increase_row(r) }}{% endfor %}
+    </details>
+    {% endif %}
     <p class="muted">People disclosed in both years{% if not include_moves %}, at the same employer{% endif %}. Large jumps often reflect a partial previous year, a promotion, retroactive pay or a one-time payment, not a raise in base salary.</p>
   </div>
   <div class="card span3">

@@ -378,6 +378,11 @@ footer.site-footnote{color:var(--mute); font-size:0.74rem; line-height:1.55; pad
 @media (max-width:520px){ .donut-side{flex-direction:column;} }
 .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:0.9rem 1.2rem; margin:0.3rem 0 0.2rem;}
 .inline-toggle{margin:0 0 0.3rem;}
+.more-rows summary{cursor:pointer; list-style:none; font-size:0.76rem; font-weight:600; color:var(--mute); margin:0.35rem 0 0.1rem; display:inline-block;
+  background:var(--surface); border:1px solid var(--border); border-radius:5px; padding:0.25rem 0.7rem;}
+.more-rows summary::-webkit-details-marker{display:none;}
+.more-rows summary:hover{color:var(--text); border-color:var(--accent);}
+.more-rows[open] summary{display:none;}
 .inline-toggle label{display:inline-flex; align-items:center; gap:0.4em; font-size:0.78rem; color:var(--mute); cursor:pointer;}
 /* Labelled vertical bars (plain HTML, no chart script): count on top, year below. */
 .vbars{display:flex; align-items:flex-end; gap:0.8rem; height:200px; padding:0.4rem 0.2rem 0; margin-top:auto;}
