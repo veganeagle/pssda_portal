@@ -26,6 +26,10 @@ def index():
     position_sector_id, title_norm = None, None
     if position and "::" in position:
         position_sector_id, title_norm = position.split("::", 1)
+        # A position from another sector than the one selected (an old link)
+        # would show that other sector's people under this sector's name.
+        if sector and position_sector_id != sector:
+            position_sector_id, title_norm = None, None
 
     years = list_available_years()
     year = request.args.get("year", type=int)

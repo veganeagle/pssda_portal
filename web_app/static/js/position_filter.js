@@ -48,4 +48,5 @@
 
   filterInput.addEventListener("input", render);
   sectorSelect.addEventListener("change", render);
+  render();  // apply the selected sector on page load, not only on later changes
 })();
