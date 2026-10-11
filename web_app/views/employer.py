@@ -5,6 +5,7 @@ from access.employer_profile import (
     get_employer_profile, list_employers_for_filter, search_employers, sector_employer_growth, sector_employer_mix,
     sector_employer_overview,
 )
+from access.salary_distribution import salary_distribution
 from web_app.formatting import proper_case
 from access.sector_profile import list_sectors_for_picker
 
@@ -61,7 +62,8 @@ def profile_page(employer_id):
     # the right-hand side come from a different sector than this one (e.g.
     # comparing a university to a college).
     all_employers = [e for e in list_employers_for_filter(active_only=True) if e["employer_id"] != employer_id]
+    salary_bands = salary_distribution(employer.current.year, employer_id=employer_id)
     return render_template(
-        "employer.html", employer=employer, trend_json=trend_json,
+        "employer.html", employer=employer, trend_json=trend_json, salary_bands=salary_bands,
         all_employers=all_employers, sectors=list_sectors_for_picker(),
     )

@@ -7,4 +7,13 @@
 <p><a href="{{ back_safe or url_for('employee.search') }}">&larr; {{ 'back' if back_safe else 'back to search' }}</a></p>
 {% include "_combo_fragment.html" %}
 {{ scoped_employee_search('in this role at ' ~ (combo.employer_name|proper), scope_employer_id=combo.employer_id, scope_sector_id=combo.sector_id, scope_title_norm=combo.title_norm, scope_label=combo.title_norm|proper ~ ' at ' ~ (combo.employer_name|proper)) }}
+
+<script type="application/json" id="combo-trend-data">{{ trend_json|tojson }}</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var trend = JSON.parse(document.getElementById('combo-trend-data').textContent);
+    renderTrendChart('combo-trend-chart', trend, {countFormat: 'raw', line: 'median_salary'});
+  });
+</script>
 {% endblock %}

@@ -1,3 +1,4 @@
+{% from "_macros.html" import salary_bars %}
 <div class="id-card">
   <div>
     <h1>{{ position.title_norm|proper }}</h1>
@@ -23,6 +24,23 @@
     <div class="value mono">&mdash;</div>
     {% endif %}
   </div>
+</div>
+
+<div class="panel-pair">
+{% if position.history|length > 1 %}
+<div class="panel">
+  <h2>Median salary &amp; employees over time <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
+  <svg class="trend-chart" id="position-trend-chart"></svg>
+  <div class="trend-legend">
+    <span><span class="sw" style="background:var(--accent);"></span>Median salary</span>
+    <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
+  </div>
+</div>
+{% endif %}
+<div class="panel">
+  <h2>Salary distribution <span class="sub">FY{{ position.current.year }} &middot; disclosed employees</span></h2>
+  {{ salary_bars(salary_bands) }}
+</div>
 </div>
 
 <div class="panel">

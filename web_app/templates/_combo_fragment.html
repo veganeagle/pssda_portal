@@ -1,3 +1,4 @@
+{% from "_macros.html" import salary_bars %}
 <div class="id-card">
   <div>
     <h1>{{ combo.title_norm|proper }} <span class="muted" style="font-weight:500;">at</span> {{ combo.employer_name|proper }}</h1>
@@ -56,6 +57,23 @@
   <p class="muted" style="margin-top:0.5rem;">"{{ combo.title_norm|proper }}" is the normalized role used for cross-employer comparison; this is what it's actually made of here.</p>
 </div>
 {% endif %}
+
+<div class="panel-pair">
+{% if combo.history|length > 1 %}
+<div class="panel">
+  <h2>Median salary &amp; employees over time <span class="sub">{{ combo.first_year_present }}&ndash;{{ combo.last_year_present }}</span></h2>
+  <svg class="trend-chart" id="combo-trend-chart"></svg>
+  <div class="trend-legend">
+    <span><span class="sw" style="background:var(--accent);"></span>Median salary</span>
+    <span><span class="sw bars" style="background:var(--mute);"></span>Disclosed employees</span>
+  </div>
+</div>
+{% endif %}
+<div class="panel">
+  <h2>Salary distribution <span class="sub">FY{{ combo.current.year }} &middot; disclosed employees</span></h2>
+  {{ salary_bars(salary_bands) }}
+</div>
+</div>
 
 <div class="panel">
   <h2>Trend <span class="sub">{{ combo.first_year_present }}&ndash;{{ combo.last_year_present }}</span></h2>

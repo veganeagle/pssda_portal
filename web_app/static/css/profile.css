@@ -391,6 +391,16 @@ footer.site-footnote{color:var(--mute); font-size:0.74rem; line-height:1.55; pad
 .vbar-fill{width:100%; max-width:64px; background:var(--accent); border-radius:3px 3px 0 0; min-height:2px; opacity:0.85;}
 .vbar-n{font-size:0.8rem; font-weight:600;}
 .vbar-y{font-size:0.74rem; color:var(--mute);}
+/* Two panels side by side (e.g. trend chart + salary distribution), stacked on narrow screens. */
+.panel-pair{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:0.6rem;}
+@media (max-width:720px){ .panel-pair{grid-template-columns:minmax(0,1fr);} }
+.panel-pair .vbar-y{text-align:center;}
+/* Grouped pair (comparison pages): A in the accent, B in the same blue as charts.js's comparison bars. */
+.vbar-ns{display:flex; gap:0.3rem; justify-content:center;}
+.vbar-n-b{color:#3f7fb8;}
+.vbar-track-pair{gap:3px;}
+.vbar-track-pair .vbar-fill{max-width:32px;}
+.vbar-fill-b{background:#3f7fb8;}
 
 /* ---- text pages (about, about the data, contact, privacy, terms) ---- */
 /* Sized to match Home: body ~ the dashboard's lede, headings ~ its card titles. */

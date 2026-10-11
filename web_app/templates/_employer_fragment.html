@@ -1,3 +1,4 @@
+{% from "_macros.html" import salary_bars %}
 <div class="id-card">
   <div>
     <h1>{{ employer.employer_name|proper }}</h1>
@@ -64,6 +65,7 @@
 </script>
 {% endif %}
 
+<div class="panel-pair">
 {% if employer.history|length > 1 %}
 <div class="panel">
   <h2>Total disclosed salary &amp; employees over time <span class="sub">{{ employer.first_year_present }}&ndash;{{ employer.last_year_present }}</span></h2>
@@ -74,6 +76,11 @@
   </div>
 </div>
 {% endif %}
+<div class="panel">
+  <h2>Salary distribution <span class="sub">FY{{ employer.current.year }} &middot; disclosed employees</span></h2>
+  {{ salary_bars(salary_bands) }}
+</div>
+</div>
 
 <div class="panel">
   <h2>Top positions <span class="sub">FY{{ employer.current.year }} &middot; ranked by disclosed employees</span></h2>

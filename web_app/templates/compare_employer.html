@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import salary_bars_compare %}
 {% block title %}{{ comparison.a.employer_name|proper }} vs {{ comparison.b.employer_name|proper }} — Comparison | OPSCI.ca{% endblock %}
 {% block content %}
 
@@ -130,10 +131,16 @@
   {% endif %}
 </div>
 
+<div class="panel-pair">
 <div class="panel">
   <h2>5-year trend <span class="sub">disclosed employees</span></h2>
   <svg class="trend-chart" id="compare-trend-chart"></svg>
   <div class="trend-legend" id="compare-trend-legend"></div>
+</div>
+<div class="panel">
+  <h2>Salary distribution <span class="sub">FY{{ comparison.a.current_year }} &middot; share of disclosed employees</span></h2>
+  {{ salary_bars_compare(salary_bands, comparison.a.employer_name|proper, comparison.b.employer_name|proper) }}
+</div>
 </div>
 
 {% if comparison.roles %}

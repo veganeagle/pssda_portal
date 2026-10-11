@@ -7,4 +7,13 @@
 <p><a href="{{ back_safe or url_for('employee.search') }}">&larr; {{ 'back to profile' if back_safe else 'back to search' }}</a></p>
 {% include "_position_fragment.html" %}
 {{ scoped_employee_search('in this role, province-wide', scope_sector_id=position.sector_id, scope_title_norm=position.title_norm, scope_label=position.title_norm|proper ~ ' (province-wide)') }}
+
+<script type="application/json" id="position-trend-data">{{ trend_json|tojson }}</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var trend = JSON.parse(document.getElementById('position-trend-data').textContent);
+    renderTrendChart('position-trend-chart', trend, {countFormat: 'raw', line: 'median_salary'});
+  });
+</script>
 {% endblock %}

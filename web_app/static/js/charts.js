@@ -5,7 +5,9 @@
 //     [{year, headcount, total_payroll}, ...]. opts.countFormat: "k"
 //     (default; "405K people" — fine at province scale) or "raw" ("733
 //     people" — K-rounding a small sector/employer to "1K" is misleading,
-//     not just imprecise).
+//     not just imprecise). opts.line: "total_payroll" (default) or
+//     "median_salary" — which field the line plots; trend rows then carry
+//     that field instead.
 //   window.renderDonutChart(svgId, legendId, items) — a donut with a legend
 //     list underneath, one color per item in order. items is
 //     [{name, value}, ...]; the caller decides what "value" means (payroll,
@@ -72,9 +74,13 @@
     var countFormat = (opts && opts.countFormat) || "k";
     var vb = fitViewBox(svg, function () { window.renderTrendChart(svgId, trend, opts); }), w = vb.width, h = vb.height;
     var headcounts = trend.map(function (d) { return d.headcount; });
-    var payrolls = trend.map(function (d) { return d.total_payroll; });
+    var lineKey = (opts && opts.line) || "total_payroll";
+    var lineVals = trend.map(function (d) { return d[lineKey]; });
+    var fmtLine = lineKey === "median_salary"
+      ? function (v) { return "$" + Math.round(v / 1000) + "K"; }
+      : function (v) { return "$" + (v / 1e9).toFixed(1) + "B"; };
     var bars = barsRects(headcounts, w, h, 10, 34, cssVar("--mute") || "#5f6b7a");
-    var pPath = linePath(payrolls, w, h, 10, 34);
+    var pPath = linePath(lineVals, w, h, 10, 34);
     var accent = cssVar("--accent");
     var ink = cssVar("--text") || "#1c2733";
     var first = trend[0], last = trend[trend.length - 1];
@@ -84,9 +90,9 @@
       '<text x="2" y="' + (h - 20) + '" font-size="11" fill="' + ink + '" font-family="JetBrains Mono, monospace">' + first.year + '</text>' +
       '<text x="' + (w - 2) + '" y="' + (h - 20) + '" font-size="11" fill="' + ink + '" font-family="JetBrains Mono, monospace" text-anchor="end">' + last.year + '</text>' +
       '<text x="2" y="' + (h - 6) + '" font-size="11" fill="' + cssVar("--mute") + '" font-family="JetBrains Mono, monospace">' +
-        fmtCount(headcounts[0], countFormat) + ' people &middot; $' + (payrolls[0] / 1e9).toFixed(1) + 'B</text>' +
+        fmtCount(headcounts[0], countFormat) + ' people &middot; ' + fmtLine(lineVals[0]) + '</text>' +
       '<text x="' + (w - 2) + '" y="' + (h - 6) + '" font-size="11" fill="' + cssVar("--mute") + '" font-family="JetBrains Mono, monospace" text-anchor="end">' +
-        fmtCount(headcounts[headcounts.length - 1], countFormat) + ' people &middot; $' + (payrolls[payrolls.length - 1] / 1e9).toFixed(1) + 'B</text>';
+        fmtCount(headcounts[headcounts.length - 1], countFormat) + ' people &middot; ' + fmtLine(lineVals[lineVals.length - 1]) + '</text>';
   };
 
   // Grouped bar chart (e.g. disclosed-employee counts for two employers/

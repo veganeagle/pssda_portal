@@ -25,3 +25,34 @@
   </span>
 </div>
 {% endmacro %}
+
+{# Five-band salary distribution bars (access/salary_distribution.py). #}
+{% macro salary_bars(bands) %}
+<div class="vbars">
+  {% for b in bands %}
+  <div class="vbar">
+    <span class="vbar-n mono">{{ "{:,}".format(b.n) }}</span>
+    <div class="vbar-track"><div class="vbar-fill" style="height:{{ b.pct_of_max }}%;"></div></div>
+    <span class="vbar-y mono">{{ b.label }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{# Grouped salary bands for a comparison (views/compare.py::_compare_bands):
+   side A in the accent colour, side B in the comparison blue, one label per band. #}
+{% macro salary_bars_compare(rows, label_a, label_b) %}
+<div class="vbars">
+  {% for r in rows %}
+  <div class="vbar">
+    <span class="vbar-ns"><span class="vbar-n mono" title="{{ '{:,}'.format(r.n_a) }} people">{{ "{:.0%}".format(r.share_a) }}</span><span class="vbar-n mono vbar-n-b" title="{{ '{:,}'.format(r.n_b) }} people">{{ "{:.0%}".format(r.share_b) }}</span></span>
+    <div class="vbar-track vbar-track-pair"><div class="vbar-fill" style="height:{{ r.pct_a }}%;"></div><div class="vbar-fill vbar-fill-b" style="height:{{ r.pct_b }}%;"></div></div>
+    <span class="vbar-y mono">{{ r.label }}</span>
+  </div>
+  {% endfor %}
+</div>
+<div class="trend-legend">
+  <span><span class="sw bars" style="background:var(--accent);"></span>{{ label_a }}</span>
+  <span><span class="sw bars vbar-fill-b"></span>{{ label_b }}</span>
+</div>
+{% endmacro %}

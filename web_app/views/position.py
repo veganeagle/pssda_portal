@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request
 from access.employee_search import list_sectors
 from access.employer_profile import list_employers_for_filter
 from access.position_profile import get_position_profile, search_positions, sector_position_overview
+from access.salary_distribution import salary_distribution
 from access.sector_profile import get_sector_profile
 from web_app.formatting import proper_case
 
@@ -51,4 +52,9 @@ def profile_page(sector_id, title_norm):
     position = get_position_profile(sector_id, title_norm)
     if position is None:
         return render_template("not_found.html", what="position", key=f"{sector_id}/{title_norm}"), 404
-    return render_template("position.html", position=position)
+    trend_json = [
+        {"year": h.year, "headcount": h.headcount, "median_salary": h.median_salary}
+        for h in sorted(position.history, key=lambda h: h.year)
+    ]
+    salary_bands = salary_distribution(position.current.year, sector_id=sector_id, title_norm=title_norm)
+    return render_template("position.html", position=position, trend_json=trend_json, salary_bands=salary_bands)

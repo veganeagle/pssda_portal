@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template
 
 from access.sector_profile import get_sector_profile, list_sectors_for_picker
+from access.salary_distribution import salary_distribution
 from access.top_earners import search_top_earners
 from web_app.formatting import proper_case
 
@@ -21,4 +22,5 @@ def profile_page(sector_id):
     return render_template(
         "sector.html", sector=sector, top_earners=top_earners, sectors=list_sectors_for_picker(),
         trend_json=trend_json, position_mix_json=position_mix_json,
+        salary_bands=salary_distribution(sector.current_year, sector_id=sector_id),
     )
