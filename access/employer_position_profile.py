@@ -53,6 +53,10 @@ def get_employer_position_profile(
     variants = [
         TitleVariant(**row) for row in records(variants_df, exclude=("employer_id", "sector_id", "title_norm"))
     ]
+    # A lone "Other" row means no title clears the breakdown threshold (e.g.
+    # "Professor of <dept>" at a university) — nothing to show, not a variant.
+    if all(v.variant == "Other" for v in variants):
+        variants = []
 
     return EmployerPositionProfile(
         employer_id=w["employer_id"], employer_name=w["employer_name"], sector_id=w["sector_id"],
