@@ -25,3 +25,4 @@ __pycache__/
 
 # Personal Claude Code settings (permission rules for this machine)
 .claude/settings.local.json
+chatgpt-handoff/
