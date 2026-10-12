@@ -23,7 +23,8 @@ def _escape_like(s: str) -> str:
 
 
 def search_employers(
-    name_contains: str | None = None, sector_id: str | None = None, limit: int | None = SEARCH_LIMIT
+    name_contains: str | None = None, sector_id: str | None = None, limit: int | None = SEARCH_LIMIT,
+    region: str | None = None,
 ) -> list[EmployerSearchResult]:
     conditions = []
     params: list = []
@@ -33,6 +34,9 @@ def search_employers(
     if sector_id:
         conditions.append("sector_id = ?")
         params.append(sector_id)
+    if region:
+        conditions.append("region = ?")
+        params.append(region)
 
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
     limit_clause = "LIMIT ?" if limit is not None else ""

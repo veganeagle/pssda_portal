@@ -78,7 +78,7 @@ def terms():
 # ---- crawler files: see web_app/seo.py for what is and isn't indexable ----
 
 _SITEMAP_STATIC = [
-    "home.index", "position.search", "employer.search", "employee.search", "top_earners.index",
+    "home.index", "position.search", "employer.search", "employee.search", "top_earners.index", "regions.index",
     "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 ]
 

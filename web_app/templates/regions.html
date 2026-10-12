@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Ontario public-sector pay by region | OPSCI.ca{% endblock %}
+{% block description %}Which Ontario public-sector jobs pay more in the North, East, Central or West regions, which pay the same everywhere, and how regional gaps have moved over {{ trend_years }} years.{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <h1>Regions</h1>
+  <p class="lede">Some public-sector jobs pay the same anywhere in Ontario; others pay noticeably more in one region. Each figure compares a job's median salary in a region with the same job's Ontario-wide median, so a high-paid job doesn't outweigh a lower-paid one. Region is where the employer is based.</p>
+</div>
+
+<div class="panel">
+  <h2>Location premiums <span class="sub">FY{{ year }} &middot; region median vs the job's Ontario median</span></h2>
+  <div class="premium-grid">
+    {% for region in regions %}
+    <div class="premium-col">
+      <h3>{{ region|proper }}</h3>
+      {% for p in premiums[region] %}
+      <div class="mini-row">
+        <span>
+          <span class="t"><a href="{{ url_for('position.profile_page', sector_id=p.sector_id, title_norm=p.title_norm, back=request.path) }}">{{ p.title_norm|proper }}</a></span>
+          <span class="s">{{ p.sector_name|proper }} &middot; {{ "{:,}".format(p.n) }} people &middot; {{ "{:+.1%}".format(p.prior_premium) }} in {{ prior_year }}</span>
+        </span>
+        <span class="chip chip-pos">{{ "{:+.1%}".format(p.premium) }}</span>
+      </div>
+      {% else %}
+      <p class="muted">No job clears the bar here.</p>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  <h3 class="uniform-head">Paid the same everywhere <span class="sub">all four regions within {{ "{:.0%}".format(uniform_max_spread) }} of each other</span></h3>
+  <div class="uniform-list">
+    {% for u in uniform %}
+    <a class="tag" href="{{ url_for('position.profile_page', sector_id=u.sector_id, title_norm=u.title_norm, back=request.path) }}">{{ u.title_norm|proper }} <span class="muted">&middot; {{ u.sector_name|proper }} &middot; {{ "{:,}".format(u.n_ontario) }}</span></a>
+    {% endfor %}
+  </div>
+  <p class="muted" style="margin-top:0.5rem;">A premium counts when the region's median is at least {{ "{:.0%}".format(premium_min) }} above the job's Ontario median in both {{ prior_year }} and {{ year }} (one-year jumps are often retroactive pay), with {{ premium_min_region_n }}+ people in the region and {{ premium_min_ontario_n }}+ province-wide. Executive titles and physicians are left out: their pay tracks organization size or how doctors are paid, not location. Salary paid includes overtime.</p>
+</div>
+
+<div class="panel">
+  <h2>Regional gaps that moved <span class="sub">{{ first_period }} average &rarr; {{ last_period }} average &middot; region median vs the job's Ontario median</span></h2>
+  <div class="trend-grid">
+    {% for t in trends %}
+    <div class="trend-card">
+      <div class="trend-card-head">
+        <a href="{{ url_for('position.profile_page', sector_id=t.sector_id, title_norm=t.title_norm, back=request.path) }}">{{ t.title_norm|proper }}</a>
+        <span class="s">{{ t.sector_name|proper }} &middot; {{ t.region|proper }} {{ "{:+.0%}".format(t.first_premium) }} &rarr; {{ "{:+.0%}".format(t.last_premium) }}</span>
+      </div>
+      <div class="region-lines">
+        <span class="rl-label rl-top mono">{{ t.top_label }}</span>
+        <span class="rl-label rl-bottom mono">{{ t.bottom_label }}</span>
+        <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+          <line x1="0" x2="100" y1="{{ t.baseline_y }}" y2="{{ t.baseline_y }}" class="rl-base"/>
+          {% for l in t.lines %}
+          <polyline points="{{ l.points }}" class="{{ 'rl-hi' if l.highlight else 'rl-other' }}"><title>{{ l.region|proper }}</title></polyline>
+          {% endfor %}
+        </svg>
+      </div>
+      <div class="rl-years mono"><span>{{ t.first_year }}</span><span>{{ t.last_year }}</span></div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="trend-legend">
+    <span><span class="sw" style="background:var(--accent);"></span>The region that moved</span>
+    <span><span class="sw" style="background:var(--mute);"></span>Other regions</span>
+    <span><span class="range-key-ontario"></span>Same as Ontario (0%)</span>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Sectors by region <span class="sub">FY{{ year }} &middot; median salary &middot; click for that region's employers</span></h2>
+  <table class="result-table" id="regions-sector-table">
+    <tr><th>Sector</th>{% for c in overview_columns %}<th class="num">{{ 'Province-wide' if c == 'NONE' else c|proper }}</th>{% endfor %}</tr>
+    {% for s in overview %}
+    <tr>
+      <td><a href="{{ url_for('sector.profile_page', sector_id=s.sector_id) }}">{{ s.sector_name|proper }}</a></td>
+      {% for c in overview_columns %}
+      {% set cell = s.cells.get(c) %}
+      <td class="num mono"{% if cell %} title="{{ cell.employers }} employers · {{ '{:,}'.format(cell.headcount) }} disclosed employees"{% endif %}>{% if cell and c != 'NONE' %}<a href="{{ url_for('employer.search', sector=s.sector_id, region=c) }}">${{ "{:,.0f}".format(cell.median_k) }}K</a>{% elif cell %}${{ "{:,.0f}".format(cell.median_k) }}K{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}

@@ -76,12 +76,13 @@
 <div class="panel">
   <p class="result-summary">
     {% if show_all %}
-    {{ results|length }} employer(s) &mdash; showing all.
-    <a href="{{ url_for('employer.search', name=name, sector=sector) }}">show top 50 only &rarr;</a>
+    {{ results|length }} employer(s){% if region %} in the {{ region|proper }} region{% endif %} &mdash; showing all.
+    <a href="{{ url_for('employer.search', name=name, sector=sector, region=region) }}">show top 50 only &rarr;</a>
     {% else %}
-    {{ results|length }} employer(s){% if results|length == 50 %} (showing top 50 by disclosed employees) &middot;
-    <a href="{{ url_for('employer.search', name=name, sector=sector, all=1) }}">see all &rarr;</a>{% endif %}
+    {{ results|length }} employer(s){% if region %} in the {{ region|proper }} region{% endif %}{% if results|length == 50 %} (showing top 50 by disclosed employees) &middot;
+    <a href="{{ url_for('employer.search', name=name, sector=sector, region=region, all=1) }}">see all &rarr;</a>{% endif %}
     {% endif %}
+    {% if region %}&middot; <a href="{{ url_for('employer.search', name=name, sector=sector) }}">all regions</a>{% endif %}
   </p>
   <table class="result-table" id="employer-search-results" data-collapse="5" data-csv="employer-search-results.csv">
     <tr><th>Employer</th><th>Sector</th><th class="num">Disclosed Emp.</th><th class="num">Avg. total comp</th></tr>

@@ -23,8 +23,9 @@ SECTOR_COLORS = [
 def search():
     name = request.args.get("name") or None
     sector = request.args.get("sector") or None
+    region = request.args.get("region") or None  # from the Regions tab's sector-by-region table
     show_all = request.args.get("all") == "1"
-    results = search_employers(name_contains=name, sector_id=sector, limit=None if show_all else 50)
+    results = search_employers(name_contains=name, sector_id=sector, region=region, limit=None if show_all else 50)
 
     sector_overview = sector_employer_overview()
     max_headcount = max((s["total_headcount"] for s in sector_overview), default=0)
@@ -44,7 +45,7 @@ def search():
 
     return render_template(
         "employers_search.html", results=results, sectors=list_sectors(), show_all=show_all,
-        sector_overview=sector_overview, name=name, sector=sector,
+        sector_overview=sector_overview, name=name, sector=sector, region=region,
         sector_view=sector_view, employer_growth=employer_growth, employer_mix_json=employer_mix_json,
     )
 
