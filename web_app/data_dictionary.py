@@ -34,6 +34,8 @@ SECTIONS = [
         ("Median salary", "The middle salary of a group's disclosed employees in a year."),
         ("90th-percentile (P90) salary", "The salary that 90% of a group's disclosed employees are at or below."),
         ("Maximum salary", "The highest salary in a group in a year."),
+        ("10th-percentile (P10) salary", "The salary that 10% of a group's disclosed employees are at or below. Only people paid $100,000 or more are disclosed, so P10 often sits close to that line."),
+        ("Salary distribution", "How many of a group's disclosed employees fall in each of five salary bands in the current year: $100K–150K, $150K–200K, $200K–300K, $300K–500K and $500K+. On comparisons, each side is shown as a share of its own disclosed employees."),
     ]),
     ("Changes over time", [
         ("Same-person raise", "The average year-over-year change in salary for people who held the same job group in two consecutive years, with no gap. Employer-level figures also require the same employer. It compares the same people, not two group averages."),
@@ -41,6 +43,13 @@ SECTIONS = [
         ("Promotion (estimated)", "Flagged when a person's job title changes and their salary rises by 10% or more in the same year. A heuristic, not a confirmed promotion."),
         ("Employer switch", "Flagged when a person appears under a different employer than the last time they were disclosed."),
         ("Gap", "Flagged when a person reappears after one or more years off the list. The reason (leave, reduced hours, pay below the threshold) is not known."),
+    ]),
+    ("Regions", [
+        ("Region", "North, East, Central or West, from where the employer is based. Province-wide employers such as ministries, Crown agencies and Ontario Power Generation have no region; their staff count toward Ontario-wide figures only."),
+        ("Region vs Ontario", "A region's median salary for a job group compared with the same job group's Ontario-wide median. Comparing each job with itself means a high-paid job doesn't outweigh a lower-paid one."),
+        ("Location premium", "A job group whose median in a region is at least 2% above its Ontario median in both of the last two years, with 25 or more people in the region and 200 or more province-wide. Executive and physician titles are left out: their pay tracks organization size or how doctors are paid."),
+        ("Paid the same everywhere", "A job group whose median in all four regions is within 3% of each other."),
+        ("Regional gap that moved", "The change in a job group's region-vs-Ontario figure over ten years, comparing the average of the first three years with the average of the last three, so one year of retroactive pay doesn't count as a trend."),
     ]),
     ("Rankings and estimates", [
         ("Rank", "A person's position by total compensation among everyone disclosed in that year, within the province, a sector, an employer or a job group."),

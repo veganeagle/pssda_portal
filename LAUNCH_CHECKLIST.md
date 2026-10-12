@@ -10,7 +10,7 @@ Not served by the app. Items that can't be settled from the code alone.
 - [x] Access logs: none (no Caddy `log` directive, gunicorn access log off). Privacy page says so.
 - [x] Hosting: Hetzner, Falkenstein, Germany. Privacy page says so.
 - [x] Server access: root SSH by key only, password login disabled.
-- [x] Indexing: home, the four tabs, sector pages, employer pages and text pages; everything else noindex (web_app/seo.py).
+- [x] Indexing: home, the tab landing pages (Positions, Employers, Employees, Top Earners, Regions), sector pages, employer pages and text pages; everything else noindex (web_app/seo.py).
 
 ## Owner review
 - [ ] About, About the data, Terms copy — launch drafts, not legal review.

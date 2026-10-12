@@ -171,6 +171,28 @@ figure by the upstream pipeline. Two things fall out of that:
 single-year absences as lower-confidence data points, not as clean signal,
 anywhere we compute raise/tenure/new-entrant metrics.
 
+### 4. Regional comparisons: compare each job with itself
+
+Region is the employer's (`employer_wide.region`, from the pipeline's
+geography mapping); province-wide employers (ministries, Crown agencies,
+OPG, courts) have none.
+
+- **Never average salaries across jobs by region.** Regions have different job
+  mixes (the North has fewer high-paid specialist roles), so a cross-job
+  average measures composition, not pay. Compare a region's median for a job
+  with the same job's Ontario median, then summarize those ratios.
+- **Leave out titles whose pay tracks organization size or payment model**:
+  executives (a CEO "Central premium" is big hospitals, not Toronto) and
+  physicians (salary vs. stipend varies by hospital).
+- **Never read one year as a trend.** Retroactive pay lands in different years
+  at different employers (the 2025 North principal "drop" was southern boards'
+  retro pay moving the Ontario median). Require two consecutive years for a
+  premium; use 3-year averages at each end of a trend.
+- **The $100K threshold compresses regional gaps.** Lower-paying regions lose
+  more people under the line, inflating their disclosed medians. Roles near
+  the threshold (RN median ~$118K) understate regional differences.
+- Salary paid includes overtime: it's earnings, not pay rates.
+
 ## Sources
 
 - [Sunshine list — Wikipedia](https://en.wikipedia.org/wiki/Sunshine_list)

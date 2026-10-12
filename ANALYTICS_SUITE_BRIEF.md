@@ -133,6 +133,12 @@ leaderboard, each backed by its own precomputed cube.
 
 ## Prioritized plan (next up)
 
+*Status 2026-10-12:* the `Region` part of item 1 is done — a "By region"
+chart on position pages and a Regions tab (location premiums, regional gaps
+that moved, sectors by region); see `README.md` and `SUNSHINE.md` #4. The
+`SubSector` donut is still open. Items 3, 4 and 6 shipped at launch
+(Contact, About the data + Data dictionary, meta/OG tags).
+
 1. **Subsegment features** — the cheap part first: a `SubSector` donut and a
    `Region` breakdown on the sector pages that have the data (see below),
    reusing the donut component already built. `Region` specifically is the
