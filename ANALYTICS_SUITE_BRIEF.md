@@ -114,6 +114,16 @@ leaderboard, each backed by its own precomputed cube.
   combo page's "Composition" panel, but was *removed* from the employer
   profile's "Top positions" table — it read as noise there, not signal.
 
+- **Career paths ("Where they came from")** — `succession/` package
+  (2026-10-12): on position and employer + position pages, the previous
+  normalized position of current incumbents. Started as a named-candidate
+  "succession planner" idea; scaled back to this aggregate view because
+  ranking named candidates from tenure and raises alone is weak signal and
+  carries privacy/reputation risk. Next candidate: **bench strength**
+  (counts of the feeder pool per employer vs. province, still no names).
+  Named succession stays parked unless a backtest (would the actual 2025
+  successor rank top 10 on 2024 data?) shows it works.
+
 ## Known data-quality findings from this pass (not yet acted on)
 
 - **Possible duplicate-entity split**: at least one example (Kevin Smith)

@@ -8,6 +8,7 @@ from access.position_profile import get_position_profile, search_positions, sect
 from access.regions import MIN_REGION_COUNT, position_by_region
 from access.salary_distribution import salary_distribution
 from access.sector_profile import get_sector_profile
+from succession.access import feeders
 from web_app.formatting import proper_case
 
 bp = Blueprint("position", __name__)
@@ -104,5 +105,5 @@ def profile_page(sector_id, title_norm):
     region_chart = _region_chart(position_by_region(sector_id, title_norm, position.current.year))
     return render_template(
         "position.html", position=position, trend_json=trend_json, salary_bands=salary_bands,
-        region_chart=region_chart,
+        region_chart=region_chart, feeders=feeders(sector_id, title_norm),
     )

@@ -75,6 +75,8 @@
 </div>
 </div>
 
+{% with year = combo.current.year, at_employer = true %}{% include "_feeders_panel.html" %}{% endwith %}
+
 <div class="panel">
   <h2>Trend <span class="sub">{{ combo.first_year_present }}&ndash;{{ combo.last_year_present }}</span></h2>
   <div class="history-wrap">

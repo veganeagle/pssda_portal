@@ -4,7 +4,7 @@ both the /data-dictionary page and the Dataset structured data
 
 Each definition was checked against the pipeline code that computes it
 (pipeline/cubes/*, pipeline/rankings.py, pipeline/matched_cohort.py,
-access/employee_search.py). Keep them in step if a calculation changes.
+access/employee_search.py, succession/build_feeders.py). Keep them in step if a calculation changes.
 """
 
 SECTIONS = [
@@ -43,6 +43,7 @@ SECTIONS = [
         ("Promotion (estimated)", "Flagged when a person's job title changes and their salary rises by 10% or more in the same year. A heuristic, not a confirmed promotion."),
         ("Employer switch", "Flagged when a person appears under a different employer than the last time they were disclosed."),
         ("Gap", "Flagged when a person reappears after one or more years off the list. The reason (leave, reduced hours, pay below the threshold) is not known."),
+        ("Where they came from", "For people in a job group in the current year, the job group they were disclosed in just before it, with the median years they spent there and the median change in salary paid on the move. Shown when a previous job group is at least 5% of moves and 3 people, and only when the groups shown account for at least 20% of current incumbents."),
     ]),
     ("Regions", [
         ("Region", "North, East, Central or West, from where the employer is based. Province-wide employers such as ministries, Crown agencies and Ontario Power Generation have no region; their staff count toward Ontario-wide figures only."),

@@ -43,6 +43,35 @@
 </div>
 </div>
 
+<div class="panel">
+  <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by disclosed employees</span></h2>
+  <table class="result-table" id="position-by-employer-table" data-collapse="5" data-csv="{{ (position.title_norm ~ '-by-employer')|lower }}.csv">
+    <tr><th class="num">#</th><th>Employer</th><th class="num">Disclosed Emp.</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Max salary</th><th class="num">New entrants</th><th class="num">Raise</th></tr>
+    {% for e in position.by_employer %}
+    <tr>
+      <td class="num mono">{{ e.rank }}</td>
+      <td>
+        <a href="{{ url_for('combo.profile_page', employer_id=e.employer_id, sector_id=position.sector_id, title_norm=position.title_norm, back=request.path) }}">{{ e.employer_name|proper }}</a>
+        <a class="alt-link" href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}" title="{{ e.employer_name|proper }}, overall (all positions)">overall</a>
+      </td>
+      <td class="num mono">{{ "{:,}".format(e.headcount) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.median_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.p90_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.max_salary) }}</td>
+      <td class="num mono">{{ "{:,}".format(e.new_entrants) }}</td>
+      <td class="num">
+        {% if e.avg_raise_matched is not none %}
+        <span class="chip {{ 'chip-pos' if e.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(e.avg_raise_matched) }}</span>
+        {% else %}
+        <span class="chip chip-mute">n/a</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted" style="margin-top:0.5rem;">"New entrants" is headcount in their first year in this exact role at this employer — not a hire count; many already worked here.</p>
+</div>
+
 {% if region_chart %}
 <div class="panel">
   <h2>By region <span class="sub">FY{{ position.current.year }} &middot; salary paid &middot; where the employer is based</span></h2>
@@ -85,6 +114,8 @@
 </div>
 {% endif %}
 
+{% with year = position.current.year, at_employer = false %}{% include "_feeders_panel.html" %}{% endwith %}
+
 <div class="panel">
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">
@@ -110,33 +141,4 @@
     </table>
   </div>
   <p class="muted" style="margin-top:0.75rem;">Raise is the average change for people who held this exact role, in this sector, in both years — not a same-role year-over-year average, which would be skewed by people newly crossing the disclosure threshold or leaving. Promotions is a heuristic (title changed and raise &ge;10% in the same year), not verified. Gender is a name-based estimate, shown only for years with 20 or more disclosed employees.</p>
-</div>
-
-<div class="panel">
-  <h2>By employer <span class="sub">FY{{ position.current.year }} &middot; ranked by disclosed employees</span></h2>
-  <table class="result-table" id="position-by-employer-table" data-collapse="5" data-csv="{{ (position.title_norm ~ '-by-employer')|lower }}.csv">
-    <tr><th class="num">#</th><th>Employer</th><th class="num">Disclosed Emp.</th><th class="num">Median salary</th><th class="num">P90 salary</th><th class="num">Max salary</th><th class="num">New entrants</th><th class="num">Raise</th></tr>
-    {% for e in position.by_employer %}
-    <tr>
-      <td class="num mono">{{ e.rank }}</td>
-      <td>
-        <a href="{{ url_for('combo.profile_page', employer_id=e.employer_id, sector_id=position.sector_id, title_norm=position.title_norm, back=request.path) }}">{{ e.employer_name|proper }}</a>
-        <a class="alt-link" href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}" title="{{ e.employer_name|proper }}, overall (all positions)">overall</a>
-      </td>
-      <td class="num mono">{{ "{:,}".format(e.headcount) }}</td>
-      <td class="num mono">${{ "{:,.0f}".format(e.median_salary) }}</td>
-      <td class="num mono">${{ "{:,.0f}".format(e.p90_salary) }}</td>
-      <td class="num mono">${{ "{:,.0f}".format(e.max_salary) }}</td>
-      <td class="num mono">{{ "{:,}".format(e.new_entrants) }}</td>
-      <td class="num">
-        {% if e.avg_raise_matched is not none %}
-        <span class="chip {{ 'chip-pos' if e.avg_raise_matched >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(e.avg_raise_matched) }}</span>
-        {% else %}
-        <span class="chip chip-mute">n/a</span>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-  <p class="muted" style="margin-top:0.5rem;">"New entrants" is headcount in their first year in this exact role at this employer — not a hire count; many already worked here.</p>
 </div>

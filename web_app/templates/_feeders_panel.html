@@ -1,0 +1,26 @@
+{% if feeders %}
+<div class="panel">
+  <h2>Where they came from <span class="sub">FY{{ year }} incumbents &middot; previous disclosed position</span></h2>
+  <table class="result-table" id="feeders-table" data-collapse="5">
+    <tr><th>Previous position</th><th class="num">People</th><th class="num">Share</th><th class="num">Median yrs in it</th><th class="num">Median pay change</th><th class="num">{{ "From this employer" if at_employer else "Same employer" }}</th></tr>
+    {% for r in feeders.rows %}
+    <tr>
+      <td>
+        <a href="{{ url_for('position.profile_page', sector_id=r.feeder_sector_id, title_norm=r.feeder_title, back=request.path) }}">{{ r.feeder_title|proper }}</a>
+        {% if r.feeder_sector_id != r.sector_id %}<span class="muted">&middot; {{ (r.feeder_sector_name or r.feeder_sector_id)|proper }}</span>{% endif %}
+      </td>
+      <td class="num mono">{{ "{:,}".format(r.moved) }}</td>
+      <td class="num mono">{{ "{:.0%}".format(r.share) }}</td>
+      <td class="num mono">{{ "{:g}".format(r.median_years_in_feeder) }}</td>
+      <td class="num"><span class="chip {{ 'chip-pos' if r.median_pay_change >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(r.median_pay_change) }}</span></td>
+      <td class="num mono">{{ "{:.0%}".format(r.pct_same_employer) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted" style="margin-top:0.5rem;">
+    {{ "{:,}".format(feeders.explained) }} of {{ "{:,}".format(feeders.incumbents) }} people ({{ "{:.0%}".format(feeders.explained / feeders.incumbents) }}) in this position in {{ year }} came from a position shown here. The rest first appeared on the list in this one, came from a less common position, or had earlier titles that weren't normalized. Previous positions are shown when they're at least 5% of moves and 3 people.
+    Pay change compares salary paid in the last year in the previous position with the first year in this one, so a partial year can skew it.
+    {{ "From this employer" if at_employer else "Same employer" }} is the share who made the move without changing employer.
+  </p>
+</div>
+{% endif %}
