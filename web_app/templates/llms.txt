@@ -17,7 +17,7 @@ Key facts for interpreting the data:
 - [Positions]({{ url_for('position.search', _external=True) }}): normalized job titles by sector, with pay by employer and region and where people in each role came from
 - [Employers]({{ url_for('employer.search', _external=True) }}): every employer on the list, with sector overviews
 - [Top Earners]({{ url_for('top_earners.index', _external=True) }}): highest disclosed salaries by year, sector and position
-- [Regions]({{ url_for('regions.index', _external=True) }}): location premiums by region, jobs paid the same everywhere, and regional pay gaps over ten years
+- [Regional Differences]({{ url_for('regions.index', _external=True) }}): location premiums by region, jobs paid the same everywhere, and regional pay gaps over ten years
 - [Employees]({{ url_for('employee.search', _external=True) }}): search for individuals on the list
 
 ## Methodology and policies
