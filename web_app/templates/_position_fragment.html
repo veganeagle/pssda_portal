@@ -43,6 +43,48 @@
 </div>
 </div>
 
+{% if region_chart %}
+<div class="panel">
+  <h2>By region <span class="sub">FY{{ position.current.year }} &middot; salary paid &middot; where the employer is based</span></h2>
+  <div class="range-chart">
+    {% for r in region_chart.rows %}
+    <div class="range-row">
+      <span class="range-label">{{ r.region|proper }} <span class="mono muted">{{ "{:,}".format(r.n) }}</span></span>
+      <div class="range-track">
+        <span class="range-ontario" style="left:{{ region_chart.ontario_pos }}%;"></span>
+        {% if r.enough %}
+        <span class="range-bar" style="left:{{ r.bar_left }}%; width:{{ r.bar_width }}%;" title="P10 ${{ '{:,.0f}'.format(r.p10) }} · P90 ${{ '{:,.0f}'.format(r.p90) }}"></span>
+        <span class="range-median" style="left:{{ r.median_pos }}%;" title="Median ${{ '{:,.0f}'.format(r.median) }}"></span>
+        {% else %}
+        <span class="range-few muted">Too few to compare</span>
+        {% endif %}
+      </div>
+      <span class="range-diff">
+        {% if r.enough %}<span class="chip {{ 'chip-pos' if r.diff >= 0 else 'chip-neg' }}" title="Region median vs Ontario median">{{ '+' if r.diff >= 0 else '−' }}${{ "{:,.0f}".format(r.diff|abs) }}</span>{% endif %}
+      </span>
+    </div>
+    {% endfor %}
+    <div class="range-row range-axis">
+      <span class="range-label"></span>
+      <div class="range-track">
+        {% for t in region_chart.ticks %}<span class="range-tick mono" style="left:{{ t.pos }}%;">{{ t.label }}</span>{% endfor %}
+      </div>
+      <span class="range-diff"></span>
+    </div>
+  </div>
+  <div class="trend-legend">
+    <span><span class="sw bars" style="background:var(--accent);"></span>Middle 80% (P10&ndash;P90)</span>
+    <span><span class="range-key-median"></span>Median</span>
+    <span><span class="range-key-ontario"></span>Ontario median ${{ "{:,.0f}".format(region_chart.ontario_median) }}</span>
+    <span>Chip: region median vs Ontario median</span>
+  </div>
+  <p class="muted" style="margin-top:0.4rem;">
+    Regions with fewer than {{ region_chart.min_region_count }} disclosed employees aren't charted.
+    {% if region_chart.n_unlocated %}{{ "{:,}".format(region_chart.n_unlocated) }} people ({{ "{:.0%}".format(region_chart.pct_unlocated) }}) work for province-wide employers with no single location; they count toward the Ontario median only.{% endif %}
+  </p>
+</div>
+{% endif %}
+
 <div class="panel">
   <h2>Trend <span class="sub">{{ position.first_year_present }}&ndash;{{ position.last_year_present }}</span></h2>
   <div class="history-wrap">

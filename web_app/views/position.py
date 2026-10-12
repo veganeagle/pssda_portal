@@ -1,8 +1,11 @@
+import math
+
 from flask import Blueprint, render_template, request
 
 from access.employee_search import list_sectors
 from access.employer_profile import list_employers_for_filter
 from access.position_profile import get_position_profile, search_positions, sector_position_overview
+from access.regions import MIN_REGION_COUNT, position_by_region
 from access.salary_distribution import salary_distribution
 from access.sector_profile import get_sector_profile
 from web_app.formatting import proper_case
@@ -15,6 +18,47 @@ SECTOR_COLORS = [
     "#2f6f6b", "#b8831e", "#6b8f3f", "#8b5fb8", "#c2574a",
     "#3f7fb8", "#9a8f3f", "#5f8f8f", "#b85f8f", "#7a7a7a", "#4f6f9f",
 ]
+
+REGION_TICK_STEPS = [5_000, 10_000, 20_000, 25_000, 50_000, 100_000]  # first giving <= 6 ticks
+
+
+def _region_chart(data: dict) -> dict | None:
+    """Range-chart geometry for the regional chart: every value as a % position
+    on one shared dollar axis, fitted to the data (not zero-based) so regional
+    gaps stay visible. None unless at least two regions have enough people."""
+    shown = [r for r in data["regions"] if r["n"] >= MIN_REGION_COUNT]
+    if len(shown) < 2:
+        return None
+    lows = [r["p10"] for r in shown] + [data["ontario"]["p10"]]
+    highs = [r["p90"] for r in shown] + [data["ontario"]["p90"]]
+    step = next((s for s in REGION_TICK_STEPS if (max(highs) - min(lows)) / s <= 6), REGION_TICK_STEPS[-1])
+    lo = math.floor(min(lows) / step) * step
+    hi = math.ceil(max(highs) / step) * step
+
+    def pos(v):
+        return round((v - lo) / (hi - lo) * 100, 2)
+
+    ontario = data["ontario"]
+    rows = []
+    for r in data["regions"]:
+        row = {"region": r["region"], "n": r["n"], "enough": r["n"] >= MIN_REGION_COUNT}
+        if row["enough"]:
+            row |= {
+                "p10": r["p10"], "median": r["median"], "p90": r["p90"],
+                "bar_left": pos(r["p10"]), "bar_width": round(pos(r["p90"]) - pos(r["p10"]), 2),
+                "median_pos": pos(r["median"]), "diff": r["median"] - ontario["median"],
+            }
+        rows.append(row)
+    return {
+        "rows": rows,
+        "ticks": [{"label": f"${v // 1000:,}K", "pos": pos(v)} for v in range(int(lo), int(hi) + 1, step)],
+        "ontario_median": ontario["median"], "ontario_pos": pos(ontario["median"]),
+        # Only worth a note when it's a real share (e.g. hospital roles at
+        # province-wide agencies), not a handful of people.
+        "n_unlocated": data["n_unlocated"] if data["n_unlocated"] / ontario["n"] >= 0.01 else 0,
+        "pct_unlocated": data["n_unlocated"] / ontario["n"],
+        "min_region_count": MIN_REGION_COUNT,
+    }
 
 
 @bp.route("/positions")
@@ -57,4 +101,8 @@ def profile_page(sector_id, title_norm):
         for h in sorted(position.history, key=lambda h: h.year)
     ]
     salary_bands = salary_distribution(position.current.year, sector_id=sector_id, title_norm=title_norm)
-    return render_template("position.html", position=position, trend_json=trend_json, salary_bands=salary_bands)
+    region_chart = _region_chart(position_by_region(sector_id, title_norm, position.current.year))
+    return render_template(
+        "position.html", position=position, trend_json=trend_json, salary_bands=salary_bands,
+        region_chart=region_chart,
+    )
