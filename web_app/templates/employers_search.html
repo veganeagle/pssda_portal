@@ -84,12 +84,12 @@
     {% endif %}
     {% if region %}&middot; <a href="{{ url_for('employer.search', name=name, sector=sector) }}">all regions</a>{% endif %}
   </p>
-  <table class="result-table" id="employer-search-results" data-collapse="5" data-csv="employer-search-results.csv">
+  <table class="result-table employer-results-table" id="employer-search-results" data-collapse="5" data-csv="employer-search-results.csv">
     <tr><th>Employer</th><th>Sector</th><th class="num">Disclosed Emp.</th><th class="num">Avg. total comp</th></tr>
     {% for e in results %}
     <tr>
-      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.full_path) }}">{{ e.employer_name|proper }}</a></td>
-      <td>{{ (e.sector_name or e.sector_id)|proper }}</td>
+      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.full_path) }}" title="{{ e.employer_name|proper }}">{{ e.employer_name|proper }}</a></td>
+      <td title="{{ (e.sector_name or e.sector_id)|proper }}">{{ (e.sector_name or e.sector_id)|proper }}</td>
       <td class="num mono">{{ "{:,}".format(e.current_headcount) }}</td>
       <td class="num mono">${{ "{:,.0f}".format(e.current_avg_total_comp) }}</td>
     </tr>

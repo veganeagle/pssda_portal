@@ -192,6 +192,14 @@ button:hover, .btn:hover{filter:brightness(1.05);}
 .top-earners-table th:nth-child(6), .top-earners-table td:nth-child(6){width:8ch; white-space:nowrap;}
 .top-earners-table td a{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; max-width:100%; vertical-align:bottom;}
 
+/* Employer search results: one line per row; long employer and sector names
+   truncate with an ellipsis (full name on hover) instead of wrapping. */
+.employer-results-table{table-layout:fixed;}
+.employer-results-table td{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.employer-results-table th:nth-child(1), .employer-results-table td:nth-child(1){width:52%;}
+.employer-results-table th:nth-child(3), .employer-results-table td:nth-child(3){width:15ch;}
+.employer-results-table th:nth-child(4), .employer-results-table td:nth-child(4){width:16ch;}
+
 .table-toolbar{display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap;}
 .table-toolbar button{
   font-family:inherit; font-size:0.76rem; font-weight:600; color:var(--mute);
