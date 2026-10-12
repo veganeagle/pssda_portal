@@ -132,9 +132,10 @@ ssh root@2.28.102.159 'sudo -u opsci git -C /srv/opsci/app pull && systemctl res
 If requirements.txt changed, also run
 `/srv/opsci/venv/bin/pip install -r /srv/opsci/app/requirements.txt` before the restart.
 
-**Refresh the data** (after rebuilding cubes locally), from the repo root:
+**Refresh the data** (after rebuilding cubes locally), from the repo root (`--force-local` stops
+Windows tar reading `C:` paths as a remote host):
 ```
-tar cf - -C data profiles | ssh root@2.28.102.159 'tar xf - -C /srv/opsci/app/data && chown -R opsci:opsci /srv/opsci/app/data && systemctl restart opsci'
+tar --force-local -cf - -C data profiles | ssh root@2.28.102.159 'tar xf - -C /srv/opsci/app/data && chown -R opsci:opsci /srv/opsci/app/data && systemctl restart opsci'
 ```
 
 Logs: `journalctl -u opsci` (service events and errors only — no access logs

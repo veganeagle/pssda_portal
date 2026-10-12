@@ -3,7 +3,7 @@
 Not served by the app. Items that can't be settled from the code alone.
 
 ## Contact
-- [ ] Confirm support@kdsay.com is monitored and is the address to publish (Contact, Privacy pages).
+- [x] support@kdsay.com is monitored and is the published address (confirmed 2026-10-12).
 - [ ] How long contact emails are kept, and who can read the mailbox (Privacy page doesn't state this yet).
 
 ## Settled at deploy (2026-10-04)

@@ -151,22 +151,16 @@ that moved, sectors by region); see `README.md` and `SUNSHINE.md` #4. The
    consistent terminology. Employee search has no natural aggregate the way
    the others do, so this one's worth a discuss-first like the sector pages
    got, not a straight copy of the pattern.
-3. **A user-facing correction/contact mechanism** — for reporting suspected
-   entity-resolution errors (mis-merged or over-split people, e.g. the
-   Kevin Smith case below) or other data issues. Doesn't exist in any form
-   yet (no contact page, no report-a-problem link anywhere in the UI).
-4. **A methodology/limitations page** — explain what "disclosed" means,
-   known entity-resolution error modes, the title-normalization coverage
-   gap, matched-cohort raise methodology, etc., in plain language for a
-   visitor rather than scattered across `SUNSHINE.md` (a dev doc) and
-   inline muted footnotes.
+3. **A user-facing correction/contact mechanism** — done: `/contact`
+   (support@kdsay.com, monitored) says what to include when reporting a
+   data problem (e.g. the Kevin Smith case below).
+4. **A methodology/limitations page** — done: `/about-the-data` and
+   `/data-dictionary`.
 5. **Visual/UI polish pass** — deliberately after 1–4, so it's one coherent
    design pass over a fuller, more stable set of pages instead of several
    piecemeal ones.
-6. **Basic SEO/social metadata** (meta description, OG tags) — after the UI
-   pass, and after the methodology page exists to describe. Cheap, worth
-   doing now that this is a real branded public site (OPSCI.ca) rather than
-   a dev tool.
+6. **Basic SEO/social metadata** — done: per-page titles/descriptions, OG
+   tags, favicon, sitemap submitted to Search Console.
 7. **Retirement-year comp-inflation investigation** — scoped research only
    (see below), no build commitment.
 8. **Pre-2010 data (back to 1996)** — parked; explicitly undecided, and it's
