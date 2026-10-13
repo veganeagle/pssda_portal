@@ -131,6 +131,16 @@ leaderboard, each backed by its own precomputed cube.
   services table (police, fire, paramedics, transit per resident), a "runs
   its own transit" flag, a tier 2 of ~7 areas, Other Public Service
   municipal bodies, and same-person raise comparisons per job.
+- **Inflation tab (live 2026-10-12)** — `/inflation`: the list with the 1996
+  threshold indexed to Ontario CPI (2025: 28,169 of 404,922 would remain; school
+  boards fall from 27.9% to 2.4% of the list, universities rise from 7.6% to
+  32.7%), and the 12 most common jobs' same-person pay change vs CPI. Ideas not
+  built: real median pay by job over time, the year each job crossed $100K, an
+  indexed Top Earners list, real raises by employer. Ontario population for
+  context (StatCan 17-10-0009-01, July 1): 11.08M (1996), 13.14M (2010), 16.22M
+  (2025).
+- **Navigation** — Regional, Metro Areas and Inflation could move under one
+  "Analysis" drop-down (like Sectors); discussed, not done.
 - **Subsectors fixed and extended upstream (2026-10-12)** — school boards
   are now four types (public/Catholic × English/French), Children's Aid
   Societies are classified, and Other Public Service is ~84% classified

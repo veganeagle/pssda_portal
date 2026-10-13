@@ -80,7 +80,7 @@ def terms():
 
 _SITEMAP_STATIC = [
     "home.index", "position.search", "employer.search", "employee.search", "top_earners.index", "regions.index",
-    "metro.index", "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
+    "metro.index", "inflation.index", "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 ]
 
 

@@ -52,6 +52,10 @@ SECTIONS = [
         ("Paid the same everywhere", "A job group whose median in all four regions is within 3% of each other."),
         ("Regional gap that moved", "The change in a job group's region-vs-Ontario figure over ten years, comparing the average of the first three years with the average of the last three, so one year of retroactive pay doesn't count as a trend."),
     ]),
+    ("Inflation", [
+        ("Indexed threshold", "The $100,000 disclosure threshold set in 1996, carried forward with Ontario's all-items consumer price index (annual average): about $132,000 in 2010 and $188,000 in 2025."),
+        ("Pay change vs inflation", "The median change in salary paid for disclosed employees in the same job in both years, compared with the change in Ontario's consumer price index over the same years. It follows the same people, so new hires and retirements don't move it."),
+    ]),
     ("Metro areas", [
         ("Metro area", "One of Ontario's 12 largest municipal areas: one or more census divisions, counting every employer in the Municipalities and Services sector based there, so an upper-tier region is counted with its cities and towns, and a single-tier city with its police service, transit commission, library board and other agencies."),
         ("Disclosed employees per 10,000 residents", "An area's disclosed employees divided by its 2021 Census population. Not a staffing ratio: it depends on which services the area runs itself and on how many of its staff earn $100,000 or more. For jobs where nearly everyone is over that line, such as constables and firefighters, it comes close to the job's full staffing level."),

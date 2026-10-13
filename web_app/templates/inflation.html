@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}The Sunshine List and inflation | OPSCI.ca{% endblock %}
+{% block description %}What Ontario's Sunshine List would look like if the 1996 $100,000 threshold had kept pace with inflation, and whether the most common public-sector jobs have kept up with prices.{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <h1>The Sunshine List and inflation</h1>
+  <p class="lede">The $100,000 disclosure threshold was set in {{ threshold_year }} and has never been indexed. In {{ last.year }} dollars it would be about ${{ "{:,.0f}".format(last.threshold) }}. Most of the list's growth is pay drifting over a fixed line, not a surge in high earners.</p>
+</div>
+
+<div class="grid">
+  <div class="tile"><div class="label">{{ threshold_year }} threshold in {{ last.year }} dollars</div><div class="value mono">${{ "{:,.0f}".format(last.threshold) }}</div></div>
+  <div class="tile"><div class="label">Disclosed in {{ last.year }}</div><div class="value mono">{{ "{:,}".format(last.disclosed) }}</div></div>
+  <div class="tile accent"><div class="label">Over the indexed threshold</div><div class="value mono">{{ "{:,}".format(last.above) }} <span class="muted" style="font-size:0.6em;">({{ "{:.0%}".format(last.above / last.disclosed) }})</span></div></div>
+</div>
+
+<div class="panel">
+  <h2>Disclosed employees vs an indexed threshold <span class="sub">{{ first.year }}&ndash;{{ last.year }} &middot; salary paid &middot; Ontario CPI</span></h2>
+  <svg class="infl-chart" viewBox="0 0 {{ chart.w }} {{ chart.h }}" role="img" aria-label="Disclosed employees each year, split at the inflation-indexed threshold">
+    {% for t in chart.count_ticks %}
+    <line x1="{{ chart.left }}" x2="{{ chart.right }}" y1="{{ t.y }}" y2="{{ t.y }}" class="sc-grid"/>
+    <text x="{{ chart.left - 6 }}" y="{{ t.y + 3 }}" class="sc-label" text-anchor="end">{{ t.label }}</text>
+    {% endfor %}
+    {% for t in chart.dollar_ticks %}
+    <text x="{{ chart.right + 6 }}" y="{{ t.y + 3 }}" class="sc-label infl-line-label">{{ t.label }}</text>
+    {% endfor %}
+    {% for b in chart.bars %}
+    <g>
+      <title>{{ b.year }}: {{ "{:,}".format(b.disclosed) }} disclosed; {{ "{:,}".format(b.above) }} at or over ${{ "{:,.0f}".format(b.threshold) }}, {{ "{:,}".format(b.below) }} under it</title>
+      <rect x="{{ b.x }}" y="{{ b.y_total }}" width="{{ b.w }}" height="{{ b.y_above - b.y_total }}" class="infl-below"/>
+      <rect x="{{ b.x }}" y="{{ b.y_above }}" width="{{ b.w }}" height="{{ chart.bottom - b.y_above }}" class="infl-above"/>
+    </g>
+    <text x="{{ b.cx }}" y="{{ b.y_above - 4 }}" class="infl-above-label" text-anchor="middle">{{ b.above_label }}</text>
+    <text x="{{ b.cx }}" y="{{ chart.bottom + 16 }}" class="sc-label" text-anchor="middle">{{ "'{:02d}".format(b.year % 100) }}</text>
+    {% endfor %}
+    <polyline points="{{ chart.line }}" class="infl-line"/>
+    {% for b in chart.bars %}<circle cx="{{ b.cx }}" cy="{{ b.y_line }}" r="2.6" class="infl-dot"/>{% endfor %}
+  </svg>
+  <div class="trend-legend">
+    <span><span class="metro-key infl-above-key"></span>Would still be disclosed (at or over the indexed threshold)</span>
+    <span><span class="metro-key infl-below-key"></span>Disclosed only because the threshold never moved</span>
+    <span><span class="infl-line-key"></span>{{ threshold_year }} $100,000 in each year's dollars (right axis)</span>
+  </div>
+  <p class="muted" style="margin-top:0.5rem;">
+    In {{ first.year }}, the {{ threshold_year }} threshold was worth ${{ "{:,.0f}".format(threshold_2010) }} and {{ "{:.0%}".format(first.above / first.disclosed) }} of the people disclosed ({{ "{:,}".format(first.above) }}) earned at least that.
+    By {{ last.year }} the list had grown {{ "{:.1f}".format(last.disclosed / first.disclosed) }}&times;, while the number over the indexed line grew {{ "{:.1f}".format(last.above / first.above) }}&times;, to {{ "{:,}".format(last.above) }}.
+    The threshold is carried forward with Ontario's all-items consumer price index (Statistics Canada table 18-10-0005-01, annual average). The disclosure counts salary paid, so overtime and one-time payments count toward it.
+  </p>
+</div>
+
+<div class="panel">
+  <h2>Who would still be disclosed, by sector <span class="sub">FY{{ last.year }} &middot; $100,000 vs ${{ "{:,.0f}".format(last.threshold) }} (indexed)</span></h2>
+  <div class="infl-sectors">
+    <div class="infl-sector-row infl-sector-head">
+      <span>Sector</span><span></span>
+      <span class="num">Disclosed</span><span class="num">Over indexed</span><span class="num">Share of list<br>$100K &rarr; indexed</span>
+    </div>
+    {% for s in sectors %}
+    <div class="infl-sector-row">
+      <span class="infl-sector-name" title="{{ (s.sector_name or s.sector_id)|proper }}">{{ (s.sector_name or s.sector_id)|proper }}</span>
+      <span class="infl-sector-track" title="{{ '{:,}'.format(s.above) }} of {{ '{:,}'.format(s.disclosed) }} ({{ '{:.0%}'.format(s.pct_kept) }}) earned at least ${{ '{:,.0f}'.format(last.threshold) }}">
+        <span class="infl-sector-bar" style="width:{{ s.pct_bar }}%;"></span>
+        <span class="infl-sector-kept" style="width:{{ s.pct_above }}%;"></span>
+      </span>
+      <span class="num mono">{{ "{:,}".format(s.disclosed) }}</span>
+      <span class="num mono infl-kept-n">{{ "{:,}".format(s.above) }} <span class="muted">({{ "{:.0%}".format(s.pct_kept) }})</span></span>
+      <span class="num mono">{{ "{:.1%}".format(s.share) }} &rarr; <strong>{{ "{:.1%}".format(s.share_above) }}</strong></span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="trend-legend">
+    <span><span class="metro-key infl-above-key"></span>At or over the indexed threshold</span>
+    <span><span class="metro-key infl-below-key"></span>Disclosed at $100,000 but under the indexed threshold</span>
+  </div>
+  <p class="muted" style="margin-top:0.5rem;">Bars are drawn to one scale, so a sector's bar length is its number of disclosed employees. Share of list is each sector's share of everyone disclosed at $100,000, and of everyone at or over the indexed threshold.</p>
+</div>
+
+<div class="panel">
+  <h2>Have the most common jobs kept up? <span class="sub">same person, same job, both years &middot; vs Ontario CPI</span></h2>
+  <p class="muted" style="margin:0 0 0.6rem;">
+    {% for w in jobs.windows %}{{ w.start }}&ndash;{{ w.end }}: prices rose {{ "{:.1%}".format(w.cpi) }}; {{ behind[loop.index0] }} of these {{ jobs.jobs|length }} jobs fell behind.{% if not loop.last %} &middot; {% endif %}{% endfor %}
+  </p>
+  <div class="history-wrap">
+  <table class="result-table">
+    <tr>
+      <th>Job</th><th>Sector</th><th class="num">Disclosed Emp. {{ jobs.end }}</th><th class="num">Median {{ jobs.end }}</th>
+      {% for w in jobs.windows %}<th class="num">Pay change<br>{{ w.start }}&ndash;{{ w.end % 100 }}</th><th class="num">vs inflation<br>({{ "{:+.1%}".format(w.cpi) }})</th>{% endfor %}
+    </tr>
+    {% for j in jobs.jobs %}
+    <tr>
+      <td><strong>{{ j.title_norm|proper }}</strong></td>
+      <td class="muted">{{ (j.sector_name or j.sector_id)|proper }}</td>
+      <td class="num mono">{{ "{:,}".format(j.headcount) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(j.median_salary) }}</td>
+      {% for w in j.windows %}
+      {% if w.enough %}
+      <td class="num mono" title="{{ '{:,}'.format(w.n) }} disclosed employees in this job in both years">{{ "{:+.1%}".format(w.change) }}</td>
+      <td class="num"><span class="chip {{ 'chip-pos' if w.real >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(w.real) }}</span></td>
+      {% else %}
+      <td class="num muted" colspan="2">Too few to compare</td>
+      {% endif %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+  </div>
+  <p class="muted" style="margin-top:0.5rem;">
+    Pay change is the median change in salary paid for disclosed employees in the same job in both years (fewer than {{ min_compared }} in both years isn't shown); "vs inflation" is that change after Ontario CPI over the same years.
+    It follows the same people, so new hires and retirements don't move it. Because they were already over $100,000 in the start year, most were at the top of their pay grid: their change mostly reflects negotiated scale increases, not step increases. University faculty also get annual merit and progress-through-the-ranks increases, which is part of why they lead.
+    Retroactive pay can land in the end year or just before it, and salary paid includes overtime.
+  </p>
+</div>
+{% endblock %}
