@@ -18,6 +18,7 @@ Key facts for interpreting the data:
 - [Employers]({{ url_for('employer.search', _external=True) }}): every employer on the list, with sector overviews
 - [Top Earners]({{ url_for('top_earners.index', _external=True) }}): highest disclosed salaries by year, sector and position
 - [Regional Differences]({{ url_for('regions.index', _external=True) }}): location premiums by region, jobs paid the same everywhere, and regional pay gaps over ten years
+- [Metro Areas]({{ url_for('metro.index', _external=True) }}): Ontario's 12 largest municipal areas, each with all of its municipal employers; benchmark jobs and leadership pay compared across them
 - [Employees]({{ url_for('employee.search', _external=True) }}): search for individuals on the list
 
 ## Methodology and policies

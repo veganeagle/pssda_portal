@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Metro leadership: {{ role.label }} | OPSCI.ca{% endblock %}
+{% block description %}{{ role.label }} pay across Ontario's twelve largest metro areas, against the population each employer serves.{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('metro.index') }}">&larr; all metro areas</a></p>
+
+<div class="id-card">
+  <div>
+    <h1>Metro leadership: {{ role.label }}</h1>
+    <p class="role">Municipalities and Services &middot; FY{{ role.year }} &middot; highest-paid incumbent per employer</p>
+  </div>
+  <div class="tag-row">
+    <span class="tag">{{ role.people|length }} employers across the 12 metro areas</span>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Salary vs population served <span class="sub">FY{{ role.year }} &middot; population on a log scale</span></h2>
+  <svg class="metro-scatter" viewBox="0 0 {{ scatter.w }} {{ scatter.h }}" role="img" aria-label="Salary against population served">
+    {% for t in scatter.y_ticks %}
+    <line x1="{{ scatter.left }}" x2="{{ scatter.right }}" y1="{{ t.y }}" y2="{{ t.y }}" class="sc-grid"/>
+    <text x="{{ scatter.left - 6 }}" y="{{ t.y + 3 }}" class="sc-label" text-anchor="end">{{ t.label }}</text>
+    {% endfor %}
+    {% for t in scatter.x_ticks %}
+    <line x1="{{ t.x }}" x2="{{ t.x }}" y1="{{ scatter.top }}" y2="{{ scatter.bottom }}" class="sc-grid"/>
+    <text x="{{ t.x }}" y="{{ scatter.bottom + 16 }}" class="sc-label" text-anchor="middle">{{ t.label }}</text>
+    {% endfor %}
+    {% for p in scatter.points %}
+    <a href="{{ url_for('employee.profile_page', employee_id=p.employee_id, back=request.path) }}">
+      <circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="5" class="sc-dot metro-{{ p.region|lower }}"><title>{{ p.employer_name|proper }} ({{ p.area_name }}) · ${{ "{:,.0f}".format(p.salary_paid) }} · pop. {{ "{:,.0f}".format(p.population) }}</title></circle>
+    </a>
+    {% endfor %}
+  </svg>
+  <div class="trend-legend">
+    <span><span class="metro-key metro-central"></span>Central</span>
+    <span><span class="metro-key metro-west"></span>West</span>
+    <span><span class="metro-key metro-east"></span>East</span>
+    <span>Hover a dot for the employer; click for the person</span>
+  </div>
+  <p class="muted" style="margin-top:0.5rem;">Plotted: municipal governments themselves{{ " and police services" if "police" in role.slug }}. Agencies and boards (transit, housing, fire or paramedic authorities) are listed in the table but not plotted, since they don't serve a population of their own size. Population served is the 2021 Census population of the employer's municipality; for a region or county, all of its municipalities. A regional police service or health unit serves the whole region.</p>
+</div>
+
+<div class="panel">
+  <h2>Every employer <span class="sub">FY{{ role.year }} &middot; ranked by salary</span></h2>
+  <table class="result-table" data-collapse="15">
+    <tr><th>Name</th><th>Employer</th><th>Area</th><th>Title as disclosed</th><th class="num">Population served</th><th class="num">Salary</th><th class="num">Total comp</th></tr>
+    {% for p in role.people %}
+    <tr>
+      <td><a href="{{ url_for('employee.profile_page', employee_id=p.employee_id, back=request.path) }}">{{ (p.first_name ~ ' ' ~ p.last_name)|proper }}</a></td>
+      <td><a href="{{ url_for('employer.profile_page', employer_id=p.employer_id, back=request.path) }}">{{ p.employer_name|proper }}</a></td>
+      <td><a href="{{ url_for('metro.area', slug=p.area_slug) }}">{{ p.area_name }}</a></td>
+      <td class="muted">{{ p.job_title|proper }}</td>
+      <td class="num mono">{{ "{:,.0f}".format(p.population) if p.population else "—" }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(p.salary_paid) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(p.total_comp) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

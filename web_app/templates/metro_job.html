@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Metro benchmark: {{ job.title_norm|proper }} | OPSCI.ca{% endblock %}
+{% block description %}{{ job.title_norm|proper }} pay in Ontario's twelve largest metro areas: median, middle 80% and disclosed employees per 10,000 residents.{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('metro.index') }}">&larr; all metro areas</a></p>
+
+<div class="id-card">
+  <div>
+    <h1>Metro benchmark: {{ job.title_norm|proper }}</h1>
+    <p class="role">
+      <a href="{{ url_for('position.profile_page', sector_id='8', title_norm=job.title_norm, back=request.path) }}">{{ job.title_norm|proper }} province-wide</a>
+      &middot; Municipalities and Services &middot; FY{{ job.year }}
+    </p>
+  </div>
+  <div class="tag-row">
+    <span class="tag">Ontario municipal median ${{ "{:,.0f}".format(job.ontario.median) }}</span>
+    <span class="tag">{{ "{:,}".format(job.ontario.n) }} disclosed employees in Ontario</span>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>By metro area <span class="sub">FY{{ job.year }} &middot; salary paid &middot; sorted by median</span></h2>
+  <div class="range-chart metro-range">
+    <div class="range-row range-head">
+      <span class="range-label">Area</span>
+      <span class="metro-range-n muted">Disclosed Emp.</span>
+      <span class="metro-range-n muted">Per 10,000 residents</span>
+      <span></span>
+      <span class="range-diff muted">Median</span>
+    </div>
+    {% for a in job.areas %}
+    <div class="range-row">
+      <span class="range-label"><a href="{{ url_for('metro.area', slug=a.slug) }}">{{ a.name }}</a></span>
+      <span class="metro-range-n mono">{{ "{:,}".format(a.n) }}</span>
+      <span class="metro-range-n mono">{{ "{:.1f}".format(a.per_10k) }}</span>
+      <div class="range-track">
+        <span class="range-ontario" style="left:{{ chart.ontario_pos }}%;"></span>
+        {% if a.enough %}
+        <span class="range-bar" style="left:{{ a.bar_left }}%; width:{{ a.bar_width }}%;" title="P10 ${{ '{:,.0f}'.format(a.p10) }} · P90 ${{ '{:,.0f}'.format(a.p90) }}"></span>
+        <span class="range-median" style="left:{{ a.median_pos }}%;" title="Median ${{ '{:,.0f}'.format(a.median) }}"></span>
+        <span class="metro-range-end mono" style="right:calc(100% - {{ a.bar_left }}% + 0.3rem);">{{ "{:.0f}".format(a.p10 / 1000) }}K</span>
+        <span class="metro-range-end mono" style="left:calc({{ a.bar_left + a.bar_width }}% + 0.3rem);">{{ "{:.0f}".format(a.p90 / 1000) }}K</span>
+        {% else %}
+        <span class="range-few muted">Fewer than {{ min_benchmark_n }} disclosed employees</span>
+        {% endif %}
+      </div>
+      <span class="range-diff mono">{% if a.enough %}${{ "{:,.0f}".format(a.median) }}{% endif %}</span>
+    </div>
+    {% endfor %}
+    <div class="range-row range-axis">
+      <span class="range-label"></span><span></span><span></span>
+      <div class="range-track">
+        {% for t in chart.ticks %}<span class="range-tick mono" style="left:{{ t.pos }}%;">{{ t.label }}</span>{% endfor %}
+      </div>
+      <span class="range-diff"></span>
+    </div>
+  </div>
+  <div class="trend-legend">
+    <span><span class="sw bars" style="background:var(--accent);"></span>Middle 80% (P10&ndash;P90), ends labelled</span>
+    <span><span class="range-key-median"></span>Median</span>
+    <span><span class="range-key-ontario"></span>Ontario municipal median ${{ "{:,.0f}".format(job.ontario.median) }}</span>
+  </div>
+  <p class="muted" style="margin-top:0.5rem;">
+    Only people paid $100,000 or more are disclosed, so these figures describe the disclosed part of each workforce.
+    {% if job.near_complete %}Nearly everyone in this job earns over $100,000, so disclosed employees per 10,000 residents is close to the job's full staffing level (areas policed partly by the OPP count only their own service).
+    {% else %}Many people in this job earn under $100,000, so disclosed employees per 10,000 residents partly reflects pay, not just staffing: where the job pays more, more of its staff cross the line.{% endif %}
+    Salary paid includes overtime.
+  </p>
+</div>
+{% endblock %}

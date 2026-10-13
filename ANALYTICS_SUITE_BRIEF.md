@@ -124,13 +124,13 @@ leaderboard, each backed by its own precomputed cube.
   Named succession stays parked unless a backtest (would the actual 2025
   successor rank top 10 on 2024 data?) shows it works.
 
-- **Metro areas (prototype, 2026-10-12)** — `/metro` and `/metro/<slug>`,
-  unlinked and noindex: Ontario's 12 largest municipal areas (census
-  divisions), with benchmark jobs vs Ontario, same-person raises and
-  leadership pay. Not yet linked from the header; decide before exposing.
-  Possible next steps: a tier 2 of ~7 areas, Other Public Service municipal
-  bodies (conservation authorities, housing, DSSABs), and comparing two
-  areas side by side.
+- **Metro Areas tab (live 2026-10-12)** — `/metro`: Ontario's 12 largest
+  municipal areas (census divisions), an area page each, a benchmark page per
+  job (13, P10–P90 range bars across the areas) and a leadership page per
+  role (9, salary vs population served). Held for later: a front-line
+  services table (police, fire, paramedics, transit per resident), a "runs
+  its own transit" flag, a tier 2 of ~7 areas, Other Public Service
+  municipal bodies, and same-person raise comparisons per job.
 - **Subsectors fixed and extended upstream (2026-10-12)** — school boards
   are now four types (public/Catholic × English/French), Children's Aid
   Societies are classified, and Other Public Service is ~84% classified

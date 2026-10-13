@@ -243,8 +243,87 @@ def area_leadership(slug: str) -> list[dict]:
                 seen.add(r["employer_id"])
                 people.append(r)
         if people:
-            groups.append({"label": label, "people": people})
+            groups.append({"label": label, "slug": role_slug(label), "people": people})
     return groups
+
+
+# ---- One job or leadership role across all metro areas ----
+
+GOVERNMENT_PREFIXES = ("CITY OF", "TOWN OF", "TOWNSHIP OF", "MUNICIPALITY OF", "REGIONAL MUNICIPALITY OF", "COUNTY OF",
+                       "UNITED COUNTIES OF", "VILLAGE OF", "DISTRICT MUNICIPALITY OF")
+
+
+def _letters(s: str) -> str:
+    return "".join(ch for ch in s.upper() if ch.isalnum())
+
+
+def is_government(employer_name: str, municipality: str | None) -> bool:
+    """The municipal government itself ("CITY OF WATERLOO"), not one of its
+    agencies or boards ("CITY OF TORONTO TORONTO ZOO")."""
+    return bool(municipality) and _letters(employer_name) in {_letters(f"{p} {municipality}") for p in GOVERNMENT_PREFIXES}
+
+
+def role_slug(label: str) -> str:
+    return label.lower().replace(" / ", "-").replace(" ", "-")
+
+
+ROLE_BY_SLUG = {role_slug(label): (label, titles) for label, titles in LEADERSHIP_ROLES}
+
+
+@cache
+def job_comparison(title: str) -> dict | None:
+    """One benchmark job in every metro area and Ontario-wide: disclosed
+    employees, per 10,000 residents, P10 / median / P90."""
+    if title not in dict(BENCHMARK_ROLES):
+        return None
+    rows = records(query(f"""
+        WITH a(slug, geographic_area) AS (VALUES {_AREA_VALUES}),
+        y AS (SELECT MAX(year) AS y FROM top_earners_history),
+        t AS (SELECT t.salary_paid, a.slug FROM top_earners_history t JOIN employer_wide w USING (employer_id)
+              LEFT JOIN a USING (geographic_area)
+              WHERE t.year = (SELECT y FROM y) AND t.sector_id = ? AND t.title_norm = ?)
+        SELECT CASE WHEN GROUPING(slug) = 1 THEN 'ontario' ELSE slug END AS slug, (SELECT y FROM y) AS year,
+               COUNT(*)::INTEGER AS n, QUANTILE_CONT(salary_paid, 0.1) AS p10, MEDIAN(salary_paid) AS median,
+               QUANTILE_CONT(salary_paid, 0.9) AS p90
+        FROM t GROUP BY GROUPING SETS ((slug), ())
+    """, [MUNICIPAL_SECTOR, title]))
+    by_slug = {r["slug"]: r for r in rows}
+    areas = []
+    for slug, name, region, _, pop in AREAS:
+        r = by_slug.get(slug, {"n": 0})
+        areas.append(r | {"slug": slug, "name": name, "region": region, "per_10k": r["n"] / pop * 10_000,
+                          "enough": r["n"] >= MIN_BENCHMARK_N})
+    areas.sort(key=lambda r: (not r["enough"], -(r.get("median") or 0)))
+    return {"title_norm": title, "year": by_slug["ontario"]["year"], "ontario": by_slug["ontario"], "areas": areas,
+            "near_complete": dict(BENCHMARK_ROLES)[title]}
+
+
+@cache
+def role_comparison(slug: str) -> dict | None:
+    """One leadership role across the metro areas: the highest-paid incumbent
+    per employer, with the population of the municipality the employer serves."""
+    if slug not in ROLE_BY_SLUG:
+        return None
+    label, titles = ROLE_BY_SLUG[slug]
+    rows = records(query(f"""
+        WITH a(slug, geographic_area) AS (VALUES {_AREA_VALUES})
+        SELECT t.employee_id, t.first_name, t.last_name, t.job_title, t.employer_id, t.employer_name,
+               t.salary_paid, t.total_comp, t.year, w.population, w.municipality, a.slug AS area_slug
+        FROM top_earners_history t JOIN employer_wide w USING (employer_id) JOIN a USING (geographic_area)
+        WHERE t.year = (SELECT MAX(year) FROM top_earners_history) AND t.sector_id = ?
+          AND t.title_norm IN ({_placeholders(titles)})
+        ORDER BY t.salary_paid DESC
+    """, [MUNICIPAL_SECTOR] + list(titles)))
+    seen, people = set(), []
+    for r in rows:
+        if r["employer_id"] not in seen:
+            seen.add(r["employer_id"])
+            people.append(r | {"area_name": _SLUGS[r["area_slug"]][0], "region": _SLUGS[r["area_slug"]][1],
+                               # Plotted against population served: the municipal government
+                               # itself, or for police roles the police service.
+                               "plotted": is_government(r["employer_name"], r["municipality"])
+                                          or ("POLICE" in titles[0] and "POLICE" in r["employer_name"])})
+    return {"slug": slug, "label": label, "year": rows[0]["year"] if rows else None, "people": people}
 
 
 if __name__ == "__main__":

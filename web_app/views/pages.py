@@ -2,6 +2,7 @@ from flask import Blueprint, Response, current_app, render_template, send_from_d
 
 from access.employer_profile import list_employers_for_filter
 from access.home_dashboard import get_home_dashboard
+from access.metro_areas import AREAS
 from access.sector_profile import list_sectors_for_picker
 from web_app.data_dictionary import SECTIONS, TERMS
 
@@ -79,7 +80,7 @@ def terms():
 
 _SITEMAP_STATIC = [
     "home.index", "position.search", "employer.search", "employee.search", "top_earners.index", "regions.index",
-    "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
+    "metro.index", "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 ]
 
 
@@ -97,6 +98,7 @@ def robots_txt():
 def sitemap_xml():
     urls = [url_for(endpoint, _external=True) for endpoint in _SITEMAP_STATIC]
     urls += [url_for("sector.profile_page", sector_id=s["sector_id"], _external=True) for s in list_sectors_for_picker()]
+    urls += [url_for("metro.area", slug=a[0], _external=True) for a in AREAS]
     urls += [url_for("employer.profile_page", employer_id=e["employer_id"], _external=True)
              for e in list_employers_for_filter(active_only=False)]
     return Response(render_template("sitemap.xml", urls=urls), mimetype="application/xml")

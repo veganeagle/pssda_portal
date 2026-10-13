@@ -223,6 +223,18 @@ button:hover, .btn:hover{filter:brightness(1.05);}
 .metro-lake{position:absolute; left:calc(var(--tw) * var(--col)); top:calc(var(--th) * var(--row)); font-size:0.7rem; font-style:italic; color:var(--mute); white-space:nowrap;}
 .metro-central{--tile:#2f6f6b;} .metro-west{--tile:#b8831e;} .metro-east{--tile:#8b5fb8;}
 @media (max-width:1120px){ .metro-map-panel{display:none;} }
+.metro-range .range-row{grid-template-columns:10rem 5.5rem 6.5rem minmax(0,1fr) 6rem;}
+.metro-range .range-head{min-height:1.2rem; font-size:0.74rem;}
+.metro-range .range-head .range-label{font-weight:600; font-size:0.74rem; color:var(--mute);}
+.metro-range-n{text-align:right; font-size:0.8rem;}
+.metro-range-end{position:absolute; top:50%; transform:translateY(-50%); font-size:0.68rem; color:var(--mute); white-space:nowrap;}
+@media (max-width:720px){ .metro-range .range-row{grid-template-columns:6rem 3.5rem 3.5rem minmax(0,1fr) 4.6rem; gap:0.4rem;} .metro-range-end{display:none;} }
+.metro-scatter{width:100%; max-width:780px; height:auto; display:block; margin:0.4rem 0;}
+.sc-grid{stroke:var(--divider); stroke-width:1;}
+.sc-label{font-size:11px; fill:var(--mute); font-family:"JetBrains Mono", monospace;}
+.sc-dot{fill:var(--tile); fill-opacity:0.85; stroke:var(--surface); stroke-width:1.5;}
+.sc-dot:hover{fill-opacity:1; stroke:var(--text);}
+.metro-chips{display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.4rem;}
 
 .table-toolbar{display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap;}
 .table-toolbar button{

@@ -52,6 +52,12 @@ SECTIONS = [
         ("Paid the same everywhere", "A job group whose median in all four regions is within 3% of each other."),
         ("Regional gap that moved", "The change in a job group's region-vs-Ontario figure over ten years, comparing the average of the first three years with the average of the last three, so one year of retroactive pay doesn't count as a trend."),
     ]),
+    ("Metro areas", [
+        ("Metro area", "One of Ontario's 12 largest municipal areas: one or more census divisions, counting every employer in the Municipalities and Services sector based there, so an upper-tier region is counted with its cities and towns, and a single-tier city with its police service, transit commission, library board and other agencies."),
+        ("Disclosed employees per 10,000 residents", "An area's disclosed employees divided by its 2021 Census population. Not a staffing ratio: it depends on which services the area runs itself and on how many of its staff earn $100,000 or more. For jobs where nearly everyone is over that line, such as constables and firefighters, it comes close to the job's full staffing level."),
+        ("Benchmark job", "A job group found in most metro areas, compared across them by its median and middle 80% (10th to 90th percentile) of salary paid, against the same job group's median across all Ontario municipal employers."),
+        ("Population served", "On leadership comparisons, the 2021 Census population of the employer's municipality; for a region or county, all of its municipalities. Only municipal governments, and police services for police roles, are plotted against it."),
+    ]),
     ("Rankings and estimates", [
         ("Rank", "A person's position by total compensation among everyone disclosed in that year, within the province, a sector, an employer or a job group."),
         ("Peer standing", "A person's percentile by total compensation for the year within three groups: their employer, their job group at that employer, and their job group across the sector. Shown only for groups of three or more, and only when the job title maps to a job group."),

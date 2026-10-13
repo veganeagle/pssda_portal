@@ -1,7 +1,7 @@
 """Search-engine indexing policy, in one place.
 
 Indexable: the home page, the tab landing pages, sector dashboards,
-employer profiles, and the supporting text pages — and only in their plain
+employer profiles, metro area pages, and the supporting text pages — and only in their plain
 form (no filter/search query string; `back` is a navigation hint, not
 content). Everything else — individual employee profiles, position and
 employer+position pages, comparisons, filtered/search-result views — is
@@ -16,6 +16,7 @@ from flask import request
 INDEXABLE_ENDPOINTS = {
     "home.index",
     "position.search", "employer.search", "employee.search", "top_earners.index", "regions.index",
+    "metro.index", "metro.area",
     "sector.profile_page", "employer.profile_page",
     "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 }

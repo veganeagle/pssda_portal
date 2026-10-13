@@ -38,6 +38,35 @@
   </div>
 </div>
 
+<div class="panel-pair">
+<div class="panel">
+  <h2>Benchmark jobs <span class="sub">FY{{ year }} &middot; compare one job across the 12 areas</span></h2>
+  <table class="result-table">
+    <tr><th>Job</th><th class="num">Ontario median</th><th>Highest median</th></tr>
+    {% for j in jobs %}
+    <tr>
+      <td><a href="{{ url_for('metro.job', title_norm=j.title_norm) }}">{{ j.title_norm|proper }}</a></td>
+      <td class="num mono">${{ "{:,.0f}".format(j.ontario_median) }}</td>
+      <td>{{ j.top_name }} <span class="mono muted">${{ "{:,.0f}".format(j.top_median) }}</span></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+<div class="panel">
+  <h2>Leadership <span class="sub">FY{{ year }} &middot; pay against population served</span></h2>
+  <table class="result-table">
+    <tr><th>Role</th><th class="num">Employers</th><th>Highest paid</th></tr>
+    {% for r in roles %}
+    <tr>
+      <td><a href="{{ url_for('metro.role', slug=r.slug) }}">{{ r.label }}</a></td>
+      <td class="num mono">{{ r.employers }}</td>
+      <td>{{ r.top.employer_name|proper }} <span class="mono muted">${{ "{:,.0f}".format(r.top.salary_paid) }}</span></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+</div>
+
 <div class="panel">
   <h2>Largest metro areas <span class="sub">FY{{ year }} &middot; Municipalities and Services sector</span></h2>
   <div class="history-wrap">
