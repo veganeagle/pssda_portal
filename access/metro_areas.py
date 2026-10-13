@@ -81,7 +81,8 @@ BENCHMARK_ROLES = [
 ]
 MIN_BENCHMARK_N = 5  # below this an area's median is one or two people's pay
 
-# (label, Title_Norm values); every incumbent in the area is listed.
+# (label, Title_Norm values, the role's own service agency as employer-name
+# keywords); every incumbent in the area is listed.
 LEADERSHIP_ROLES = [
     ("Chief administrative officer", ("CAO", "CITY MANAGER")),
     ("Police chief", ("POLICE CHIEF",)),
@@ -93,6 +94,19 @@ LEADERSHIP_ROLES = [
     ("Clerk", ("CITY CLERK", "TOWN CLERK", "REGIONAL CLERK")),
     ("Mayor", ("MAYOR",)),
 ]
+# Scatter plots municipal governments plus each role's own service agency
+# (a police chief at a police service, a fire chief at a fire service).
+ROLE_AGENCY_KEYWORDS = {
+    "Police chief": ("POLICE",), "Deputy police chief": ("POLICE",), "Fire chief": ("FIRE",),
+    "Paramedic chief": ("PARAMEDIC", "EMERGENCY MEDICAL"), "Medical officer of health": ("HEALTH",),
+}
+# Joint agencies serving several municipalities: the geography step assigns
+# them one municipality or the whole upper tier. 2021 Census, municipalities.csv.
+AGENCY_POPULATION = {
+    "TOWN OF NEWMARKET CENTRAL YORK FIRE SERVICES": 87_942 + 62_057,  # Newmarket + Aurora
+    "SOUTH SIMCOE POLICE SERVICE": 43_326 + 42_880,  # Innisfil + Bradford West Gwillimbury
+    "COUNTY OF MIDDLESEX MIDDLESEX LONDON EMERGENCY MEDICAL SERVICES AUTHORITY": 422_324 + 78_110,  # London + Middlesex
+}
 PAY_GROWTH_YEARS = 10
 
 _SLUGS = {slug: (name, region, cds, pop) for slug, name, region, cds, pop in AREAS}
@@ -314,15 +328,17 @@ def role_comparison(slug: str) -> dict | None:
           AND t.title_norm IN ({_placeholders(titles)})
         ORDER BY t.salary_paid DESC
     """, [MUNICIPAL_SECTOR] + list(titles)))
+    agency = ROLE_AGENCY_KEYWORDS.get(label, ())
     seen, people = set(), []
     for r in rows:
         if r["employer_id"] not in seen:
             seen.add(r["employer_id"])
-            people.append(r | {"area_name": _SLUGS[r["area_slug"]][0], "region": _SLUGS[r["area_slug"]][1],
-                               # Plotted against population served: the municipal government
-                               # itself, or for police roles the police service.
-                               "plotted": is_government(r["employer_name"], r["municipality"])
-                                          or ("POLICE" in titles[0] and "POLICE" in r["employer_name"])})
+            people.append(r | {
+                "area_name": _SLUGS[r["area_slug"]][0], "region": _SLUGS[r["area_slug"]][1],
+                "population": AGENCY_POPULATION.get(r["employer_name"], r["population"]),
+                "plotted": is_government(r["employer_name"], r["municipality"])
+                           or any(k in r["employer_name"] for k in agency),
+            })
     return {"slug": slug, "label": label, "year": rows[0]["year"] if rows else None, "people": people}
 
 
