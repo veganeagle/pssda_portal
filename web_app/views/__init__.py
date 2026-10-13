@@ -3,6 +3,7 @@ from .compare import bp as compare_bp
 from .employee import bp as employee_bp
 from .employer import bp as employer_bp
 from .home import bp as home_bp
+from .metro import bp as metro_bp
 from .pages import bp as pages_bp
 from .position import bp as position_bp
 from .regions import bp as regions_bp

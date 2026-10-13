@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Ontario metro areas: municipal pay | OPSCI.ca{% endblock %}
+{% block description %}Disclosed municipal employees and salaries in Ontario's twelve largest metro areas, each counted with all of its municipal employers: regions, cities, towns, police, transit and library boards.{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <h1>Metro Areas</h1>
+  <p class="lede">Ontario's twelve largest municipal areas, each counted with all of its municipal employers: an upper-tier region with its cities and towns, or a single-tier city with its police service, transit commission, library board and other agencies. That makes Toronto, where one city runs everything, comparable with Peel, where the region and three municipalities split the work.</p>
+</div>
+
+<div class="panel metro-map-panel">
+  <h2>Southern Ontario <span class="sub">{{ "{:.0%}".format(covered / ontario_population) }} of Ontario's {{ "{:,}".format(ontario_population) }} residents (2021 Census) live in these {{ areas|length }} areas</span></h2>
+  <div class="metro-map">
+    <svg class="metro-water" viewBox="0 0 10 5.05" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="0,0 4.92,0 4.92,0.55 4.4,0.93 3.3,0.9 1.85,0.97 0.75,1.55 0,1.95"/>
+      <polygon points="6.05,2.2 8.4,2.05 8.95,2.5 8.25,3.3 6.6,3.75 5.15,3.85 5.05,3.05 5.97,2.97"/>
+      <polygon points="0.85,4.05 2.5,3.97 4.3,3.92 4.75,4.1 3.6,4.5 1.6,4.62 0.7,4.38"/>
+      <polyline class="metro-river" points="8.9,2.45 9.25,2.2 9.6,1.95 10,1.65"/>
+    </svg>
+    <span class="metro-lake" style="--col:0.9; --row:0.35;">Lake Huron</span>
+    <span class="metro-lake" style="--col:3.5; --row:0.3;">Georgian Bay</span>
+    <span class="metro-lake" style="--col:6.7; --row:3.05;">Lake Ontario</span>
+    <span class="metro-lake" style="--col:2.0; --row:4.2;">Lake Erie</span>
+    <span class="metro-lake" style="--col:9.05; --row:2.3;">St. Lawrence</span>
+    {% for a in areas %}
+    <a class="metro-tile metro-{{ a.region|lower }}" style="--col:{{ a.col }}; --row:{{ a.row }};" href="{{ url_for('metro.area', slug=a.slug) }}">
+      <span class="metro-tile-name">{{ a.short }}</span>
+      <span class="metro-tile-s">{{ "{:.1%}".format(a.population / ontario_population) }} ON pop.</span>
+      <span class="metro-tile-v mono">{{ "{:,}".format(a.headcount) }} / {{ a.employers }}</span>
+    </a>
+    {% endfor %}
+    <div class="metro-legend" style="--col:7.45; --row:3.9;">
+      <div class="metro-legend-row">
+        <span class="metro-key metro-central"></span>Central <span class="metro-key metro-west"></span>West <span class="metro-key metro-east"></span>East
+      </div>
+      <div class="metro-legend-note">Tile: area &middot; share of Ontario's population (2021) &middot; disclosed employees FY{{ year }} / municipal employers</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Largest metro areas <span class="sub">FY{{ year }} &middot; Municipalities and Services sector</span></h2>
+  <div class="history-wrap">
+  <table class="result-table metro-table">
+    <tr>
+      <th>Area</th><th>Region</th><th class="num">Employers</th><th class="num">Disclosed Emp.</th>
+      <th class="num">Per 10,000 residents</th><th class="num">Median salary</th><th class="num">Total disclosed salary</th>
+      <th>Largest employer</th><th class="num">Population</th>
+    </tr>
+    {% for a in areas %}
+    <tr>
+      <td><a href="{{ url_for('metro.area', slug=a.slug) }}"><strong>{{ a.name }}</strong></a></td>
+      <td>{{ a.region|proper }}</td>
+      <td class="num mono">{{ a.employers }}</td>
+      <td class="num mono bar-cell" style="background:linear-gradient(to right, color-mix(in srgb, var(--accent) 24%, transparent) {{ a.pct_of_max }}%, transparent {{ a.pct_of_max }}%);">{{ "{:,}".format(a.headcount) }}</td>
+      <td class="num mono">{{ "{:.1f}".format(a.per_10k) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(a.median_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(a.payroll / 1e6) }}M</td>
+      <td class="metro-largest"><a href="{{ url_for('employer.profile_page', employer_id=a.largest_id, back=request.path) }}" title="{{ a.largest_name|proper }}">{{ a.largest_name|proper }}</a> <span class="mono muted">({{ "{:,}".format(a.largest_headcount) }})</span></td>
+      <td class="num mono">{{ "{:,}".format(a.population) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  </div>
+  <p class="muted" style="margin-top:0.5rem;">
+    Each area is one or more census divisions; an employer belongs to the area where it's based. Only the Municipalities and Services sector is counted &mdash; conservation authorities, district social services boards and some housing corporations report under Other Public Service and aren't included.
+    Population is the 2021 Census (Statistics Canada). Disclosed employees per 10,000 residents depends on which services an area runs itself (Toronto runs its own transit system and housing company, for example) and on how many of its staff earn $100,000 or more, so it isn't a staffing ratio.
+  </p>
+</div>
+{% endblock %}

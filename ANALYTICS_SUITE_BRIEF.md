@@ -124,6 +124,19 @@ leaderboard, each backed by its own precomputed cube.
   Named succession stays parked unless a backtest (would the actual 2025
   successor rank top 10 on 2024 data?) shows it works.
 
+- **Metro areas (prototype, 2026-10-12)** — `/metro` and `/metro/<slug>`,
+  unlinked and noindex: Ontario's 12 largest municipal areas (census
+  divisions), with benchmark jobs vs Ontario, same-person raises and
+  leadership pay. Not yet linked from the header; decide before exposing.
+  Possible next steps: a tier 2 of ~7 areas, Other Public Service municipal
+  bodies (conservation authorities, housing, DSSABs), and comparing two
+  areas side by side.
+- **Subsectors fixed and extended upstream (2026-10-12)** — school boards
+  are now four types (public/Catholic × English/French), Children's Aid
+  Societies are classified, and Other Public Service is ~84% classified
+  (keyword rules plus a named override file). Not yet surfaced beyond the
+  employer-page tag: the sector-page subsector view is still open.
+
 ## Known data-quality findings from this pass (not yet acted on)
 
 - **Possible duplicate-entity split**: at least one example (Kevin Smith)
@@ -146,7 +159,8 @@ leaderboard, each backed by its own precomputed cube.
 *Status 2026-10-12:* the `Region` part of item 1 is done — a "By region"
 chart on position pages and a Regions tab (location premiums, regional gaps
 that moved, sectors by region); see `README.md` and `SUNSHINE.md` #4. The
-`SubSector` donut is still open. Items 3, 4 and 6 shipped at launch
+`SubSector` donut is still open (subsector data is now much better; see
+"What exists"). Items 3, 4 and 6 shipped at launch
 (Contact, About the data + Data dictionary, meta/OG tags).
 
 1. **Subsegment features** — the cheap part first: a `SubSector` donut and a

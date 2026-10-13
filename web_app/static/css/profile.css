@@ -200,6 +200,30 @@ button:hover, .btn:hover{filter:brightness(1.05);}
 .employer-results-table th:nth-child(3), .employer-results-table td:nth-child(3){width:15ch;}
 .employer-results-table th:nth-child(4), .employer-results-table td:nth-child(4){width:16ch;}
 
+.metro-table td{white-space:nowrap;}
+.metro-largest{max-width:16rem; overflow:hidden; text-overflow:ellipsis;}
+/* Metro tile map: hand-placed grid (10 x 4), one tile per area. */
+.metro-map{--tw:6.6rem; --th:4.4rem; --gap:0.35rem; position:relative; width:calc(var(--tw) * 10); height:calc(var(--th) * 5.05); margin:0.6rem 0 0.4rem;}
+.metro-water{position:absolute; inset:0; width:100%; height:100%;}
+.metro-water polygon{fill:color-mix(in srgb, #3f7fb8 16%, var(--surface)); stroke:color-mix(in srgb, #3f7fb8 35%, var(--surface)); stroke-width:1; vector-effect:non-scaling-stroke;}
+.metro-water .metro-river{fill:none; stroke:color-mix(in srgb, #3f7fb8 45%, var(--surface)); stroke-width:3; stroke-linecap:round; vector-effect:non-scaling-stroke;}
+.metro-legend{position:absolute; left:calc(var(--tw) * var(--col)); top:calc(var(--th) * var(--row)); width:calc(var(--tw) * 2.55); box-sizing:border-box;
+  padding:0.4rem 0.55rem; border:1px solid var(--border); border-radius:6px; background:var(--surface); font-size:0.74rem; line-height:1.35;}
+.metro-legend-row{display:flex; align-items:center; gap:0.35rem;}
+.metro-legend-row .metro-key:not(:first-child){margin-left:0.5rem;}
+.metro-key{display:inline-block; width:0.7rem; height:0.7rem; border-radius:2px; background:var(--tile);}
+.metro-legend-note{margin-top:0.3rem; color:var(--mute); font-size:0.68rem;}
+.metro-tile{position:absolute; left:calc(var(--tw) * var(--col)); top:calc(var(--th) * var(--row)); width:calc(var(--tw) - var(--gap)); height:calc(var(--th) - var(--gap));
+  box-sizing:border-box; padding:0.3rem 0.45rem; border-radius:6px; border-left:4px solid var(--tile); background:color-mix(in srgb, var(--tile) 14%, var(--surface));
+  text-decoration:none; color:var(--text); display:flex; flex-direction:column; justify-content:space-between; line-height:1.15;}
+.metro-tile:hover{background:color-mix(in srgb, var(--tile) 28%, var(--surface));}
+.metro-tile-name{font-weight:800; font-size:0.82rem; white-space:nowrap;}
+.metro-tile-v{font-size:0.78rem; white-space:nowrap;}
+.metro-tile-s{font-size:0.68rem; color:var(--mute); white-space:nowrap;}
+.metro-lake{position:absolute; left:calc(var(--tw) * var(--col)); top:calc(var(--th) * var(--row)); font-size:0.7rem; font-style:italic; color:var(--mute); white-space:nowrap;}
+.metro-central{--tile:#2f6f6b;} .metro-west{--tile:#b8831e;} .metro-east{--tile:#8b5fb8;}
+@media (max-width:1120px){ .metro-map-panel{display:none;} }
+
 .table-toolbar{display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap;}
 .table-toolbar button{
   font-family:inherit; font-size:0.76rem; font-weight:600; color:var(--mute);
@@ -229,8 +253,10 @@ button:hover, .btn:hover{filter:brightness(1.05);}
 .tag-row{display:flex; gap:0.4rem; flex-wrap:wrap;}
 
 .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:0.7rem;}
+.grid.grid-4{grid-template-columns:repeat(4, 1fr);}
 @media (max-width:720px){ .grid{grid-template-columns:1fr 1fr;} }
 @media (max-width:460px){ .grid{grid-template-columns:1fr;} }
+@media (max-width:720px){ .grid.grid-4{grid-template-columns:1fr 1fr;} }
 
 .tile{background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:0.55rem 0.8rem;}
 .tile .label{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--mute); font-weight:600; margin-bottom:0.2rem;}

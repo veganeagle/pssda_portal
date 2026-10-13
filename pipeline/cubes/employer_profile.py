@@ -88,6 +88,7 @@ def build_employer_wide(
         "subsector": ref["CanonicalSubSector"].reindex(employer_ids).values,
         "region": ref["Region"].reindex(employer_ids).values,
         "municipality": ref["Municipality"].reindex(employer_ids).values,
+        "geographic_area": ref["GeographicArea"].reindex(employer_ids).values,  # census division
         "population": population.reindex(employer_ids).values,
         "first_year_present": span.loc[employer_ids, "first_year_present"].astype(int).values,
         "last_year_present": span.loc[employer_ids, "last_year_present"].astype(int).values,

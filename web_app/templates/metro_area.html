@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ a.name }} municipal pay | OPSCI.ca{% endblock %}
+{% block description %}Disclosed municipal employees and salaries in {{ a.name }}: every municipal employer, benchmark jobs against Ontario, same-person raises and leadership pay.{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('metro.index') }}">&larr; all metro areas</a></p>
+
+<div class="id-card">
+  <div>
+    <h1>{{ a.name }}</h1>
+    <p class="role">{{ a.region|proper }} &middot; Municipalities and Services &middot; FY{{ year }}</p>
+  </div>
+  <div class="tag-row">
+    <span class="tag">{{ "{:,}".format(a.population) }} residents (2021 Census) &middot; #{{ a.population_rank }} of {{ a.areas }}</span>
+    <span class="tag">${{ "{:,.0f}".format(a.payroll / 1e6) }}M total disclosed salary</span>
+    <span class="tag">{{ a.employers }} municipal employers</span>
+  </div>
+</div>
+
+<div class="grid grid-4">
+  <div class="tile"><div class="label">Disclosed employees*</div><div class="value mono">{{ "{:,}".format(a.headcount) }}</div></div>
+  <div class="tile"><div class="label">Per 10,000 residents &middot; #{{ a.per_10k_rank }} of {{ a.areas }}</div><div class="value mono">{{ "{:.1f}".format(a.per_10k) }}</div></div>
+  <div class="tile"><div class="label">Median salary &middot; #{{ a.median_rank }} of {{ a.areas }}</div><div class="value mono">${{ "{:,.0f}".format(a.median_salary) }}</div></div>
+  <div class="tile"><div class="label">Disclosed salary per resident</div><div class="value mono">${{ "{:,.0f}".format(a.payroll_per_resident) }}</div></div>
+</div>
+
+<div class="panel">
+  <h2>Employers <span class="sub">FY{{ year }} &middot; ranked by disclosed employees</span></h2>
+  <table class="result-table" data-collapse="10">
+    <tr><th>Employer</th><th>Municipality</th><th class="num">Disclosed Emp.</th><th class="num">Share</th><th class="num">Median salary</th><th class="num">Avg. total comp</th><th class="num">Highest salary</th></tr>
+    {% for e in employers %}
+    <tr>
+      <td><a href="{{ url_for('employer.profile_page', employer_id=e.employer_id, back=request.path) }}">{{ e.employer_name|proper }}</a></td>
+      <td>{{ (e.municipality or '')|proper }}</td>
+      <td class="num mono">{{ "{:,}".format(e.headcount) }}</td>
+      <td class="num mono">{{ "{:.0%}".format(e.share) if e.share >= 0.01 else "<1%" }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.median_salary) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.avg_total_comp) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(e.max_salary) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="panel">
+  <h2>Benchmark jobs <span class="sub">FY{{ year }} &middot; {{ a.name }} median vs the same job's Ontario municipal median</span></h2>
+  <table class="result-table">
+    <tr><th>Job</th><th class="num">Disclosed Emp.</th><th class="num">{{ a.name }} median</th><th class="num">Ontario median</th><th class="num">Difference</th><th class="num">Rank among metro areas</th><th class="num">Per 10,000 residents</th></tr>
+    {% for b in benchmarks %}
+    <tr>
+      <td>{{ b.title_norm|proper }}</td>
+      <td class="num mono">{{ "{:,}".format(b.n) }}</td>
+      {% if b.enough %}
+      <td class="num mono">${{ "{:,.0f}".format(b.median) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(b.ontario_median) }}</td>
+      <td class="num"><span class="chip {{ 'chip-pos' if b.gap >= 0 else 'chip-neg' }}">{{ "{:+.1%}".format(b.gap) }}</span></td>
+      <td class="num mono">{{ b.rank }} of {{ b.of }}</td>
+      {% else %}
+      <td class="num muted" colspan="4">Fewer than {{ min_benchmark_n }} disclosed employees</td>
+      {% endif %}
+      <td class="num mono">{% if b.per_10k is not none %}{{ "{:.1f}".format(b.per_10k) }} <span class="muted">(#{{ b.per_10k_rank }} of {{ b.per_10k_of }})</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted" style="margin-top:0.5rem;">
+    Each job is compared with itself, never averaged across jobs. Rank is by median salary (1 = highest) among metro areas with {{ min_benchmark_n }} or more disclosed employees in the job.
+    Per 10,000 residents is shown only for jobs where nearly everyone earns $100,000 or more, so the disclosed count is close to the job's full headcount; it doesn't count areas or parts of areas policed by the OPP.
+    Jobs paid near $100,000 understate differences: where pay is lower, more employees fall under the line and aren't disclosed.
+  </p>
+</div>
+
+<div class="panel">
+  <h2>Same-person raises <span class="sub">{{ growth_chart.first_year }}&ndash;{{ growth_chart.last_year }} &middot; {{ a.name }} vs all Ontario municipal employers</span></h2>
+  <div class="region-lines">
+    <span class="rl-label rl-top mono">{{ growth_chart.top_label }}</span>
+    <span class="rl-label rl-bottom mono">{{ growth_chart.bottom_label }}</span>
+    <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+      <line x1="0" x2="100" y1="{{ growth_chart.baseline_y }}" y2="{{ growth_chart.baseline_y }}" class="rl-base"/>
+      <polyline points="{{ growth_chart.ontario }}" class="rl-other"><title>Ontario</title></polyline>
+      <polyline points="{{ growth_chart.area }}" class="rl-hi"><title>{{ a.name }}</title></polyline>
+    </svg>
+  </div>
+  <div class="rl-years mono"><span>{{ growth_chart.first_year }}</span><span>{{ growth_chart.last_year }}</span></div>
+  <div class="trend-legend">
+    <span><span class="sw" style="background:var(--accent);"></span>{{ a.name }}: {{ "{:+.1%}".format(growth.area_total) }} compounded</span>
+    <span><span class="sw" style="background:var(--mute);"></span>Ontario municipal: {{ "{:+.1%}".format(growth.ontario_total) }} compounded</span>
+  </div>
+  <table class="result-table" style="margin-top:0.6rem;" data-collapse="5">
+    <tr><th>Year</th><th class="num">{{ a.name }}</th><th class="num">Ontario</th><th class="num">Disclosed Emp. compared</th></tr>
+    {% for s in growth.series|reverse %}
+    <tr><td class="mono">{{ s.year }}</td><td class="num mono">{{ "{:+.1%}".format(s.area) }}</td><td class="num mono">{{ "{:+.1%}".format(s.ontario) }}</td><td class="num mono">{{ "{:,}".format(s.n) }}</td></tr>
+    {% endfor %}
+  </table>
+  <p class="muted" style="margin-top:0.5rem;">The average change in salary for disclosed employees in the same job at the same employer in two consecutive years, so it isn't moved by employees crossing the $100,000 line. Retroactive pay lands in the year it's paid, so one year can jump and the next dip.</p>
+</div>
+
+<div class="panel">
+  <h2>Leadership <span class="sub">FY{{ year }} &middot; highest-paid incumbent per employer</span></h2>
+  <table class="result-table">
+    <tr><th>Role</th><th>Name</th><th>Employer</th><th>Title as disclosed</th><th class="num">Salary</th><th class="num">Total comp</th></tr>
+    {% for g in leadership %}
+    {% for p in g.people %}
+    <tr>
+      <td>{% if loop.first %}<strong>{{ g.label }}</strong>{% endif %}</td>
+      <td><a href="{{ url_for('employee.profile_page', employee_id=p.employee_id, back=request.path) }}">{{ (p.first_name ~ ' ' ~ p.last_name)|proper }}</a></td>
+      <td>{{ p.employer_name|proper }}</td>
+      <td class="muted">{{ p.job_title|proper }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(p.salary_paid) }}</td>
+      <td class="num mono">${{ "{:,.0f}".format(p.total_comp) }}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
