@@ -4,6 +4,7 @@ from .employee import bp as employee_bp
 from .employer import bp as employer_bp
 from .home import bp as home_bp
 from .inflation import bp as inflation_bp
+from .insights import bp as insights_bp
 from .metro import bp as metro_bp
 from .pages import bp as pages_bp
 from .position import bp as position_bp

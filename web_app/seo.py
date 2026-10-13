@@ -16,7 +16,7 @@ from flask import request
 INDEXABLE_ENDPOINTS = {
     "home.index",
     "position.search", "employer.search", "employee.search", "top_earners.index", "regions.index",
-    "metro.index", "metro.area", "inflation.index",
+    "insights.index", "metro.index", "metro.area", "inflation.index",
     "sector.profile_page", "employer.profile_page",
     "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 }

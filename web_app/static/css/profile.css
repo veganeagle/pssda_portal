@@ -253,6 +253,15 @@ button:hover, .btn:hover{filter:brightness(1.05);}
 .infl-kept-n{color:#2f6aa0;}
 @media (max-width:820px){ .infl-sector-row{grid-template-columns:8rem minmax(0,1fr) 5rem; font-size:0.78rem;} .infl-sector-row > :nth-child(4), .infl-sector-row > :nth-child(5){display:none;} }
 .infl-line-key{display:inline-block; width:16px; height:0; border-top:2.2px solid #b8831e; margin-right:0.45em; vertical-align:middle;}
+.insight-card{display:block; text-decoration:none; color:var(--text); border-left:4px solid var(--accent); transition:background 0.15s;}
+.insight-card:hover{background:var(--surface-2);}
+.insight-head{display:flex; justify-content:space-between; align-items:baseline; gap:1rem;}
+.insight-head h2{font-size:1.2rem;}
+.insight-go{color:var(--accent); font-weight:800; white-space:nowrap;}
+.insight-hook{font-size:0.98rem; line-height:1.5; margin:0.3rem 0 0.7rem; max-width:900px;}
+.insight-stats .tile{background:var(--surface);}
+.insight-small{font-size:1rem;}
+.insight-more{color:var(--mute); font-size:0.84rem; margin:0.6rem 0 0;}
 .metro-chips{display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.4rem;}
 
 .table-toolbar{display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap;}

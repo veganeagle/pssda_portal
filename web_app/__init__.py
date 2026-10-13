@@ -8,7 +8,7 @@ from web_app.formatting import proper_case
 from web_app.rate_limit import limiter
 from web_app.seo import is_indexable
 from web_app.views import (
-    combo_bp, compare_bp, employee_bp, employer_bp, home_bp, inflation_bp, metro_bp, pages_bp, position_bp, regions_bp, sector_bp,
+    combo_bp, compare_bp, employee_bp, employer_bp, home_bp, inflation_bp, insights_bp, metro_bp, pages_bp, position_bp, regions_bp, sector_bp,
     top_earners_bp,
 )
 
@@ -28,6 +28,7 @@ def create_app():
     app.register_blueprint(regions_bp)
     app.register_blueprint(metro_bp)
     app.register_blueprint(inflation_bp)
+    app.register_blueprint(insights_bp)
     app.register_blueprint(combo_bp)
     app.register_blueprint(compare_bp)
     app.register_blueprint(pages_bp)

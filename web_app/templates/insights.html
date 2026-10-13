@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Insights: Ontario public-sector pay | OPSCI.ca{% endblock %}
+{% block description %}Analyses of Ontario's Sunshine List: what the list looks like with an inflation-indexed threshold, how Ontario's 12 largest metro areas compare, and which jobs pay more by region.{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <h1>Insights</h1>
+  <p class="lede">Analyses built on the full 2010&ndash;{{ inflation.year }} disclosure, linked across years. Each one looks past individual names to what the list says about public-sector pay.</p>
+</div>
+
+<a class="panel insight-card" href="{{ url_for('inflation.index') }}">
+  <div class="insight-head">
+    <h2>The Sunshine List and inflation</h2>
+    <span class="insight-go">Explore &rarr;</span>
+  </div>
+  <p class="insight-hook">The $100,000 line was set in 1996 and never indexed. Carried forward with inflation it would be ${{ "{:,.0f}".format(inflation.threshold) }} in {{ inflation.year }}, and only {{ "{:.0%}".format(inflation.above / inflation.disclosed) }} of today's list would still qualify.</p>
+  <div class="grid insight-stats">
+    <div class="tile"><div class="label">Disclosed in {{ inflation.year }}</div><div class="value mono">{{ "{:,}".format(inflation.disclosed) }}</div></div>
+    <div class="tile accent"><div class="label">Over the indexed threshold</div><div class="value mono">{{ "{:,}".format(inflation.above) }}</div></div>
+    <div class="tile"><div class="label">School boards' share of the list</div><div class="value mono">{{ "{:.0%}".format(inflation.schools.share) }} &rarr; {{ "{:.0%}".format(inflation.schools.share_above) }}</div></div>
+  </div>
+  <p class="insight-more">Also: universities rise from {{ "{:.0%}".format(inflation.universities.share) }} to {{ "{:.0%}".format(inflation.universities.share_above) }} of an indexed list, and {{ inflation.behind }} of the {{ inflation.jobs }} most common jobs have lost ground to prices since {{ inflation.since }}.</p>
+</a>
+
+<a class="panel insight-card" href="{{ url_for('metro.index') }}">
+  <div class="insight-head">
+    <h2>Metro Areas</h2>
+    <span class="insight-go">Explore &rarr;</span>
+  </div>
+  <p class="insight-hook">Ontario's {{ metro.areas }} largest municipal areas, home to {{ "{:.0%}".format(metro.share) }} of Ontarians, each counted with every municipal employer, so Toronto, where one city runs everything, compares fairly with Peel, where a region and three municipalities split the work.</p>
+  <div class="grid insight-stats">
+    <div class="tile"><div class="label">Highest constable median</div><div class="value mono">{{ metro.constable_top.name }} ${{ "{:,.0f}".format(metro.constable_top.median / 1000) }}K</div></div>
+    <div class="tile"><div class="label">Most constables per 10,000 residents</div><div class="value mono">{{ metro.constable_densest.name }} {{ "{:.1f}".format(metro.constable_densest.per_10k) }}</div></div>
+    <div class="tile"><div class="label">Highest-paid CAO</div><div class="value mono">{{ metro.cao.area_name }} ${{ "{:,.0f}".format(metro.cao.salary_paid / 1000) }}K</div></div>
+  </div>
+  <p class="insight-more">Also: 13 benchmark jobs compared across the areas, and 9 leadership roles plotted against the population they serve.</p>
+</a>
+
+<a class="panel insight-card" href="{{ url_for('regions.index') }}">
+  <div class="insight-head">
+    <h2>Regional differences</h2>
+    <span class="insight-go">Explore &rarr;</span>
+  </div>
+  <p class="insight-hook">Most public-sector jobs pay about the same anywhere in Ontario; a few pay noticeably more in one region. Each job is compared with itself, so a region full of high-paid specialists doesn't skew the result.</p>
+  <div class="grid insight-stats">
+    <div class="tile"><div class="label">Largest location premium</div><div class="value mono">+{{ "{:.0%}".format(regional.top.premium) }}</div></div>
+    <div class="tile"><div class="label">Job and region</div><div class="value insight-small">{{ regional.top.title_norm|proper }} ({{ regional.top.sector_name|proper }}), {{ regional.top.region|proper }}</div></div>
+    <div class="tile"><div class="label">Jobs paid the same in every region</div><div class="value mono">{{ regional.uniform|length }}</div></div>
+  </div>
+  <p class="insight-more">Paid the same everywhere (within 3%): {% for u in regional.uniform[:3] %}{{ u.title_norm|proper }}{{ ", " if not loop.last }}{% endfor %}, and more.</p>
+</a>
+{% endblock %}

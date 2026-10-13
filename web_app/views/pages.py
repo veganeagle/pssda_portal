@@ -80,13 +80,23 @@ def terms():
 
 _SITEMAP_STATIC = [
     "home.index", "position.search", "employer.search", "employee.search", "top_earners.index", "regions.index",
-    "metro.index", "inflation.index", "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
+    "insights.index", "metro.index", "inflation.index", "pages.about", "pages.about_the_data", "pages.data_dictionary", "pages.contact", "pages.privacy", "pages.terms",
 ]
 
 
 @bp.route("/favicon.ico")
 def favicon():
     return send_from_directory(current_app.static_folder, "favicon.ico", mimetype="image/vnd.microsoft.icon")
+
+
+# IndexNow (Bing and others): the key file proves the site owns submissions
+# made with this key. Public by design.
+INDEXNOW_KEY = "df01b820167bea6c4674318af118a7fb"
+
+
+@bp.route(f"/{INDEXNOW_KEY}.txt")
+def indexnow_key():
+    return Response(INDEXNOW_KEY, mimetype="text/plain")
 
 
 @bp.route("/robots.txt")
